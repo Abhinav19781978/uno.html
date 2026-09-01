@@ -94,7 +94,7 @@
   #arena-bg.blue-theme { background: radial-gradient(circle at 50% 45%, #0d2847 0%, #061426 55%, #02070f 100%); }
   #arena-bg.dark-theme { background: radial-gradient(circle at 50% 45%, #300636 0%, #150119 55%, #050007 100%); }
 
-  /* Ubisoft Polished Table Felt */
+  /* Table Stage */
   .table-stage {
     position: absolute;
     top: 48%;
@@ -206,6 +206,7 @@
     align-items: center;
     gap: 6px;
     white-space: nowrap;
+    z-index: 50;
   }
   .color-badge-dot {
     width: 10px;
@@ -466,8 +467,8 @@
     margin-top: 6px;
     -webkit-box-reflect: below -20px linear-gradient(transparent 40%, rgba(255,255,255,0.25));
   }
-  #opp-hand-left { transform: rotateY(35deg); }
-  #opp-hand-right { transform: rotateY(-35deg); }
+  #opp-hand-1 { transform: rotateY(35deg); }
+  #opp-hand-3 { transform: rotateY(-35deg); }
 
   .opp-stand-card {
     width: 46px;
@@ -722,23 +723,19 @@
 </head>
 <body>
 
-  <!-- Screen Flash -->
   <div id="flash-overlay"></div>
 
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
-    <!-- Table Felt Stage -->
     <div class="table-stage" id="table-stage">
       <div class="direction-ring-3d" id="dir-ring"></div>
     </div>
 
-    <!-- Center Discard Pile with Dynamic Recolor Aura -->
     <div id="discard-pile-3d">
       <div id="active-color-badge"><div class="color-badge-dot" id="badge-dot"></div><span id="badge-text">RED</span></div>
     </div>
 
-    <!-- Pickup Deck (Upper Left) -->
     <div id="draw-deck-3d" onclick="onDrawDeckClick()">
       <div class="deck-3d-stack">
         <div class="card-back-design" id="pickup-deck-back">
@@ -749,8 +746,6 @@
       </div>
     </div>
 
-    <!-- Seating Order: 0 (Bottom/You) -> 1 (Left/Shorty) -> 2 (Top/Archie) -> 3 (Right/Ringo) -->
-    <!-- Left Opponent (ID 1) -->
     <div class="player-spot" id="player-left">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Shorty</div>🐭</div>
@@ -759,7 +754,6 @@
       <div class="opponent-3d-hand" id="opp-hand-1"></div>
     </div>
 
-    <!-- Top Opponent (ID 2) -->
     <div class="player-spot" id="player-top">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Archie</div>🐱</div>
@@ -768,7 +762,6 @@
       <div class="opponent-3d-hand" id="opp-hand-2"></div>
     </div>
 
-    <!-- Right Opponent (ID 3) -->
     <div class="player-spot" id="player-right">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-3">Ringo</div>🐶</div>
@@ -777,7 +770,6 @@
       <div class="opponent-3d-hand" id="opp-hand-3"></div>
     </div>
 
-    <!-- Human Player Hand (ID 0 - Bottom) -->
     <div id="player-bottom">
       <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div>⚡</div>
@@ -788,23 +780,18 @@
       </div>
     </div>
 
-    <!-- Attack / Penalty Alert -->
     <div id="penalty-streak-box">ATTACK! +4</div>
 
-    <!-- Center Screen VFX -->
     <div id="center-vfx-overlay">
       <div id="vfx-graphic-container"></div>
       <div class="vfx-banner-txt" id="vfx-text">REVERSE!</div>
     </div>
 
-    <!-- UNO Shout -->
     <button id="uno-btn" onclick="callUno()">UNO!</button>
 
-    <!-- Flying Card Transient Layer -->
     <div id="fly-animation-layer"></div>
   </div>
 
-  <!-- Lobby Screen -->
   <div id="lobby-screen">
     <div class="title-logo">UNO</div>
     <div class="lobby-card">
@@ -838,7 +825,6 @@
     </div>
   </div>
 
-  <!-- Color Selector Modal -->
   <div id="color-picker-modal">
     <div class="color-wheel" id="color-picker-wheel"></div>
   </div>
@@ -941,7 +927,7 @@ let GameState = {
   discardRotations: [],
   players: [],
   turnIndex: 0,
-  direction: 1, // +1: Clockwise (0 -> 1 -> 2 -> 3 -> 0), -1: Counter-Clockwise (0 -> 3 -> 2 -> 1 -> 0)
+  direction: 1, // +1: Clockwise, -1: Counter-Clockwise
   stackedDrawCount: 0,
   currentColor: 'red',
   unoCalledPlayers: new Set(),
@@ -951,9 +937,6 @@ let GameState = {
   pendingWildCard: null
 };
 
-/**
- * COLOR MAPPER
- */
 const COLOR_HEX = {
   red: '#ea2323',
   blue: '#0076e6',
@@ -1260,7 +1243,7 @@ function triggerFlip3DTransition() {
   const flash = document.getElementById('flash-overlay');
 
   flash.classList.remove('flash');
-  void flash.offsetWidth; // force reflow
+  void flash.offsetWidth;
   flash.classList.add('flash');
 
   viewport.classList.remove('flip-tumble');
@@ -1457,7 +1440,7 @@ function initGameEngine() {
   GameState.discardRotations = [];
   GameState.flipSide = 'light';
   GameState.stackedDrawCount = 0;
-  GameState.direction = 1; // Clockwise start
+  GameState.direction = 1;
   GameState.turnIndex = 0;
 
   for (let i = 0; i < 7; i++) {
@@ -1502,7 +1485,7 @@ function updateTheme() {
 }
 
 /**
- * GAME PLAY LOGIC
+ * GAME PLAY RULES
  */
 function canPlayCard(card) {
   const topCard = GameState.discardPile[GameState.discardPile.length - 1];
@@ -1542,7 +1525,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
   if (face.color.startsWith('wild')) {
     effectiveColor = chosenColor || (GameState.flipSide === 'light' ? 'red' : 'pink');
     GameState.currentColor = effectiveColor;
-    card.chosenColor = effectiveColor; // Recolor top discard
+    card.chosenColor = effectiveColor;
   } else {
     GameState.currentColor = face.color;
     delete card.chosenColor;
@@ -1577,7 +1560,7 @@ function handleCardAction(face, playerId) {
   else if (val === '+10') { GameState.stackedDrawCount += 10; triggerCenterSpecialVFX('penalty'); }
 
   if (val === 'reverse' || val === 'wild_rev_+4') {
-    GameState.direction *= -1; // Invert order
+    GameState.direction *= -1;
     triggerCenterSpecialVFX('reverse', 'REVERSE!');
   }
 
@@ -1591,8 +1574,20 @@ function handleCardAction(face, playerId) {
     return;
   }
 
+  // FIXED: FLIP CARD ACTION & CURRENT COLOR UPDATE
   if (val === 'FLIP') {
     GameState.flipSide = GameState.flipSide === 'light' ? 'dark' : 'light';
+    const topCard = GameState.discardPile[GameState.discardPile.length - 1];
+    const newTopFace = getCardFace(topCard);
+    
+    // Automatically adopt the new side's color so subsequent players can play matching cards
+    if (newTopFace.color.startsWith('wild')) {
+      GameState.currentColor = GameState.flipSide === 'light' ? 'red' : 'pink';
+    } else {
+      GameState.currentColor = newTopFace.color;
+    }
+    delete topCard.chosenColor;
+
     triggerCenterSpecialVFX('flip', `FLIPPED TO ${GameState.flipSide.toUpperCase()}!`);
   }
 
@@ -1600,7 +1595,7 @@ function handleCardAction(face, playerId) {
 }
 
 /**
- * TRUE CIRCULAR TURN ADVANCEMENT (0 -> 1 -> 2 -> 3 -> 0)
+ * CIRCULAR TURN ADVANCEMENT (0 -> 1 -> 2 -> 3 -> 0)
  */
 function nextTurn() {
   do {
@@ -1755,7 +1750,7 @@ function openColorPicker() {
 }
 
 /**
- * RENDERING: ROTATION, ACTIVE COLOR AURA & DISCARD RECOLORING
+ * RENDERING
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
@@ -1769,7 +1764,6 @@ function renderGame() {
 
   // Render Discard Clustered Stack
   const discardBox = document.getElementById('discard-pile-3d');
-  // Keep the active color badge child
   const badgeEl = document.getElementById('active-color-badge');
   discardBox.innerHTML = '';
   discardBox.appendChild(badgeEl);
@@ -1779,7 +1773,6 @@ function renderGame() {
 
   recentCards.forEach((card, i) => {
     const isTop = (i === recentCards.length - 1);
-    // If top card is wild, visually recolor to active chosen color
     const overrideCol = (isTop && card.chosenColor) ? card.chosenColor : null;
     const el = createCardElement(card, overrideCol);
     const rot = recentRotations[i] || 0;
@@ -1828,7 +1821,7 @@ function renderGame() {
     document.getElementById('uno-btn').classList.remove('alert');
   }
 
-  // Render Opponent Spots (ID 1: Left, ID 2: Top, ID 3: Right)
+  // Render Opponent Spots
   const oppMap = [
     { box: document.getElementById('player-left'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), id: 1 },
     { box: document.getElementById('player-top'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), id: 2 },
