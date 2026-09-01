@@ -29,6 +29,7 @@
 
     --card-w: 92px;
     --card-h: 142px;
+    --active-glow-color: rgba(234, 35, 35, 0.7);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -45,7 +46,7 @@
     align-items: center;
   }
 
-  /* 3D World Stage */
+  /* 3D World Viewport */
   #viewport-3d {
     width: 100vw;
     height: 100vh;
@@ -55,9 +56,34 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #viewport-3d.flip-tumble {
+    animation: viewportFlip 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes viewportFlip {
+    0% { transform: scale(1) rotateY(0deg); }
+    50% { transform: scale(0.85) rotateY(180deg) rotateZ(5deg); }
+    100% { transform: scale(1) rotateY(360deg); }
   }
 
-  /* Dynamic Arena Background */
+  /* Screen Flash on Flip */
+  #flash-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, #fff 10%, rgba(255,255,255,0.4) 60%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 500;
+    transition: opacity 0.1s ease;
+  }
+  #flash-overlay.flash {
+    opacity: 0.85;
+    animation: flashFade 0.6s ease-out forwards;
+  }
+  @keyframes flashFade { 0% { opacity: 0.85; } 100% { opacity: 0; } }
+
+  /* Arena Background */
   #arena-bg {
     position: absolute;
     inset: -50px;
@@ -65,12 +91,8 @@
     transition: background 0.8s ease;
     z-index: 0;
   }
-  #arena-bg.blue-theme {
-    background: radial-gradient(circle at 50% 45%, #0d2847 0%, #061426 55%, #02070f 100%);
-  }
-  #arena-bg.dark-theme {
-    background: radial-gradient(circle at 50% 45%, #300636 0%, #150119 55%, #050007 100%);
-  }
+  #arena-bg.blue-theme { background: radial-gradient(circle at 50% 45%, #0d2847 0%, #061426 55%, #02070f 100%); }
+  #arena-bg.dark-theme { background: radial-gradient(circle at 50% 45%, #300636 0%, #150119 55%, #050007 100%); }
 
   /* Ubisoft Polished Table Felt */
   .table-stage {
@@ -108,26 +130,28 @@
     pointer-events: none;
   }
 
-  /* Direction Floor Ring */
+  /* Direction Ring on Table */
   .direction-ring-3d {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 280px;
-    height: 280px;
+    width: 290px;
+    height: 290px;
     border: 4px dashed rgba(255, 255, 255, 0.4);
     border-radius: 50%;
     pointer-events: none;
-    animation: ringSpin 12s linear infinite;
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+    animation: ringSpinCW 10s linear infinite;
+    box-shadow: 0 0 35px rgba(255, 255, 255, 0.15);
+    transition: border-color 0.4s ease;
   }
-  .direction-ring-3d.reverse { animation-direction: reverse; }
-  @keyframes ringSpin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+  .direction-ring-3d.reverse {
+    animation: ringSpinCCW 10s linear infinite;
+  }
+  @keyframes ringSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+  @keyframes ringSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
 
-  /* ========================================================
-     FIXED: 3D DISCARD CENTER PILE (NO DOWNWARD DRIFT)
-     ======================================================== */
+  /* Center Discard Pile & Active Color Aura */
   #discard-pile-3d {
     position: absolute;
     top: 48%;
@@ -139,16 +163,58 @@
     z-index: 25;
     pointer-events: none;
   }
+  #discard-pile-3d::after {
+    content: '';
+    position: absolute;
+    inset: -16px;
+    border-radius: 24px;
+    background: radial-gradient(circle, var(--active-glow-color) 0%, transparent 75%);
+    z-index: -1;
+    animation: auraPulse 1.8s infinite alternate ease-in-out;
+    pointer-events: none;
+  }
+  @keyframes auraPulse {
+    0% { transform: scale(0.92); opacity: 0.6; }
+    100% { transform: scale(1.18); opacity: 1; }
+  }
+
   #discard-pile-3d .card {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     margin: 0 !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.65);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.7);
     transition: transform 0.25s ease;
   }
 
-  /* 3D Pickup Deck (Upper Left) */
+  /* Active Color Indicator Badge */
+  #active-color-badge {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    border: 2px solid #fff;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .color-badge-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+  }
+
+  /* 3D Pickup Deck */
   #draw-deck-3d {
     position: absolute;
     top: 28%;
@@ -173,9 +239,7 @@
       -12px 14px 25px rgba(0,0,0,0.7);
   }
 
-  /* ========================================================
-     UBISOFT CARD STYLING
-     ======================================================== */
+  /* Card Visuals */
   .card {
     width: var(--card-w);
     height: var(--card-h);
@@ -199,6 +263,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background 0.3s ease;
   }
 
   .c-red .card-face { background: var(--c-red); }
@@ -224,6 +289,7 @@
     border: 3px solid #ffffff;
     position: relative;
     box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+    transition: background 0.3s ease;
   }
   .c-red .card-oval { background: var(--c-red-dark); }
   .c-blue .card-oval { background: var(--c-blue-dark); }
@@ -375,10 +441,10 @@
     margin-left: 2px;
   }
 
-  /* Positions */
-  #player-top { top: 15px; left: 50%; transform: translateX(-50%); }
-  #player-left { top: 40%; left: 25px; transform: translateY(-50%); align-items: flex-start; }
-  #player-right { top: 40%; right: 25px; transform: translateY(-50%); align-items: flex-end; }
+  /* Physical Seating Coordinates */
+  #player-left { top: 44%; left: 30px; transform: translateY(-50%); align-items: flex-start; }  /* ID 1 */
+  #player-top { top: 18px; left: 50%; transform: translateX(-50%); }                           /* ID 2 */
+  #player-right { top: 44%; right: 30px; transform: translateY(-50%); align-items: flex-end; }  /* ID 3 */
   
   #player-bottom {
     position: absolute;
@@ -412,12 +478,11 @@
     box-shadow: 0 6px 14px rgba(0,0,0,0.7);
     flex-shrink: 0;
     margin-left: -24px;
+    transition: transform 0.4s ease;
   }
   .opp-stand-card:first-child { margin-left: 0 !important; }
 
-  /* ========================================================
-     FIXED: BUTTERY-SMOOTH CARD HOVER PHYSICS (NO GLITCH)
-     ======================================================== */
+  /* Human Hand Fan */
   .human-hand-viewport {
     height: 175px;
     width: 100vw;
@@ -439,7 +504,6 @@
     transform-style: preserve-3d;
   }
   
-  /* Isolated Positioning Wrapper for each Card */
   .card-slot {
     position: absolute;
     left: 50%;
@@ -452,12 +516,10 @@
     pointer-events: auto;
     cursor: pointer;
   }
-  .card-slot:hover {
-    z-index: 200 !important;
-  }
+  .card-slot:hover { z-index: 200 !important; }
   .card-slot .card {
     transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s;
-    pointer-events: none; /* Prevents sub-element event bouncing */
+    pointer-events: none;
   }
   .card-slot:hover .card {
     transform: translateY(-48px) scale(1.16);
@@ -564,32 +626,36 @@
     100% { transform: scale(1.18); filter: brightness(1.3) drop-shadow(0 0 25px #f7b300); }
   }
 
-  /* Color Wheel */
+  /* Color Picker Modal */
   #color-picker-modal {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.82);
+    backdrop-filter: blur(14px);
     z-index: 500;
     display: none;
     justify-content: center;
     align-items: center;
   }
   .color-wheel {
-    width: 280px;
-    height: 280px;
+    width: 290px;
+    height: 290px;
     border-radius: 50%;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    gap: 10px;
-    padding: 10px;
+    gap: 12px;
+    padding: 12px;
     background: #111;
     border: 4px solid #fff;
     box-shadow: 0 0 60px rgba(0,0,0,0.9);
   }
-  .color-segment { border-radius: 20px; cursor: pointer; transition: transform 0.15s; }
-  .color-segment:hover { transform: scale(1.08); }
+  .color-segment {
+    border-radius: 20px;
+    cursor: pointer;
+    transition: transform 0.15s, filter 0.15s;
+  }
+  .color-segment:hover { transform: scale(1.08); filter: brightness(1.2); }
 
   /* Lobby Overlay */
   #lobby-screen {
@@ -656,6 +722,9 @@
 </head>
 <body>
 
+  <!-- Screen Flash -->
+  <div id="flash-overlay"></div>
+
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
@@ -664,8 +733,10 @@
       <div class="direction-ring-3d" id="dir-ring"></div>
     </div>
 
-    <!-- Center Discard Pile -->
-    <div id="discard-pile-3d"></div>
+    <!-- Center Discard Pile with Dynamic Recolor Aura -->
+    <div id="discard-pile-3d">
+      <div id="active-color-badge"><div class="color-badge-dot" id="badge-dot"></div><span id="badge-text">RED</span></div>
+    </div>
 
     <!-- Pickup Deck (Upper Left) -->
     <div id="draw-deck-3d" onclick="onDrawDeckClick()">
@@ -678,34 +749,35 @@
       </div>
     </div>
 
-    <!-- Top Opponent -->
-    <div class="player-spot" id="player-top">
-      <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Archie</div>🐱</div>
-        <div class="card-count-badge" id="p-count-1">7</div>
-      </div>
-      <div class="opponent-3d-hand" id="opp-hand-top"></div>
-    </div>
-
-    <!-- Left Opponent -->
+    <!-- Seating Order: 0 (Bottom/You) -> 1 (Left/Shorty) -> 2 (Top/Archie) -> 3 (Right/Ringo) -->
+    <!-- Left Opponent (ID 1) -->
     <div class="player-spot" id="player-left">
       <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Shorty</div>🐭</div>
-        <div class="card-count-badge" id="p-count-2">7</div>
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Shorty</div>🐭</div>
+        <div class="card-count-badge" id="p-count-1">7</div>
       </div>
-      <div class="opponent-3d-hand" id="opp-hand-left"></div>
+      <div class="opponent-3d-hand" id="opp-hand-1"></div>
     </div>
 
-    <!-- Right Opponent -->
+    <!-- Top Opponent (ID 2) -->
+    <div class="player-spot" id="player-top">
+      <div class="player-box">
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Archie</div>🐱</div>
+        <div class="card-count-badge" id="p-count-2">7</div>
+      </div>
+      <div class="opponent-3d-hand" id="opp-hand-2"></div>
+    </div>
+
+    <!-- Right Opponent (ID 3) -->
     <div class="player-spot" id="player-right">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-3">Ringo</div>🐶</div>
         <div class="card-count-badge" id="p-count-3">7</div>
       </div>
-      <div class="opponent-3d-hand" id="opp-hand-right"></div>
+      <div class="opponent-3d-hand" id="opp-hand-3"></div>
     </div>
 
-    <!-- Human Player Hand (Bottom Center) -->
+    <!-- Human Player Hand (ID 0 - Bottom) -->
     <div id="player-bottom">
       <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div>⚡</div>
@@ -804,6 +876,18 @@ const AudioEngine = {
     osc.connect(gain); gain.connect(this.ctx.destination);
     osc.start(); osc.stop(this.ctx.currentTime + 0.11);
   },
+  flipTransition() {
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.6);
+    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.start(); osc.stop(this.ctx.currentTime + 0.6);
+  },
   vfxBoom() {
     this.init();
     const osc = this.ctx.createOscillator();
@@ -857,7 +941,7 @@ let GameState = {
   discardRotations: [],
   players: [],
   turnIndex: 0,
-  direction: 1,
+  direction: 1, // +1: Clockwise (0 -> 1 -> 2 -> 3 -> 0), -1: Counter-Clockwise (0 -> 3 -> 2 -> 1 -> 0)
   stackedDrawCount: 0,
   currentColor: 'red',
   unoCalledPlayers: new Set(),
@@ -865,6 +949,20 @@ let GameState = {
   myPlayerId: 0,
   peer: null,
   pendingWildCard: null
+};
+
+/**
+ * COLOR MAPPER
+ */
+const COLOR_HEX = {
+  red: '#ea2323',
+  blue: '#0076e6',
+  green: '#37a324',
+  yellow: '#f7b300',
+  pink: '#d80064',
+  teal: '#00b8a9',
+  purple: '#7514a6',
+  orange: '#f25500'
 };
 
 /**
@@ -1044,10 +1142,11 @@ function getVectorCardInner(face) {
   return `<span class="card-val-num">${val}</span>`;
 }
 
-function createCardElement(card) {
+function createCardElement(card, overrideColor = null) {
   const face = getCardFace(card);
+  const activeColor = overrideColor || face.color;
   const cardDiv = document.createElement('div');
-  cardDiv.className = `card c-${face.color}`;
+  cardDiv.className = `card c-${activeColor}`;
 
   let cornerDisplay = face.value;
   if (cornerDisplay === 'skip') cornerDisplay = '⊘';
@@ -1088,16 +1187,16 @@ function createMiniOpponentCard(face) {
 }
 
 /**
- * ANIMATIONS
+ * 3D ANIMATION ENGINE
  */
-function animateCardThrow(fromEl, cardData, callback) {
+function animateCardThrow(fromEl, cardData, chosenColor, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
   const discardBox = document.getElementById('discard-pile-3d');
   
   const fromRect = fromEl ? fromEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight - 100 };
   const toRect = discardBox.getBoundingClientRect();
 
-  const flyer = createCardElement(cardData);
+  const flyer = createCardElement(cardData, chosenColor);
   flyer.className += ' flying-card-obj';
   flyer.style.left = `${fromRect.left}px`;
   flyer.style.top = `${fromRect.top}px`;
@@ -1107,7 +1206,7 @@ function animateCardThrow(fromEl, cardData, callback) {
   AudioEngine.cardThrow();
 
   requestAnimationFrame(() => {
-    const randomRot = Math.floor(Math.random() * 50) - 25;
+    const randomRot = Math.floor(Math.random() * 40) - 20;
     flyer.style.left = `${toRect.left}px`;
     flyer.style.top = `${toRect.top}px`;
     flyer.style.transform = `scale(1) rotate(${randomRot}deg) translateY(-8px)`;
@@ -1126,8 +1225,8 @@ function animateCardPickup(targetSpotIndex, count, callback) {
 
   let targetBox;
   if (targetSpotIndex === 0) targetBox = document.getElementById('player-bottom');
-  else if (targetSpotIndex === 1) targetBox = document.getElementById('player-top');
-  else if (targetSpotIndex === 2) targetBox = document.getElementById('player-left');
+  else if (targetSpotIndex === 1) targetBox = document.getElementById('player-left');
+  else if (targetSpotIndex === 2) targetBox = document.getElementById('player-top');
   else targetBox = document.getElementById('player-right');
 
   const toRect = targetBox.getBoundingClientRect();
@@ -1154,6 +1253,25 @@ function animateCardPickup(targetSpotIndex, count, callback) {
       });
     }, i * 110);
   }
+}
+
+function triggerFlip3DTransition() {
+  const viewport = document.getElementById('viewport-3d');
+  const flash = document.getElementById('flash-overlay');
+
+  flash.classList.remove('flash');
+  void flash.offsetWidth; // force reflow
+  flash.classList.add('flash');
+
+  viewport.classList.remove('flip-tumble');
+  void viewport.offsetWidth;
+  viewport.classList.add('flip-tumble');
+
+  AudioEngine.flipTransition();
+  setTimeout(() => {
+    updateTheme();
+    renderGame();
+  }, 420);
 }
 
 function triggerCenterSpecialVFX(type, text) {
@@ -1188,7 +1306,7 @@ function triggerCenterSpecialVFX(type, text) {
         <path d="M 50 85 A 35 35 0 0 1 15 50 L 5 60 L 10 35 L 35 40 L 25 48 A 25 25 0 0 0 50 75 Z" fill="#00e5ff"/>
       </svg>
     `;
-    AudioEngine.vfxBoom();
+    triggerFlip3DTransition();
   } else if (type === 'penalty') {
     const streak = document.getElementById('penalty-streak-box');
     streak.textContent = `ATTACK! +${GameState.stackedDrawCount}`;
@@ -1205,7 +1323,7 @@ function triggerCenterSpecialVFX(type, text) {
  * MULTIPLAYER (PeerJS)
  */
 function createRoom() {
-  const name = document.getElementById('player-name').value || 'Host';
+  const name = document.getElementById('player-name').value || 'Shiny';
   GameState.edition = document.getElementById('game-edition').value;
 
   GameState.peer = new Peer();
@@ -1214,7 +1332,7 @@ function createRoom() {
     document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Share this code with your friends!`;
     document.getElementById('start-hosted-btn').style.display = 'block';
 
-    GameState.players = [{ id: 0, name: name, hand: [], isBot: false, conn: null }];
+    GameState.players = [{ id: 0, name: `${name} (You)`, hand: [], isBot: false, conn: null }];
   });
 
   GameState.peer.on('connection', (conn) => {
@@ -1240,6 +1358,7 @@ function joinRoom() {
 
     conn.on('data', (data) => {
       if (data.type === 'SYNC_STATE') {
+        const sideChanged = GameState.flipSide !== data.state.flipSide;
         GameState.edition = data.state.edition;
         GameState.flipSide = data.state.flipSide;
         GameState.discardPile = data.state.discardPile;
@@ -1251,8 +1370,8 @@ function joinRoom() {
         GameState.myPlayerId = data.yourId;
 
         document.getElementById('lobby-screen').style.display = 'none';
-        updateTheme();
-        renderGame();
+        if (sideChanged) triggerFlip3DTransition();
+        else { updateTheme(); renderGame(); }
       } else if (data.type === 'VFX') {
         triggerCenterSpecialVFX(data.vfxType, data.text);
       }
@@ -1308,15 +1427,15 @@ function broadcastState() {
 }
 
 /**
- * INITIALIZATION
+ * INITIALIZATION (SEATING: 0=Bottom, 1=Left, 2=Top, 3=Right)
  */
 function startSoloGame() {
   const name = document.getElementById('player-name').value || 'Shiny';
   GameState.edition = document.getElementById('game-edition').value;
   GameState.players = [
     { id: 0, name: `${name} (You)`, hand: [], isBot: false },
-    { id: 1, name: 'Archie', hand: [], isBot: true },
-    { id: 2, name: 'Shorty', hand: [], isBot: true },
+    { id: 1, name: 'Shorty', hand: [], isBot: true },
+    { id: 2, name: 'Archie', hand: [], isBot: true },
     { id: 3, name: 'Ringo', hand: [], isBot: true }
   ];
   document.getElementById('lobby-screen').style.display = 'none';
@@ -1324,9 +1443,9 @@ function startSoloGame() {
 }
 
 function startHostedGame() {
+  const defaultNames = ['Shorty', 'Archie', 'Ringo'];
   for (let i = GameState.players.length; i < 4; i++) {
-    const defaultBots = ['Archie', 'Shorty', 'Ringo'];
-    GameState.players.push({ id: i, name: defaultBots[i-1] || `Bot ${i}`, hand: [], isBot: true, conn: null });
+    GameState.players.push({ id: i, name: defaultNames[i-1] || `Bot ${i}`, hand: [], isBot: true, conn: null });
   }
   document.getElementById('lobby-screen').style.display = 'none';
   initGameEngine();
@@ -1338,7 +1457,7 @@ function initGameEngine() {
   GameState.discardRotations = [];
   GameState.flipSide = 'light';
   GameState.stackedDrawCount = 0;
-  GameState.direction = 1;
+  GameState.direction = 1; // Clockwise start
   GameState.turnIndex = 0;
 
   for (let i = 0; i < 7; i++) {
@@ -1414,20 +1533,25 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
   if (playerId === 0) {
     const handSlots = document.querySelectorAll('.human-hand-container .card-slot');
     sourceEl = handSlots[cardIdx] || document.getElementById('player-bottom');
-  } else if (playerId === 1) sourceEl = document.getElementById('player-top');
-  else if (playerId === 2) sourceEl = document.getElementById('player-left');
+  } else if (playerId === 1) sourceEl = document.getElementById('player-left');
+  else if (playerId === 2) sourceEl = document.getElementById('player-top');
   else sourceEl = document.getElementById('player-right');
 
-  animateCardThrow(sourceEl, card, (rotation) => {
+  // Handle Wild Color Assignment
+  let effectiveColor = face.color;
+  if (face.color.startsWith('wild')) {
+    effectiveColor = chosenColor || (GameState.flipSide === 'light' ? 'red' : 'pink');
+    GameState.currentColor = effectiveColor;
+    card.chosenColor = effectiveColor; // Recolor top discard
+  } else {
+    GameState.currentColor = face.color;
+    delete card.chosenColor;
+  }
+
+  animateCardThrow(sourceEl, card, card.chosenColor, (rotation) => {
     player.hand.splice(cardIdx, 1);
     GameState.discardPile.push(card);
     GameState.discardRotations.push(rotation);
-
-    if (face.color.startsWith('wild')) {
-      GameState.currentColor = chosenColor || (GameState.flipSide === 'light' ? 'red' : 'pink');
-    } else {
-      GameState.currentColor = face.color;
-    }
 
     handleCardAction(face, playerId);
 
@@ -1453,7 +1577,7 @@ function handleCardAction(face, playerId) {
   else if (val === '+10') { GameState.stackedDrawCount += 10; triggerCenterSpecialVFX('penalty'); }
 
   if (val === 'reverse' || val === 'wild_rev_+4') {
-    GameState.direction *= -1;
+    GameState.direction *= -1; // Invert order
     triggerCenterSpecialVFX('reverse', 'REVERSE!');
   }
 
@@ -1470,12 +1594,14 @@ function handleCardAction(face, playerId) {
   if (val === 'FLIP') {
     GameState.flipSide = GameState.flipSide === 'light' ? 'dark' : 'light';
     triggerCenterSpecialVFX('flip', `FLIPPED TO ${GameState.flipSide.toUpperCase()}!`);
-    updateTheme();
   }
 
   nextTurn();
 }
 
+/**
+ * TRUE CIRCULAR TURN ADVANCEMENT (0 -> 1 -> 2 -> 3 -> 0)
+ */
 function nextTurn() {
   do {
     GameState.turnIndex = (GameState.turnIndex + GameState.direction + GameState.players.length) % GameState.players.length;
@@ -1629,26 +1755,39 @@ function openColorPicker() {
 }
 
 /**
- * RENDERING: CENTER-ALIGNED DYNAMIC HAND & FIXED DISCARD STACK
+ * RENDERING: ROTATION, ACTIVE COLOR AURA & DISCARD RECOLORING
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
   dirEl.className = GameState.direction === -1 ? 'direction-ring-3d reverse' : 'direction-ring-3d';
 
-  // Render Discard Clustered Stack (Top 4 recent cards overlapping with exact zero-drift anchoring)
+  // Update Active Color Glow Aura & Badge
+  const curColorHex = COLOR_HEX[GameState.currentColor] || '#ea2323';
+  document.documentElement.style.setProperty('--active-glow-color', curColorHex);
+  document.getElementById('badge-dot').style.background = curColorHex;
+  document.getElementById('badge-text').textContent = GameState.currentColor.toUpperCase();
+
+  // Render Discard Clustered Stack
   const discardBox = document.getElementById('discard-pile-3d');
+  // Keep the active color badge child
+  const badgeEl = document.getElementById('active-color-badge');
   discardBox.innerHTML = '';
+  discardBox.appendChild(badgeEl);
+
   const recentCards = GameState.discardPile.slice(-4);
   const recentRotations = GameState.discardRotations.slice(-4);
 
   recentCards.forEach((card, i) => {
-    const el = createCardElement(card);
+    const isTop = (i === recentCards.length - 1);
+    // If top card is wild, visually recolor to active chosen color
+    const overrideCol = (isTop && card.chosenColor) ? card.chosenColor : null;
+    const el = createCardElement(card, overrideCol);
     const rot = recentRotations[i] || 0;
     el.style.transform = `rotate(${rot}deg) translateZ(${i * 2}px)`;
     discardBox.appendChild(el);
   });
 
-  // Render Local Player Hand - Isolated Slot Wrapping for Jitter-Free Hover
+  // Render Local Player Hand
   const handBox = document.getElementById('player-hand');
   handBox.innerHTML = '';
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
@@ -1689,11 +1828,11 @@ function renderGame() {
     document.getElementById('uno-btn').classList.remove('alert');
   }
 
-  // Render Standing Opponent Card Arrays (UNO FLIP True Opposite Face Visibility)
+  // Render Opponent Spots (ID 1: Left, ID 2: Top, ID 3: Right)
   const oppMap = [
-    { box: document.getElementById('player-top'), handEl: document.getElementById('opp-hand-top'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), id: 1 },
-    { box: document.getElementById('player-left'), handEl: document.getElementById('opp-hand-left'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), id: 2 },
-    { box: document.getElementById('player-right'), handEl: document.getElementById('opp-hand-right'), countEl: document.getElementById('p-count-3'), nameEl: document.getElementById('p-name-3'), id: 3 }
+    { box: document.getElementById('player-left'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), id: 1 },
+    { box: document.getElementById('player-top'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), id: 2 },
+    { box: document.getElementById('player-right'), handEl: document.getElementById('opp-hand-3'), countEl: document.getElementById('p-count-3'), nameEl: document.getElementById('p-name-3'), id: 3 }
   ];
 
   oppMap.forEach(spot => {
