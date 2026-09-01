@@ -125,7 +125,9 @@
   .direction-ring-3d.reverse { animation-direction: reverse; }
   @keyframes ringSpin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
-  /* 3D Discard Center Area */
+  /* ========================================================
+     FIXED: 3D DISCARD CENTER PILE (NO DOWNWARD DRIFT)
+     ======================================================== */
   #discard-pile-3d {
     position: absolute;
     top: 48%;
@@ -134,12 +136,16 @@
     width: var(--card-w);
     height: var(--card-h);
     transform-style: preserve-3d;
-    z-index: 20;
+    z-index: 25;
+    pointer-events: none;
   }
-  .discard-cluster-card {
-    position: absolute;
-    inset: 0;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  #discard-pile-3d .card {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.65);
+    transition: transform 0.25s ease;
   }
 
   /* 3D Pickup Deck (Upper Left) */
@@ -152,7 +158,7 @@
     height: var(--card-h);
     transform-style: preserve-3d;
     cursor: pointer;
-    z-index: 20;
+    z-index: 25;
     transition: transform 0.2s ease;
   }
   #draw-deck-3d:hover { transform: translate(-50%, -50%) scale(1.06); }
@@ -168,7 +174,7 @@
   }
 
   /* ========================================================
-     UBISOFT EXACT CARD STYLING
+     UBISOFT CARD STYLING
      ======================================================== */
   .card {
     width: var(--card-w);
@@ -311,7 +317,7 @@
     transform: rotate(28deg);
   }
 
-  /* Player Frames */
+  /* Player Avatars */
   .player-spot {
     position: absolute;
     display: flex;
@@ -369,15 +375,14 @@
     margin-left: 2px;
   }
 
-  /* Player Positions */
+  /* Positions */
   #player-top { top: 15px; left: 50%; transform: translateX(-50%); }
   #player-left { top: 40%; left: 25px; transform: translateY(-50%); align-items: flex-start; }
   #player-right { top: 40%; right: 25px; transform: translateY(-50%); align-items: flex-end; }
   
-  /* FIXED: Human Player Bottom */
   #player-bottom {
     position: absolute;
-    bottom: 8px;
+    bottom: 10px;
     left: 0;
     width: 100vw;
     display: flex;
@@ -387,7 +392,7 @@
     pointer-events: none;
   }
 
-  /* Opponents 3D Hands on Table */
+  /* Opponents 3D Hands */
   .opponent-3d-hand {
     display: flex;
     transform-style: preserve-3d;
@@ -411,16 +416,16 @@
   .opp-stand-card:first-child { margin-left: 0 !important; }
 
   /* ========================================================
-     FIXED: EXACT CENTER-ALIGNED HUMAN HAND FAN
+     FIXED: BUTTERY-SMOOTH CARD HOVER PHYSICS (NO GLITCH)
      ======================================================== */
   .human-hand-viewport {
-    height: 165px;
+    height: 175px;
     width: 100vw;
     display: flex;
     justify-content: center;
     align-items: flex-end;
     position: relative;
-    perspective: 900px;
+    perspective: 1000px;
     overflow: visible;
     pointer-events: auto;
   }
@@ -433,20 +438,30 @@
     align-items: flex-end;
     transform-style: preserve-3d;
   }
-  .human-hand-container .card {
+  
+  /* Isolated Positioning Wrapper for each Card */
+  .card-slot {
     position: absolute;
     left: 50%;
     bottom: 0;
-    margin-left: calc(var(--card-w) * -0.5); /* Centers card horizontally */
+    margin-left: calc(var(--card-w) * -0.5);
+    width: var(--card-w);
+    height: var(--card-h);
     transform-origin: 50% 120%;
-    cursor: pointer;
-    transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s;
+    transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
     pointer-events: auto;
+    cursor: pointer;
   }
-  .human-hand-container .card:hover {
-    transform: translateY(-45px) scale(1.18) rotate(0deg) !important;
-    z-index: 100 !important;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.85), 0 0 25px rgba(247, 179, 0, 0.8);
+  .card-slot:hover {
+    z-index: 200 !important;
+  }
+  .card-slot .card {
+    transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s;
+    pointer-events: none; /* Prevents sub-element event bouncing */
+  }
+  .card-slot:hover .card {
+    transform: translateY(-48px) scale(1.16);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.85), 0 0 25px rgba(247, 179, 0, 0.85);
   }
 
   /* Transient Fly Layer */
@@ -644,12 +659,15 @@
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
+    <!-- Table Felt Stage -->
     <div class="table-stage" id="table-stage">
       <div class="direction-ring-3d" id="dir-ring"></div>
     </div>
 
+    <!-- Center Discard Pile -->
     <div id="discard-pile-3d"></div>
 
+    <!-- Pickup Deck (Upper Left) -->
     <div id="draw-deck-3d" onclick="onDrawDeckClick()">
       <div class="deck-3d-stack">
         <div class="card-back-design" id="pickup-deck-back">
@@ -660,6 +678,7 @@
       </div>
     </div>
 
+    <!-- Top Opponent -->
     <div class="player-spot" id="player-top">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Archie</div>🐱</div>
@@ -668,6 +687,7 @@
       <div class="opponent-3d-hand" id="opp-hand-top"></div>
     </div>
 
+    <!-- Left Opponent -->
     <div class="player-spot" id="player-left">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Shorty</div>🐭</div>
@@ -676,6 +696,7 @@
       <div class="opponent-3d-hand" id="opp-hand-left"></div>
     </div>
 
+    <!-- Right Opponent -->
     <div class="player-spot" id="player-right">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-3">Ringo</div>🐶</div>
@@ -684,8 +705,9 @@
       <div class="opponent-3d-hand" id="opp-hand-right"></div>
     </div>
 
+    <!-- Human Player Hand (Bottom Center) -->
     <div id="player-bottom">
-      <div class="player-box" style="margin-bottom: 6px; pointer-events: auto;">
+      <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div>⚡</div>
         <div class="card-count-badge" id="p-count-0">7</div>
       </div>
@@ -694,18 +716,23 @@
       </div>
     </div>
 
+    <!-- Attack / Penalty Alert -->
     <div id="penalty-streak-box">ATTACK! +4</div>
 
+    <!-- Center Screen VFX -->
     <div id="center-vfx-overlay">
       <div id="vfx-graphic-container"></div>
       <div class="vfx-banner-txt" id="vfx-text">REVERSE!</div>
     </div>
 
+    <!-- UNO Shout -->
     <button id="uno-btn" onclick="callUno()">UNO!</button>
 
+    <!-- Flying Card Transient Layer -->
     <div id="fly-animation-layer"></div>
   </div>
 
+  <!-- Lobby Screen -->
   <div id="lobby-screen">
     <div class="title-logo">UNO</div>
     <div class="lobby-card">
@@ -739,6 +766,7 @@
     </div>
   </div>
 
+  <!-- Color Selector Modal -->
   <div id="color-picker-modal">
     <div class="color-wheel" id="color-picker-wheel"></div>
   </div>
@@ -1384,8 +1412,8 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
 
   let sourceEl;
   if (playerId === 0) {
-    const handEls = document.querySelectorAll('.human-hand-container .card');
-    sourceEl = handEls[cardIdx] || document.getElementById('player-bottom');
+    const handSlots = document.querySelectorAll('.human-hand-container .card-slot');
+    sourceEl = handSlots[cardIdx] || document.getElementById('player-bottom');
   } else if (playerId === 1) sourceEl = document.getElementById('player-top');
   else if (playerId === 2) sourceEl = document.getElementById('player-left');
   else sourceEl = document.getElementById('player-right');
@@ -1601,13 +1629,13 @@ function openColorPicker() {
 }
 
 /**
- * RENDERING: CENTER-ALIGNED DYNAMIC HAND & CARD REFLECTIONS
+ * RENDERING: CENTER-ALIGNED DYNAMIC HAND & FIXED DISCARD STACK
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
   dirEl.className = GameState.direction === -1 ? 'direction-ring-3d reverse' : 'direction-ring-3d';
 
-  // Render Discard Clustered Stack
+  // Render Discard Clustered Stack (Top 4 recent cards overlapping with exact zero-drift anchoring)
   const discardBox = document.getElementById('discard-pile-3d');
   discardBox.innerHTML = '';
   const recentCards = GameState.discardPile.slice(-4);
@@ -1615,13 +1643,12 @@ function renderGame() {
 
   recentCards.forEach((card, i) => {
     const el = createCardElement(card);
-    el.className += ' discard-cluster-card';
     const rot = recentRotations[i] || 0;
     el.style.transform = `rotate(${rot}deg) translateZ(${i * 2}px)`;
     discardBox.appendChild(el);
   });
 
-  // Render Local Player Hand - Exact Center Fan
+  // Render Local Player Hand - Isolated Slot Wrapping for Jitter-Free Hover
   const handBox = document.getElementById('player-hand');
   handBox.innerHTML = '';
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
@@ -1633,16 +1660,21 @@ function renderGame() {
   const maxAngle = Math.min(46, total * 3.6);
 
   myPlayer.hand.forEach((card, idx) => {
+    const slotEl = document.createElement('div');
+    slotEl.className = 'card-slot';
+
     const cardEl = createCardElement(card);
+    slotEl.appendChild(cardEl);
+
     const offset = idx - (total - 1) / 2;
     const rotateDeg = total > 1 ? (offset / ((total - 1) / 2 || 1)) * (maxAngle / 2) : 0;
     const translateY = Math.abs(offset) * Math.min(4.2, 34 / (total || 1));
     const translateX = offset * step;
 
-    cardEl.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
-    cardEl.style.zIndex = idx + 1;
-    cardEl.onclick = () => onHumanCardClick(idx);
-    handBox.appendChild(cardEl);
+    slotEl.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
+    slotEl.style.zIndex = idx + 1;
+    slotEl.onclick = () => onHumanCardClick(idx);
+    handBox.appendChild(slotEl);
   });
 
   document.getElementById('p-count-0').textContent = myPlayer.hand.length;
