@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>UNO: Ubisoft 3D Edition</title>
-<!-- Firebase SDKs -->
+<title>UNO: 3D Edition</title>
+<!-- Firebase SDKs (v10 compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <!-- PeerJS & Fonts -->
@@ -50,7 +50,7 @@
     align-items: center;
   }
 
-  /* Screen Routing */
+  /* Screens */
   #auth-screen, #lobby-screen {
     position: fixed;
     inset: 0;
@@ -105,7 +105,7 @@
   #arena-bg.blue-theme { background: radial-gradient(circle at 50% 45%, #0d2847 0%, #061426 55%, #02070f 100%); }
   #arena-bg.dark-theme { background: radial-gradient(circle at 50% 45%, #300636 0%, #150119 55%, #050007 100%); }
 
-  /* 3D Table Stage */
+  /* Table Stage */
   .table-stage {
     position: absolute;
     top: 48%;
@@ -141,7 +141,7 @@
     pointer-events: none;
   }
 
-  /* 3D Direction Ring */
+  /* Direction Indicator */
   .direction-ring-3d {
     position: absolute;
     top: 50%;
@@ -378,7 +378,7 @@
   }
   .card-count-badge.won-badge { background: #f7b300; color: #000; border-color: #fff; }
 
-  /* Card Visuals */
+  /* Cards */
   .card {
     width: var(--card-w);
     height: var(--card-h);
@@ -556,7 +556,7 @@
   }
   .opp-stand-card:first-child { margin-left: 0 !important; }
 
-  /* Human Hand Viewport */
+  /* Hand Viewport */
   .human-hand-viewport {
     height: 185px;
     width: 100vw;
@@ -812,7 +812,7 @@
   .btn.friends-btn { background: linear-gradient(135deg, #8a2be2 0%, #4a00e0 100%); }
   .btn.join-btn { flex: 0 0 95px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
 
-  /* Room Waiting Lobby Overlay */
+  /* Room Lobby Modal */
   #room-lobby-modal {
     position: fixed;
     inset: 0;
@@ -864,7 +864,7 @@
     font-weight: 800;
   }
 
-  /* Google Auth Button */
+  /* Google Sign-in Button */
   .google-login-btn {
     display: flex;
     align-items: center;
@@ -949,7 +949,7 @@
   .invite-friend-btn:disabled { background: rgba(255,255,255,0.1); color: #666; cursor: not-allowed; }
   .del-friend-btn { background: transparent; border: none; color: #ff5252; font-size: 1rem; cursor: pointer; }
 
-  /* Invite Popup */
+  /* Invite Banner */
   #invite-popup {
     position: fixed;
     top: 25px;
@@ -969,7 +969,7 @@
   .invite-btn-accept { background: #00ff73; border: none; color: #000; font-weight: 900; padding: 8px 16px; border-radius: 10px; cursor: pointer; }
   .invite-btn-decline { background: rgba(255,255,255,0.1); border: none; color: #fff; font-weight: 800; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
 
-  /* Color Wheel */
+  /* Color Picker */
   #color-picker-modal {
     position: absolute;
     inset: 0;
@@ -1023,7 +1023,7 @@
   <div id="invite-popup">
     <div style="font-size: 1.8rem;" id="invite-from-avatar">⚡</div>
     <div class="invite-popup-txt">
-      <span id="invite-from-name">Player</span> invited you to play <b id="invite-edition">UNO FLIP!</b>
+      <span id="invite-from-name">Player</span> invited you to play <b id="invite-edition">UNO</b>
     </div>
     <button class="invite-btn-accept" onclick="acceptInvite()">ACCEPT</button>
     <button class="invite-btn-decline" onclick="declineInvite()">✕</button>
@@ -1080,7 +1080,7 @@
     </div>
   </div>
 
-  <!-- LIVE ROOM LOBBY MODAL (PRE-GAME WAITING ROOM) -->
+  <!-- PRE-MATCH ROOM LOBBY -->
   <div id="room-lobby-modal">
     <div class="room-lobby-card">
       <div style="font-size: 1.4rem; font-weight: 900; color: #f7b300;">GAME ROOM LOBBY</div>
@@ -1099,11 +1099,6 @@
 
   <!-- HOME SCREEN (LOBBY) -->
   <div id="lobby-screen" style="display:none;">
-    <div class="lobby-nebula neb-red"></div>
-    <div class="lobby-nebula neb-blue"></div>
-    <div class="lobby-nebula neb-yellow"></div>
-    <div class="lobby-nebula neb-green"></div>
-
     <div class="home-profile-banner">
       <div class="user-badge-left">
         <div class="user-avatar-tag" id="bar-user-avatar">⚡</div>
@@ -1148,7 +1143,6 @@
           <button class="btn join-btn" id="join-btn-el" onclick="joinRoom()">Join</button>
         </div>
       </div>
-      <div id="room-info" style="font-size: 0.85rem; color: #f7b300; text-align: center; display:none;"></div>
     </div>
   </div>
 
@@ -1240,11 +1234,10 @@
 
 <script>
 /**
- * FIREBASE CONFIGURATION
+ * FIREBASE INITIALIZATION WITH AUTO-CLEANED KEYS
  */
-const firebaseConfig = {
-  const firebaseConfig = {
-  apiKey: "AIzaSyBZQZngpuKna9aPsvyFMtdnWy35XdIwB08",
+const rawFirebaseConfig = {
+  apiKey: "AIzaSyBZQzngPukna9aPsvyFMtdnWy35XdIwB08",
   authDomain: "uno-online-cb4c8.firebaseapp.com",
   projectId: "uno-online-cb4c8",
   storageBucket: "uno-online-cb4c8.firebasestorage.app",
@@ -1252,17 +1245,25 @@ const firebaseConfig = {
   appId: "1:655226375946:web:cafba5d481a13f50ff74f3"
 };
 
+const firebaseConfig = {
+  apiKey: rawFirebaseConfig.apiKey.trim(),
+  authDomain: rawFirebaseConfig.authDomain.trim(),
+  projectId: rawFirebaseConfig.projectId.trim(),
+  storageBucket: rawFirebaseConfig.storageBucket.trim(),
+  messagingSenderId: rawFirebaseConfig.messagingSenderId.trim(),
+  appId: rawFirebaseConfig.appId.trim()
+};
 
 let auth = null;
 try {
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
 } catch (e) {
-  console.warn("Firebase Init Notice:", e);
+  console.warn("Firebase Init:", e);
 }
 
 /**
- * HIGH-RELIABILITY WEBRTC STUN CONFIGURATION
+ * WEBRTC MULTI-NODE GOOGLE STUN CONFIG
  */
 const PEER_CONFIG = {
   debug: 1,
@@ -1354,17 +1355,17 @@ const AudioEngine = {
       const gain = this.ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.3, this.ctx.currentTime + idx*0.07);
-      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + idx*0.07 + 0.25);
+      gain.gain.setValueAtTime(0.3, this.ctx.currentTime + idx * 0.07);
+      gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + idx * 0.07 + 0.25);
       osc.connect(gain); gain.connect(this.ctx.destination);
-      osc.start(this.ctx.currentTime + idx*0.07);
-      osc.stop(this.ctx.currentTime + idx*0.07 + 0.25);
+      osc.start(this.ctx.currentTime + idx * 0.07);
+      osc.stop(this.ctx.currentTime + idx * 0.07 + 0.25);
     });
   }
 };
 
 /**
- * AUTH & PROFILE
+ * USER IDENTITY & AUTH
  */
 let CurrentUser = {
   uid: '',
@@ -1383,7 +1384,7 @@ function sanitizeUsername(str) {
 
 function loginWithGoogle() {
   const msgEl = document.getElementById('auth-msg-text');
-  msgEl.textContent = '';
+  msgEl.textContent = 'Connecting to Google...';
 
   if (!auth) {
     msgEl.textContent = "Firebase is initializing, please check your network.";
@@ -1391,6 +1392,8 @@ function loginWithGoogle() {
   }
 
   const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+
   auth.signInWithPopup(provider)
     .then((result) => {
       const user = result.user;
@@ -1402,6 +1405,7 @@ function loginWithGoogle() {
         wins: parseInt(localStorage.getItem(`uno_wins_${user.uid}`)) || 0,
         friends: JSON.parse(localStorage.getItem(`uno_friends_${user.uid}`)) || []
       };
+      msgEl.textContent = '';
       loginSuccess();
     })
     .catch((error) => {
@@ -1481,7 +1485,7 @@ function addFriendFromInput() {
 
   if (!CurrentUser.friends) CurrentUser.friends = [];
   if (CurrentUser.friends.includes(friendClean)) {
-    alert("Friend already in list!");
+    alert("Friend is already in your list!");
     return;
   }
 
@@ -1655,7 +1659,7 @@ function initUserPeerNetwork() {
 }
 
 /**
- * GAME ENGINE STATE & HANDSHAKE ROUTING
+ * GAME STATE
  */
 let GameState = {
   edition: 'flip',
@@ -1700,10 +1704,10 @@ function getActivePlayers() {
 }
 
 /**
- * ROOM CREATION (HOST)
+ * ROOM MANAGEMENT
  */
 function createRoom() {
-  const name = CurrentUser.username || 'Shiny';
+  const name = CurrentUser.username || 'Host';
   GameState.edition = document.getElementById('game-edition').value;
   GameState.isHost = true;
   GameState.myPlayerId = 0;
@@ -1756,9 +1760,6 @@ function createRoom() {
   });
 }
 
-/**
- * ROOM JOINING (GUEST)
- */
 function joinRoom() {
   const code = document.getElementById('join-room-id').value.trim();
   if (!code) return alert('Enter a room code!');
@@ -1785,7 +1786,6 @@ function joinRoomWithId(roomId) {
 
     conn.on('open', () => {
       if (joinBtn) joinBtn.textContent = "Join";
-      // Send Join Handshake
       conn.send({
         type: 'JOIN_REQ',
         name: name,
@@ -1816,7 +1816,7 @@ function joinRoomWithId(roomId) {
 }
 
 /**
- * HOST MESSAGE HANDLER
+ * HOST DATA ROUTING
  */
 function handleHostData(conn, data) {
   if (data.type === 'JOIN_REQ') {
@@ -1833,7 +1833,6 @@ function handleHostData(conn, data) {
     };
     GameState.players.push(newPlayer);
 
-    // 1. Send Instant Acceptance Handshake back to the Joiner
     conn.send({
       type: 'JOIN_ACCEPTED',
       yourId: newId,
@@ -1842,7 +1841,6 @@ function handleHostData(conn, data) {
       players: GameState.players.map(p => ({ name: p.name, avatar: p.avatar, isPhoto: p.isPhoto }))
     });
 
-    // 2. Broadcast updated lobby list to ALL connected players
     broadcastLobbyUpdate();
     updateLobbyPlayerListUI();
   }
@@ -1861,7 +1859,7 @@ function handleHostData(conn, data) {
 }
 
 /**
- * GUEST MESSAGE HANDLER
+ * GUEST DATA ROUTING
  */
 function handleGuestData(conn, data) {
   if (data.type === 'JOIN_ACCEPTED') {
@@ -1961,11 +1959,11 @@ function openRoomLobbyModal(roomId, isHost) {
 
   if (isHost) {
     startBtn.style.display = 'block';
-    statusMsg.textContent = "You are the Host. Click 'Start Match' when everyone is ready!";
+    statusMsg.textContent = "You are the Host. Click 'Start Match' when ready!";
     updateLobbyPlayerListUI();
   } else {
     startBtn.style.display = 'none';
-    statusMsg.textContent = "Waiting for the Host to start the game...";
+    statusMsg.textContent = "Waiting for Host to start match...";
   }
 }
 
@@ -1979,7 +1977,7 @@ function updateLobbyPlayerListUI() {
   listEl.innerHTML = '';
   document.getElementById('lobby-player-count').textContent = GameState.players.length;
 
-  GameState.players.forEach((p, idx) => {
+  GameState.players.forEach((p) => {
     const row = document.createElement('div');
     row.className = 'lobby-player-row';
     const av = p.isPhoto ? `<img src="${p.avatar}" style="width:24px; height:24px; border-radius:50%;">` : (p.avatar || '👤');
@@ -2027,7 +2025,6 @@ function startHostedGame() {
     GameState.players.push({ id: i, name: b.name, avatar: b.avatar, isPhoto: false, hand: [], isBot: true, conn: null, hasWon: false });
   }
 
-  // Notify all guests that match has started
   GameState.players.forEach(p => {
     if (p.conn && p.conn.open) p.conn.send({ type: 'GAME_STARTING' });
   });
@@ -2123,7 +2120,7 @@ function confirmQuitGame() {
 }
 
 /**
- * DECK & CARD VISUALS
+ * DECK GENERATOR
  */
 function buildDeck(edition) {
   let deck = [];
@@ -2304,6 +2301,9 @@ function createMiniOpponentCard(face) {
   return cardDiv;
 }
 
+/**
+ * ANIMATIONS
+ */
 function animateCardThrow(fromEl, cardData, chosenColor, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
   const discardBox = document.getElementById('discard-pile-3d');
@@ -2504,7 +2504,7 @@ function triggerCenterSpecialVFX(type, text) {
 }
 
 /**
- * GAMEPLAY MECHANICS
+ * GAME PLAY RULES
  */
 function canPlayCard(card) {
   const topCard = GameState.discardPile[GameState.discardPile.length - 1];
@@ -2860,7 +2860,7 @@ function updateTheme() {
 }
 
 /**
- * RENDERING
+ * RENDERING ENGINE
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
@@ -3067,7 +3067,7 @@ function renderLeaderboard() {
   });
 }
 
-// Auto Session Check
+// Global Auth State Observer
 window.addEventListener('load', () => {
   if (auth) {
     auth.onAuthStateChanged((user) => {
