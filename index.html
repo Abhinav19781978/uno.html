@@ -240,6 +240,179 @@
       -12px 14px 25px rgba(0,0,0,0.7);
   }
 
+  /* ========================================================
+     TOP-LEFT LEADERBOARD WIDGET
+     ======================================================== */
+  #leaderboard-widget {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 185px;
+    background: rgba(10, 16, 26, 0.85);
+    backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 10px 12px;
+    z-index: 95;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .lb-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 4px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #f7b300;
+    text-transform: uppercase;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 2px 0;
+  }
+  .lb-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .lb-rank {
+    font-weight: 900;
+    width: 18px;
+    font-size: 0.82rem;
+  }
+  .lb-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 85px;
+  }
+  .lb-score {
+    font-size: 0.72rem;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+  }
+  .lb-score.won {
+    background: #f7b300;
+    color: #000;
+  }
+
+  /* ========================================================
+     VIBRANT ACTIVE TURN AURA AROUND PROFILE PIC
+     ======================================================== */
+  .player-spot {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 50;
+  }
+  .player-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+  }
+  .player-nameplate {
+    background: linear-gradient(180deg, #0076e6, #004b9e);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    position: absolute;
+    top: -24px;
+    left: 0;
+    white-space: nowrap;
+  }
+  .player-portrait {
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 3px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    position: relative;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  }
+  
+  /* Prominent Radiant Aura */
+  .player-spot.active .player-portrait {
+    border-color: #fff;
+    transform: scale(1.16);
+    animation: activeAuraPulse 1.2s infinite alternate ease-in-out;
+  }
+  .player-spot.active .player-portrait::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    border-radius: 20px;
+    border: 3px solid #ffea00;
+    animation: activeAuraRipple 1.4s infinite cubic-bezier(0.2, 0.8, 0.4, 1);
+    pointer-events: none;
+  }
+  .player-spot.active .player-portrait::after {
+    content: '';
+    position: absolute;
+    inset: -18px;
+    border-radius: 26px;
+    background: radial-gradient(circle, rgba(255, 187, 0, 0.6) 0%, rgba(255, 68, 0, 0.25) 50%, transparent 75%);
+    animation: activeAuraGlow 1.4s infinite alternate ease-in-out;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes activeAuraPulse {
+    0% {
+      box-shadow: 0 0 0 3px #fff, 0 0 20px #ffb700, 0 0 40px rgba(255, 183, 0, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 0 4px #fff, 0 0 32px #ff4400, 0 0 65px rgba(255, 196, 0, 1), 0 0 90px rgba(255, 50, 0, 0.7);
+    }
+  }
+  @keyframes activeAuraRipple {
+    0% { transform: scale(0.92); opacity: 0.95; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  @keyframes activeAuraGlow {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    100% { transform: scale(1.22); opacity: 0.9; }
+  }
+
+  .card-count-badge {
+    background: #fff;
+    color: #111;
+    font-weight: 900;
+    font-size: 0.9rem;
+    padding: 5px 8px;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    border: 1.5px solid #000;
+    margin-left: 2px;
+  }
+  .card-count-badge.won-badge {
+    background: #f7b300;
+    color: #000;
+    border-color: #fff;
+  }
+
   /* Card Visuals */
   .card {
     width: var(--card-w);
@@ -384,68 +557,10 @@
     transform: rotate(28deg);
   }
 
-  /* Player Avatars */
-  .player-spot {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 50;
-  }
-  .player-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-  }
-  .player-nameplate {
-    background: linear-gradient(180deg, #0076e6, #004b9e);
-    border: 2px solid rgba(255,255,255,0.4);
-    border-radius: 8px;
-    padding: 3px 10px;
-    font-size: 0.85rem;
-    font-weight: 800;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-    position: absolute;
-    top: -24px;
-    left: 0;
-    white-space: nowrap;
-  }
-  .player-portrait {
-    width: 58px;
-    height: 58px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border: 3px solid #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-    position: relative;
-    transition: transform 0.2s;
-  }
-  .player-spot.active .player-portrait {
-    border-color: #f7b300;
-    box-shadow: 0 0 25px #f7b300, 0 0 10px #fff;
-    transform: scale(1.1);
-  }
-  .card-count-badge {
-    background: #fff;
-    color: #111;
-    font-weight: 900;
-    font-size: 0.9rem;
-    padding: 5px 8px;
-    border-radius: 6px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    border: 1.5px solid #000;
-    margin-left: 2px;
-  }
-
   /* Physical Seating Coordinates */
-  #player-left { top: 44%; left: 30px; transform: translateY(-50%); align-items: flex-start; }  /* ID 1 */
+  #player-left { top: 46%; left: 30px; transform: translateY(-50%); align-items: flex-start; }  /* ID 1 */
   #player-top { top: 18px; left: 50%; transform: translateX(-50%); }                           /* ID 2 */
-  #player-right { top: 44%; right: 30px; transform: translateY(-50%); align-items: flex-end; }  /* ID 3 */
+  #player-right { top: 46%; right: 30px; transform: translateY(-50%); align-items: flex-end; }  /* ID 3 */
   
   #player-bottom {
     position: absolute;
@@ -723,19 +838,32 @@
 </head>
 <body>
 
+  <!-- Screen Flash -->
   <div id="flash-overlay"></div>
 
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
+    <!-- Top-Left Leaderboard Widget -->
+    <div id="leaderboard-widget">
+      <div class="lb-header">
+        <span>🏆</span>
+        <span>Standings</span>
+      </div>
+      <div id="lb-list"></div>
+    </div>
+
+    <!-- Table Felt Stage -->
     <div class="table-stage" id="table-stage">
       <div class="direction-ring-3d" id="dir-ring"></div>
     </div>
 
+    <!-- Center Discard Pile with Dynamic Recolor Aura -->
     <div id="discard-pile-3d">
       <div id="active-color-badge"><div class="color-badge-dot" id="badge-dot"></div><span id="badge-text">RED</span></div>
     </div>
 
+    <!-- Pickup Deck (Upper Left) -->
     <div id="draw-deck-3d" onclick="onDrawDeckClick()">
       <div class="deck-3d-stack">
         <div class="card-back-design" id="pickup-deck-back">
@@ -746,6 +874,8 @@
       </div>
     </div>
 
+    <!-- Seating Order: 0 (Bottom/You) -> 1 (Left/Shorty) -> 2 (Top/Archie) -> 3 (Right/Ringo) -->
+    <!-- Left Opponent (ID 1) -->
     <div class="player-spot" id="player-left">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Shorty</div>🐭</div>
@@ -754,6 +884,7 @@
       <div class="opponent-3d-hand" id="opp-hand-1"></div>
     </div>
 
+    <!-- Top Opponent (ID 2) -->
     <div class="player-spot" id="player-top">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Archie</div>🐱</div>
@@ -762,6 +893,7 @@
       <div class="opponent-3d-hand" id="opp-hand-2"></div>
     </div>
 
+    <!-- Right Opponent (ID 3) -->
     <div class="player-spot" id="player-right">
       <div class="player-box">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-3">Ringo</div>🐶</div>
@@ -770,6 +902,7 @@
       <div class="opponent-3d-hand" id="opp-hand-3"></div>
     </div>
 
+    <!-- Human Player Hand (ID 0 - Bottom) -->
     <div id="player-bottom">
       <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
         <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div>⚡</div>
@@ -780,18 +913,23 @@
       </div>
     </div>
 
+    <!-- Attack / Penalty Alert -->
     <div id="penalty-streak-box">ATTACK! +4</div>
 
+    <!-- Center Screen VFX -->
     <div id="center-vfx-overlay">
       <div id="vfx-graphic-container"></div>
       <div class="vfx-banner-txt" id="vfx-text">REVERSE!</div>
     </div>
 
+    <!-- UNO Shout -->
     <button id="uno-btn" onclick="callUno()">UNO!</button>
 
+    <!-- Flying Card Transient Layer -->
     <div id="fly-animation-layer"></div>
   </div>
 
+  <!-- Lobby Screen -->
   <div id="lobby-screen">
     <div class="title-logo">UNO</div>
     <div class="lobby-card">
@@ -825,6 +963,7 @@
     </div>
   </div>
 
+  <!-- Color Selector Modal -->
   <div id="color-picker-modal">
     <div class="color-wheel" id="color-picker-wheel"></div>
   </div>
@@ -926,6 +1065,7 @@ let GameState = {
   discardPile: [],
   discardRotations: [],
   players: [],
+  rankings: [], // Stores finish order: [{ id, name, rank, avatar }]
   turnIndex: 0,
   direction: 1, // +1: Clockwise, -1: Counter-Clockwise
   stackedDrawCount: 0,
@@ -947,6 +1087,13 @@ const COLOR_HEX = {
   purple: '#7514a6',
   orange: '#f25500'
 };
+
+/**
+ * ACTIVE PLAYERS CHECK (Excludes Winners & Knockouts)
+ */
+function getActivePlayers() {
+  return GameState.players.filter(p => !p.hasWon && !p.eliminated);
+}
 
 /**
  * DECK BUILDER
@@ -1315,7 +1462,7 @@ function createRoom() {
     document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Share this code with your friends!`;
     document.getElementById('start-hosted-btn').style.display = 'block';
 
-    GameState.players = [{ id: 0, name: `${name} (You)`, hand: [], isBot: false, conn: null }];
+    GameState.players = [{ id: 0, name: `${name} (You)`, hand: [], isBot: false, conn: null, hasWon: false }];
   });
 
   GameState.peer.on('connection', (conn) => {
@@ -1346,6 +1493,7 @@ function joinRoom() {
         GameState.flipSide = data.state.flipSide;
         GameState.discardPile = data.state.discardPile;
         GameState.players = data.state.players;
+        GameState.rankings = data.state.rankings || [];
         GameState.turnIndex = data.state.turnIndex;
         GameState.direction = data.state.direction;
         GameState.stackedDrawCount = data.state.stackedDrawCount;
@@ -1365,7 +1513,7 @@ function joinRoom() {
 function handleHostData(conn, data) {
   if (data.type === 'JOIN_REQ') {
     const newId = GameState.players.length;
-    GameState.players.push({ id: newId, name: data.name, hand: [], isBot: false, conn: conn });
+    GameState.players.push({ id: newId, name: data.name, hand: [], isBot: false, conn: conn, hasWon: false });
     document.getElementById('room-info').innerHTML += `<br>Joined: <b>${data.name}</b>`;
   } else if (data.type === 'PLAY_CARD') {
     executePlayCard(data.playerId, data.cardIndex, data.chosenColor);
@@ -1390,13 +1538,17 @@ function broadcastState() {
           edition: GameState.edition,
           flipSide: GameState.flipSide,
           discardPile: GameState.discardPile,
+          rankings: GameState.rankings,
           players: GameState.players.map(pl => ({
             id: pl.id,
             name: pl.name,
             handCount: pl.hand.length,
             hand: pl.id === p.id ? pl.hand : [],
             oppositeFaces: GameState.edition === 'flip' ? pl.hand.map(c => getOppositeFace(c)) : [],
-            isBot: pl.isBot
+            isBot: pl.isBot,
+            hasWon: pl.hasWon,
+            rank: pl.rank,
+            eliminated: pl.eliminated
           })),
           turnIndex: GameState.turnIndex,
           direction: GameState.direction,
@@ -1416,10 +1568,10 @@ function startSoloGame() {
   const name = document.getElementById('player-name').value || 'Shiny';
   GameState.edition = document.getElementById('game-edition').value;
   GameState.players = [
-    { id: 0, name: `${name} (You)`, hand: [], isBot: false },
-    { id: 1, name: 'Shorty', hand: [], isBot: true },
-    { id: 2, name: 'Archie', hand: [], isBot: true },
-    { id: 3, name: 'Ringo', hand: [], isBot: true }
+    { id: 0, name: `${name} (You)`, hand: [], isBot: false, hasWon: false },
+    { id: 1, name: 'Shorty', hand: [], isBot: true, hasWon: false },
+    { id: 2, name: 'Archie', hand: [], isBot: true, hasWon: false },
+    { id: 3, name: 'Ringo', hand: [], isBot: true, hasWon: false }
   ];
   document.getElementById('lobby-screen').style.display = 'none';
   initGameEngine();
@@ -1428,7 +1580,7 @@ function startSoloGame() {
 function startHostedGame() {
   const defaultNames = ['Shorty', 'Archie', 'Ringo'];
   for (let i = GameState.players.length; i < 4; i++) {
-    GameState.players.push({ id: i, name: defaultNames[i-1] || `Bot ${i}`, hand: [], isBot: true, conn: null });
+    GameState.players.push({ id: i, name: defaultNames[i-1] || `Bot ${i}`, hand: [], isBot: true, conn: null, hasWon: false });
   }
   document.getElementById('lobby-screen').style.display = 'none';
   initGameEngine();
@@ -1438,6 +1590,7 @@ function initGameEngine() {
   GameState.drawPile = buildDeck(GameState.edition);
   GameState.discardPile = [];
   GameState.discardRotations = [];
+  GameState.rankings = [];
   GameState.flipSide = 'light';
   GameState.stackedDrawCount = 0;
   GameState.direction = 1;
@@ -1509,6 +1662,8 @@ function canPlayCard(card) {
 
 function executePlayCard(playerId, cardIdx, chosenColor = null) {
   const player = GameState.players[playerId];
+  if (player.hasWon || player.eliminated) return;
+
   const card = player.hand[cardIdx];
   const face = getCardFace(card);
 
@@ -1536,14 +1691,37 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
     GameState.discardPile.push(card);
     GameState.discardRotations.push(rotation);
 
+    // Apply special card action
     handleCardAction(face, playerId);
 
+    // CHECK IF PLAYER WON (EMERGED AS 1st, 2nd, 3rd)
     if (player.hand.length === 0) {
-      triggerCenterSpecialVFX('reverse', `🏆 ${player.name} WINS! 🏆`);
+      player.hasWon = true;
+      const rank = GameState.rankings.length + 1;
+      player.rank = rank;
+      GameState.rankings.push({ id: player.id, name: player.name, rank: rank });
+
+      const medalTxt = rank === 1 ? '🥇 1ST PLACE!' : rank === 2 ? '🥈 2ND PLACE!' : '🥉 3RD PLACE!';
+      triggerCenterSpecialVFX('reverse', `${player.name} ${medalTxt}`);
       AudioEngine.uno();
-      return;
+
+      // Check if match concludes (1 or 0 players left)
+      const remaining = getActivePlayers();
+      if (remaining.length <= 1) {
+        if (remaining.length === 1) {
+          const lastP = remaining[0];
+          lastP.hasWon = true;
+          lastP.rank = GameState.rankings.length + 1;
+          GameState.rankings.push({ id: lastP.id, name: lastP.name, rank: lastP.rank });
+        }
+        triggerCenterSpecialVFX('reverse', 'MATCH FINISHED!');
+        broadcastState();
+        renderGame();
+        return;
+      }
     }
 
+    nextTurn();
     broadcastState();
     renderGame();
   });
@@ -1574,13 +1752,11 @@ function handleCardAction(face, playerId) {
     return;
   }
 
-  // FIXED: FLIP CARD ACTION & CURRENT COLOR UPDATE
   if (val === 'FLIP') {
     GameState.flipSide = GameState.flipSide === 'light' ? 'dark' : 'light';
     const topCard = GameState.discardPile[GameState.discardPile.length - 1];
     const newTopFace = getCardFace(topCard);
     
-    // Automatically adopt the new side's color so subsequent players can play matching cards
     if (newTopFace.color.startsWith('wild')) {
       GameState.currentColor = GameState.flipSide === 'light' ? 'red' : 'pink';
     } else {
@@ -1590,20 +1766,22 @@ function handleCardAction(face, playerId) {
 
     triggerCenterSpecialVFX('flip', `FLIPPED TO ${GameState.flipSide.toUpperCase()}!`);
   }
-
-  nextTurn();
 }
 
 /**
- * CIRCULAR TURN ADVANCEMENT (0 -> 1 -> 2 -> 3 -> 0)
+ * CIRCULAR TURN ADVANCEMENT (SKIPS WINNERS COMPLETELY)
  */
 function nextTurn() {
+  const active = getActivePlayers();
+  if (active.length <= 1) return;
+
   do {
     GameState.turnIndex = (GameState.turnIndex + GameState.direction + GameState.players.length) % GameState.players.length;
-  } while (GameState.players[GameState.turnIndex].eliminated);
+  } while (GameState.players[GameState.turnIndex].hasWon || GameState.players[GameState.turnIndex].eliminated);
 
   const nextP = GameState.players[GameState.turnIndex];
 
+  // Stack penalty is absorbed ONLY by the active player
   if (GameState.stackedDrawCount > 0 && !nextP.hand.some(c => canPlayCard(c))) {
     animateCardPickup(GameState.turnIndex, GameState.stackedDrawCount, () => {
       for (let i = 0; i < GameState.stackedDrawCount; i++) {
@@ -1629,6 +1807,8 @@ function nextTurn() {
 
 function handlePlayerDraw(playerId) {
   const p = GameState.players[playerId];
+  if (p.hasWon || p.eliminated) return;
+
   const count = GameState.stackedDrawCount > 0 ? GameState.stackedDrawCount : 1;
 
   animateCardPickup(playerId, count, () => {
@@ -1649,7 +1829,7 @@ function handlePlayerDraw(playerId) {
 
 function botTurn() {
   const bot = GameState.players[GameState.turnIndex];
-  if (!bot || !bot.isBot) return;
+  if (!bot || !bot.isBot || bot.hasWon || bot.eliminated) return;
 
   if (bot.hand.length === 2 && Math.random() < 0.9) {
     GameState.unoCalledPlayers.add(bot.id);
@@ -1682,6 +1862,8 @@ function botTurn() {
  */
 function onHumanCardClick(idx) {
   if (GameState.turnIndex !== GameState.myPlayerId) return;
+  if (GameState.players[GameState.myPlayerId].hasWon) return;
+
   const card = GameState.players[GameState.myPlayerId].hand[idx];
   if (!canPlayCard(card)) return;
 
@@ -1700,6 +1882,8 @@ function onHumanCardClick(idx) {
 
 function onDrawDeckClick() {
   if (GameState.turnIndex !== GameState.myPlayerId) return;
+  if (GameState.players[GameState.myPlayerId].hasWon) return;
+
   if (GameState.isHost) {
     handlePlayerDraw(GameState.myPlayerId);
   } else {
@@ -1750,7 +1934,7 @@ function openColorPicker() {
 }
 
 /**
- * RENDERING
+ * RENDERING: LEADERBOARD & RADIANT AURA
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
@@ -1809,13 +1993,21 @@ function renderGame() {
     handBox.appendChild(slotEl);
   });
 
-  document.getElementById('p-count-0').textContent = myPlayer.hand.length;
+  // Player Bottom Status
+  const pCount0 = document.getElementById('p-count-0');
+  if (myPlayer.hasWon) {
+    pCount0.textContent = `Won #${myPlayer.rank}`;
+    pCount0.classList.add('won-badge');
+  } else {
+    pCount0.textContent = myPlayer.hand.length;
+    pCount0.classList.remove('won-badge');
+  }
   document.getElementById('p-name-0').textContent = myPlayer.name;
 
-  const isMyTurn = GameState.turnIndex === GameState.myPlayerId;
+  const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon);
   document.getElementById('player-bottom').classList.toggle('active', isMyTurn);
 
-  if (myPlayer.hand.length === 2 && !GameState.unoCalledPlayers.has(GameState.myPlayerId)) {
+  if (myPlayer.hand.length === 2 && !GameState.unoCalledPlayers.has(GameState.myPlayerId) && !myPlayer.hasWon) {
     document.getElementById('uno-btn').classList.add('alert');
   } else {
     document.getElementById('uno-btn').classList.remove('alert');
@@ -1832,35 +2024,89 @@ function renderGame() {
     const opp = GameState.players[spot.id];
     if (opp) {
       spot.box.style.display = 'flex';
-      spot.box.classList.toggle('active', GameState.turnIndex === spot.id);
+      spot.box.classList.toggle('active', GameState.turnIndex === spot.id && !opp.hasWon);
       spot.nameEl.textContent = opp.name;
-      const count = opp.hand ? opp.hand.length : (opp.handCount || 0);
-      spot.countEl.textContent = count;
 
-      spot.handEl.innerHTML = '';
-      const displayCards = Math.min(count, 8);
-      const oppHand = opp.hand || [];
-      const oppOppositeFaces = opp.oppositeFaces || [];
-      const oppStep = displayCards > 1 ? Math.min(22, 160 / (displayCards - 1)) : 0;
+      if (opp.hasWon) {
+        spot.countEl.textContent = `Won #${opp.rank}`;
+        spot.countEl.classList.add('won-badge');
+        spot.handEl.innerHTML = '';
+      } else {
+        const count = opp.hand ? opp.hand.length : (opp.handCount || 0);
+        spot.countEl.textContent = count;
+        spot.countEl.classList.remove('won-badge');
 
-      for (let i = 0; i < displayCards; i++) {
-        let standCard;
-        if (GameState.edition === 'flip') {
-          const cardData = oppHand[i];
-          const face = cardData ? getOppositeFace(cardData) : (oppOppositeFaces[i] || { color: 'pink', value: '0' });
-          standCard = createMiniOpponentCard(face);
-        } else {
-          standCard = document.createElement('div');
-          standCard.className = 'opp-stand-card';
-          standCard.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo" style="font-size:0.75rem;">UNO</div></div></div>`;
+        spot.handEl.innerHTML = '';
+        const displayCards = Math.min(count, 8);
+        const oppHand = opp.hand || [];
+        const oppOppositeFaces = opp.oppositeFaces || [];
+        const oppStep = displayCards > 1 ? Math.min(22, 160 / (displayCards - 1)) : 0;
+
+        for (let i = 0; i < displayCards; i++) {
+          let standCard;
+          if (GameState.edition === 'flip') {
+            const cardData = oppHand[i];
+            const face = cardData ? getOppositeFace(cardData) : (oppOppositeFaces[i] || { color: 'pink', value: '0' });
+            standCard = createMiniOpponentCard(face);
+          } else {
+            standCard = document.createElement('div');
+            standCard.className = 'opp-stand-card';
+            standCard.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo" style="font-size:0.75rem;">UNO</div></div></div>`;
+          }
+
+          if (i > 0) standCard.style.marginLeft = `-${24 - oppStep}px`;
+          spot.handEl.appendChild(standCard);
         }
-
-        if (i > 0) standCard.style.marginLeft = `-${24 - oppStep}px`;
-        spot.handEl.appendChild(standCard);
       }
     } else {
       spot.box.style.display = 'none';
     }
+  });
+
+  // RENDER LEADERBOARD
+  renderLeaderboard();
+}
+
+/**
+ * DYNAMIC LEADERBOARD RENDERING
+ */
+function renderLeaderboard() {
+  const lbList = document.getElementById('lb-list');
+  lbList.innerHTML = '';
+
+  // Sort players for leaderboard:
+  // 1. Finished/won players first in rank order
+  // 2. Active players sorted by card count ascending
+  // 3. Eliminated players
+  const sorted = [...GameState.players].sort((a, b) => {
+    if (a.hasWon && b.hasWon) return (a.rank || 0) - (b.rank || 0);
+    if (a.hasWon) return -1;
+    if (b.hasWon) return 1;
+    if (a.eliminated) return 1;
+    if (b.eliminated) return -1;
+    const aCount = a.hand ? a.hand.length : (a.handCount || 0);
+    const bCount = b.hand ? b.hand.length : (b.handCount || 0);
+    return aCount - bCount;
+  });
+
+  const medals = ['🥇', '🥈', '🥉', '4th'];
+
+  sorted.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row';
+
+    const rankSymbol = p.hasWon ? medals[p.rank - 1] : `${idx + 1}.`;
+    const count = p.hand ? p.hand.length : (p.handCount || 0);
+    const scoreText = p.hasWon ? 'WON' : p.eliminated ? 'OUT' : `${count} cards`;
+
+    row.innerHTML = `
+      <div class="lb-left">
+        <span class="lb-rank">${rankSymbol}</span>
+        <span class="lb-name" style="${p.id === GameState.myPlayerId ? 'color:#f7b300; font-weight:900;' : ''}">${p.name}</span>
+      </div>
+      <span class="lb-score ${p.hasWon ? 'won' : ''}">${scoreText}</span>
+    `;
+    lbList.appendChild(row);
   });
 }
 
