@@ -249,7 +249,7 @@
       -12px 14px 25px rgba(0,0,0,0.7);
   }
 
-  /* Top-Right Leave Button */
+  /* Leave Game Button */
   .leave-game-btn {
     position: absolute;
     top: 18px;
@@ -284,7 +284,7 @@
     position: absolute;
     top: 18px;
     left: 18px;
-    width: 190px;
+    width: 200px;
     background: rgba(10, 16, 26, 0.85);
     backdrop-filter: blur(14px);
     border: 1.5px solid rgba(255, 255, 255, 0.18);
@@ -332,7 +332,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 90px;
+    max-width: 95px;
   }
   .lb-score {
     font-size: 0.72rem;
@@ -440,7 +440,7 @@
     border-color: #fff;
   }
 
-  /* Card Structure */
+  /* Card Elements */
   .card {
     width: var(--card-w);
     height: var(--card-h);
@@ -585,9 +585,9 @@
   }
 
   /* Seating Coordinates */
-  #player-left { top: 46%; left: 30px; transform: translateY(-50%); align-items: flex-start; }  /* ID 1 */
-  #player-top { top: 18px; left: 50%; transform: translateX(-50%); }                           /* ID 2 */
-  #player-right { top: 46%; right: 30px; transform: translateY(-50%); align-items: flex-end; }  /* ID 3 */
+  #player-left { top: 46%; left: 30px; transform: translateY(-50%); align-items: flex-start; }
+  #player-top { top: 18px; left: 50%; transform: translateX(-50%); }
+  #player-right { top: 46%; right: 30px; transform: translateY(-50%); align-items: flex-end; }
   
   #player-bottom {
     position: absolute;
@@ -625,9 +625,7 @@
   }
   .opp-stand-card:first-child { margin-left: 0 !important; }
 
-  /* ========================================================
-     TWO-STAGE PLAYABLE POP-UP & HOVER MECHANICS
-     ======================================================== */
+  /* Human Hand Viewport */
   .human-hand-viewport {
     height: 185px;
     width: 100vw;
@@ -668,7 +666,6 @@
     pointer-events: none;
   }
 
-  /* Stage 1: Playable Cards on Your Turn Pop Up Slightly */
   .card-slot .card.playable {
     transform: translateY(-18px);
     box-shadow: 0 14px 28px rgba(0,0,0,0.75), 0 0 16px rgba(255, 230, 0, 0.6);
@@ -680,14 +677,12 @@
     100% { box-shadow: 0 16px 32px rgba(0,0,0,0.85), 0 0 22px rgba(255, 235, 0, 0.85); }
   }
 
-  /* Stage 2: Full Pop-up on Hover */
   .card-slot:hover .card {
     transform: translateY(-50px) scale(1.18) !important;
     box-shadow: 0 24px 48px rgba(0,0,0,0.9), 0 0 32px rgba(247, 179, 0, 0.95) !important;
     filter: brightness(1.08) !important;
   }
 
-  /* Unplayable Cards on Your Turn Stay Down & Sightly Subdued */
   .card-slot .card.unplayable {
     filter: brightness(0.85);
   }
@@ -857,7 +852,7 @@
   .close-picker-btn:active { transform: translateY(-50%) scale(0.95); }
 
   /* ========================================================
-     NEXT-GEN HIGH-TECH LOBBY / HOME SCREEN
+     LOBBY / HOME SCREEN WITH EMOJI AVATAR PICKER
      ======================================================== */
   #lobby-screen {
     position: absolute;
@@ -868,11 +863,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 20px;
-    overflow: hidden;
+    gap: 16px;
+    overflow-y: auto;
+    padding: 20px 0;
   }
 
-  /* Multi-Color Ambient Aurora Blobs */
   .lobby-nebula {
     position: absolute;
     border-radius: 50%;
@@ -891,7 +886,6 @@
     100% { transform: translate(45px, -35px) scale(1.12); }
   }
 
-  /* Diagonal High-Tech Grid Mesh Overlay */
   .lobby-grid-overlay {
     position: absolute;
     inset: 0;
@@ -904,7 +898,6 @@
     pointer-events: none;
   }
 
-  /* 3D Realistic Showcase Cards Drifting in Background */
   .showcase-card {
     position: absolute;
     width: 140px;
@@ -925,7 +918,6 @@
     100% { transform: translateY(-32px) rotateZ(-6deg) scale(1.06); }
   }
 
-  /* Live Engine Status Badge */
   .status-pill {
     display: inline-flex;
     align-items: center;
@@ -933,9 +925,9 @@
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
-    padding: 6px 16px;
+    padding: 5px 14px;
     border-radius: 30px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 2px;
     color: #e2e8f0;
@@ -964,7 +956,7 @@
     z-index: 10;
   }
   .title-logo {
-    font-size: 5.6rem;
+    font-size: 5.2rem;
     font-weight: 900;
     font-style: italic;
     letter-spacing: 4px;
@@ -977,39 +969,38 @@
     line-height: 1;
   }
   .title-sub {
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     font-weight: 900;
     letter-spacing: 6px;
     color: #f7b300;
     text-transform: uppercase;
     text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
-  /* Frosted Glass Console Card */
   .lobby-card {
-    background: rgba(14, 21, 37, 0.78);
+    background: rgba(14, 21, 37, 0.82);
     backdrop-filter: blur(30px);
     border: 2px solid rgba(255, 255, 255, 0.18);
-    border-radius: 28px;
-    padding: 32px 42px;
-    width: min(92vw, 460px);
+    border-radius: 26px;
+    padding: 24px 34px;
+    width: min(92vw, 470px);
     box-shadow: 0 30px 90px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.35);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     position: relative;
     z-index: 10;
   }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  label { font-size: 0.76rem; text-transform: uppercase; color: #94a3b8; font-weight: 800; letter-spacing: 1.5px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 0.74rem; text-transform: uppercase; color: #94a3b8; font-weight: 800; letter-spacing: 1.5px; }
   input, select {
     background: rgba(4, 9, 18, 0.75);
     border: 1.5px solid rgba(255,255,255,0.22);
-    border-radius: 14px;
-    padding: 13px 16px;
+    border-radius: 12px;
+    padding: 11px 14px;
     color: #fff;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -1019,7 +1010,75 @@
     box-shadow: 0 0 18px rgba(247, 179, 0, 0.45);
   }
 
-  /* Console Buttons with Gleam Effects */
+  /* Emoji Avatar Picker Bar */
+  .avatar-picker-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0,0,0,0.3);
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .avatar-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .current-avatar-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar-bubble {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 2px solid #f7b300;
+    box-shadow: 0 0 15px rgba(247, 179, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+  }
+  .avatar-grid {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+  .avatar-option {
+    flex: 0 0 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .avatar-option:hover {
+    transform: scale(1.18);
+    border-color: #f7b300;
+    background: rgba(247, 179, 0, 0.2);
+  }
+  .avatar-option.selected {
+    border-color: #ffea00;
+    background: rgba(255, 234, 0, 0.25);
+    box-shadow: 0 0 10px rgba(255, 234, 0, 0.5);
+  }
+  .custom-emoji-input {
+    width: 105px !important;
+    text-align: center;
+    font-size: 1.1rem !important;
+    padding: 4px 8px !important;
+  }
+
   .btn-group { display: flex; gap: 12px; }
   .btn {
     flex: 1;
@@ -1029,7 +1088,7 @@
     color: white;
     font-weight: 900;
     font-size: 0.95rem;
-    padding: 15px;
+    padding: 13px;
     border-radius: 14px;
     cursor: pointer;
     box-shadow: 0 6px 20px rgba(234,35,35,0.55), inset 0 1px 0 rgba(255,255,255,0.45);
@@ -1050,9 +1109,7 @@
     transform: rotate(25deg);
     transition: left 0.75s ease;
   }
-  .btn:hover::before {
-    left: 120%;
-  }
+  .btn:hover::before { left: 120%; }
   .btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 30px rgba(247, 179, 0, 0.65);
@@ -1064,18 +1121,14 @@
     background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%);
     box-shadow: 0 6px 20px rgba(0, 118, 230, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
   }
-  .btn.secondary:hover {
-    box-shadow: 0 10px 30px rgba(0, 153, 255, 0.75);
-  }
+  .btn.secondary:hover { box-shadow: 0 10px 30px rgba(0, 153, 255, 0.75); }
   .btn.join-btn {
     flex: 0 0 95px;
     background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
     box-shadow: 0 6px 18px rgba(46, 204, 113, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
-    padding: 13px;
+    padding: 11px;
   }
-  .btn.join-btn:hover {
-    box-shadow: 0 10px 24px rgba(46, 204, 113, 0.75);
-  }
+  .btn.join-btn:hover { box-shadow: 0 10px 24px rgba(46, 204, 113, 0.75); }
 </style>
 </head>
 <body>
@@ -1086,7 +1139,7 @@
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
-    <!-- Top-Right Leave / Quit Game Button -->
+    <!-- Top-Right Leave Button -->
     <button class="leave-game-btn" onclick="confirmQuitGame()">
       <span>✕</span><span>LEAVE GAME</span>
     </button>
@@ -1102,7 +1155,6 @@
 
     <!-- Table Felt Stage -->
     <div class="table-stage" id="table-stage">
-      <!-- High-Visibility 510px Direction Ring with Dynamically Flipping Chevrons -->
       <div class="direction-ring-3d" id="dir-ring">
         <svg viewBox="0 0 500 500" class="ring-svg">
           <defs>
@@ -1120,10 +1172,8 @@
             </filter>
           </defs>
 
-          <!-- Outer Glowing Ring -->
           <circle cx="250" cy="250" r="215" fill="none" stroke="url(#ringNeon)" stroke-width="6" stroke-dasharray="24 18" filter="url(#neonGlow)"/>
 
-          <!-- Tangentially Aligned Flipping Arrow Chevrons -->
           <g class="arrow-unit" transform="translate(250, 35) rotate(0)">
             <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
           </g>
@@ -1159,7 +1209,7 @@
     <!-- Left Opponent (ID 1) -->
     <div class="player-spot" id="player-left">
       <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Shorty</div>🐭</div>
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Shorty</div><span id="p-avatar-1">🐭</span></div>
         <div class="card-count-badge" id="p-count-1">0</div>
       </div>
       <div class="opponent-3d-hand" id="opp-hand-1"></div>
@@ -1168,7 +1218,7 @@
     <!-- Top Opponent (ID 2) -->
     <div class="player-spot" id="player-top">
       <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Archie</div>🐱</div>
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Archie</div><span id="p-avatar-2">🐱</span></div>
         <div class="card-count-badge" id="p-count-2">0</div>
       </div>
       <div class="opponent-3d-hand" id="opp-hand-2"></div>
@@ -1177,7 +1227,7 @@
     <!-- Right Opponent (ID 3) -->
     <div class="player-spot" id="player-right">
       <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-3">Ringo</div>🐶</div>
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-3">Ringo</div><span id="p-avatar-3">🐶</span></div>
         <div class="card-count-badge" id="p-count-3">0</div>
       </div>
       <div class="opponent-3d-hand" id="opp-hand-3"></div>
@@ -1186,7 +1236,7 @@
     <!-- Human Player Hand (ID 0 - Bottom) -->
     <div id="player-bottom">
       <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div>⚡</div>
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div><span id="p-avatar-0">⚡</span></div>
         <div class="card-count-badge" id="p-count-0">0</div>
       </div>
       <div class="human-hand-viewport">
@@ -1210,19 +1260,16 @@
     <div id="fly-animation-layer"></div>
   </div>
 
-  <!-- Next-Gen Animated Home Screen (Lobby) -->
+  <!-- Lobby Screen with Custom Avatar Picker -->
   <div id="lobby-screen">
-    <!-- Multi-Color Ambient Nebulae -->
     <div class="lobby-nebula neb-red"></div>
     <div class="lobby-nebula neb-blue"></div>
     <div class="lobby-nebula neb-yellow"></div>
     <div class="lobby-nebula neb-green"></div>
 
-    <!-- Cyber-Mesh Overlay -->
     <div class="lobby-grid-overlay"></div>
 
-    <!-- 3D Realistic Showcase Cards Drifting in Space -->
-    <!-- Card 1: Wild Card -->
+    <!-- Showcase Cards -->
     <div class="showcase-card sc-1 card c-wild">
       <div class="card-face">
         <div class="mini-uno-badge">UNO</div>
@@ -1232,7 +1279,6 @@
       </div>
     </div>
 
-    <!-- Card 2: Blue Reverse Card -->
     <div class="showcase-card sc-2 card c-blue">
       <div class="card-face">
         <div class="mini-uno-badge">UNO</div>
@@ -1247,7 +1293,6 @@
       </div>
     </div>
 
-    <!-- Card 3: Flip Dark Teal +5 Card -->
     <div class="showcase-card sc-3 card c-teal">
       <div class="card-face">
         <div class="mini-uno-badge">FLIP!</div>
@@ -1259,7 +1304,6 @@
       </div>
     </div>
 
-    <!-- Card 4: Red 7 Card -->
     <div class="showcase-card sc-4 card c-red">
       <div class="card-face">
         <div class="mini-uno-badge">UNO</div>
@@ -1271,7 +1315,6 @@
       </div>
     </div>
 
-    <!-- Main Title & Logo -->
     <div class="title-logo-container">
       <div class="status-pill">
         <span class="live-dot"></span>
@@ -1281,12 +1324,50 @@
       <div class="title-sub">Ultimate 3D Edition</div>
     </div>
 
-    <!-- Frosted Glass Menu Panel -->
+    <!-- Lobby Form -->
     <div class="lobby-card">
       <div class="form-group">
         <label>Your Nickname</label>
         <input type="text" id="player-name" value="Shiny" maxlength="12">
       </div>
+
+      <!-- Emoji Avatar Selector Section -->
+      <div class="avatar-picker-section">
+        <div class="avatar-top-row">
+          <div class="current-avatar-preview">
+            <div class="avatar-bubble" id="lobby-avatar-bubble">⚡</div>
+            <label style="margin:0;">Profile Emoji</label>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label style="margin:0; font-size:0.65rem;">Custom:</label>
+            <input type="text" id="custom-emoji-box" class="custom-emoji-input" placeholder="Type Emoji" maxlength="4" oninput="onCustomEmojiInput(this.value)">
+          </div>
+        </div>
+
+        <div class="avatar-grid" id="avatar-grid">
+          <!-- Curated popular Google emojis -->
+          <div class="avatar-option selected" onclick="selectEmoji('⚡')">⚡</div>
+          <div class="avatar-option" onclick="selectEmoji('🔥')">🔥</div>
+          <div class="avatar-option" onclick="selectEmoji('👑')">👑</div>
+          <div class="avatar-option" onclick="selectEmoji('😎')">😎</div>
+          <div class="avatar-option" onclick="selectEmoji('🤖')">🤖</div>
+          <div class="avatar-option" onclick="selectEmoji('🐱')">🐱</div>
+          <div class="avatar-option" onclick="selectEmoji('🐶')">🐶</div>
+          <div class="avatar-option" onclick="selectEmoji('🐭')">🐭</div>
+          <div class="avatar-option" onclick="selectEmoji('🦊')">🦊</div>
+          <div class="avatar-option" onclick="selectEmoji('🐼')">🐼</div>
+          <div class="avatar-option" onclick="selectEmoji('🦁')">🦁</div>
+          <div class="avatar-option" onclick="selectEmoji('🦄')">🦄</div>
+          <div class="avatar-option" onclick="selectEmoji('🐉')">🐉</div>
+          <div class="avatar-option" onclick="selectEmoji('💀')">💀</div>
+          <div class="avatar-option" onclick="selectEmoji('👻')">👻</div>
+          <div class="avatar-option" onclick="selectEmoji('🎮')">🎮</div>
+          <div class="avatar-option" onclick="selectEmoji('🚀')">🚀</div>
+          <div class="avatar-option" onclick="selectEmoji('💎')">💎</div>
+          <div class="avatar-option" onclick="selectEmoji('🍕')">🍕</div>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Game Edition</label>
         <select id="game-edition">
@@ -1426,6 +1507,7 @@ let GameState = {
   unoCalledPlayers: new Set(),
   isHost: true,
   myPlayerId: 0,
+  myAvatar: '⚡',
   peer: null,
   pendingWildCard: null,
   isDealing: false,
@@ -1445,6 +1527,27 @@ const COLOR_HEX = {
 
 function getActivePlayers() {
   return GameState.players.filter(p => !p.hasWon && !p.eliminated);
+}
+
+function selectEmoji(emoji) {
+  GameState.myAvatar = emoji;
+  document.getElementById('lobby-avatar-bubble').textContent = emoji;
+  document.getElementById('custom-emoji-box').value = emoji;
+
+  document.querySelectorAll('.avatar-option').forEach(el => {
+    el.classList.toggle('selected', el.textContent.trim() === emoji);
+  });
+}
+
+function onCustomEmojiInput(val) {
+  const trimmed = val.trim();
+  if (trimmed) {
+    GameState.myAvatar = trimmed;
+    document.getElementById('lobby-avatar-bubble').textContent = trimmed;
+    document.querySelectorAll('.avatar-option').forEach(el => {
+      el.classList.toggle('selected', el.textContent.trim() === trimmed);
+    });
+  }
 }
 
 function confirmQuitGame() {
@@ -1795,9 +1898,6 @@ function animateCardPickup(targetSpotIndex, count, callback) {
   }
 }
 
-/**
- * ROUND-ROBIN OPENING DEAL ANIMATION
- */
 function runInitialDealAnimation(onComplete) {
   GameState.isDealing = true;
   const flyLayer = document.getElementById('fly-animation-layer');
@@ -1964,7 +2064,7 @@ function createRoom() {
     document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Share this code with your friends!`;
     document.getElementById('start-hosted-btn').style.display = 'block';
 
-    GameState.players = [{ id: 0, name: `${name} (You)`, hand: [], isBot: false, conn: null, hasWon: false }];
+    GameState.players = [{ id: 0, name: `${name} (You)`, avatar: GameState.myAvatar || '⚡', hand: [], isBot: false, conn: null, hasWon: false }];
   });
 
   GameState.peer.on('connection', (conn) => {
@@ -1986,7 +2086,7 @@ function joinRoom() {
     const conn = GameState.peer.connect(roomId);
     GameState.isHost = false;
 
-    conn.on('open', () => conn.send({ type: 'JOIN_REQ', name: name }));
+    conn.on('open', () => conn.send({ type: 'JOIN_REQ', name: name, avatar: GameState.myAvatar || '⚡' }));
 
     conn.on('data', (data) => {
       if (data.type === 'SYNC_STATE') {
@@ -2016,7 +2116,15 @@ function joinRoom() {
 function handleHostData(conn, data) {
   if (data.type === 'JOIN_REQ') {
     const newId = GameState.players.length;
-    GameState.players.push({ id: newId, name: data.name, hand: [], isBot: false, conn: conn, hasWon: false });
+    GameState.players.push({
+      id: newId,
+      name: data.name,
+      avatar: data.avatar || '😎',
+      hand: [],
+      isBot: false,
+      conn: conn,
+      hasWon: false
+    });
     document.getElementById('room-info').innerHTML += `<br>Joined: <b>${data.name}</b>`;
   } else if (data.type === 'PLAY_CARD') {
     executePlayCard(data.playerId, data.cardIndex, data.chosenColor);
@@ -2045,6 +2153,7 @@ function broadcastState() {
           players: GameState.players.map(pl => ({
             id: pl.id,
             name: pl.name,
+            avatar: pl.avatar,
             handCount: pl.hand.length,
             hand: pl.id === p.id ? pl.hand : [],
             oppositeFaces: GameState.edition === 'flip' ? pl.hand.map(c => getOppositeFace(c)) : [],
@@ -2071,19 +2180,24 @@ function startSoloGame() {
   const name = document.getElementById('player-name').value || 'Shiny';
   GameState.edition = document.getElementById('game-edition').value;
   GameState.players = [
-    { id: 0, name: `${name} (You)`, hand: [], isBot: false, hasWon: false },
-    { id: 1, name: 'Shorty', hand: [], isBot: true, hasWon: false },
-    { id: 2, name: 'Archie', hand: [], isBot: true, hasWon: false },
-    { id: 3, name: 'Ringo', hand: [], isBot: true, hasWon: false }
+    { id: 0, name: `${name} (You)`, avatar: GameState.myAvatar || '⚡', hand: [], isBot: false, hasWon: false },
+    { id: 1, name: 'Shorty', avatar: '🐭', hand: [], isBot: true, hasWon: false },
+    { id: 2, name: 'Archie', avatar: '🐱', hand: [], isBot: true, hasWon: false },
+    { id: 3, name: 'Ringo', avatar: '🐶', hand: [], isBot: true, hasWon: false }
   ];
   document.getElementById('lobby-screen').style.display = 'none';
   initGameEngine();
 }
 
 function startHostedGame() {
-  const defaultNames = ['Shorty', 'Archie', 'Ringo'];
+  const defaultBots = [
+    { name: 'Shorty', avatar: '🐭' },
+    { name: 'Archie', avatar: '🐱' },
+    { name: 'Ringo', avatar: '🐶' }
+  ];
   for (let i = GameState.players.length; i < 4; i++) {
-    GameState.players.push({ id: i, name: defaultNames[i-1] || `Bot ${i}`, hand: [], isBot: true, conn: null, hasWon: false });
+    const b = defaultBots[i-1] || { name: `Bot ${i}`, avatar: '🤖' };
+    GameState.players.push({ id: i, name: b.name, avatar: b.avatar, hand: [], isBot: true, conn: null, hasWon: false });
   }
   document.getElementById('lobby-screen').style.display = 'none';
   initGameEngine();
@@ -2197,7 +2311,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
       player.hasWon = true;
       const rank = GameState.rankings.length + 1;
       player.rank = rank;
-      GameState.rankings.push({ id: player.id, name: player.name, rank: rank });
+      GameState.rankings.push({ id: player.id, name: player.name, avatar: player.avatar, rank: rank });
 
       const medalTxt = rank === 1 ? '🥇 1ST PLACE!' : rank === 2 ? '🥈 2ND PLACE!' : '🥉 3RD PLACE!';
       triggerCenterSpecialVFX('reverse', `${player.name} ${medalTxt}`);
@@ -2209,7 +2323,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
           const lastP = remaining[0];
           lastP.hasWon = true;
           lastP.rank = GameState.rankings.length + 1;
-          GameState.rankings.push({ id: lastP.id, name: lastP.name, rank: lastP.rank });
+          GameState.rankings.push({ id: lastP.id, name: lastP.name, avatar: lastP.avatar, rank: lastP.rank });
         }
         triggerCenterSpecialVFX('reverse', 'MATCH FINISHED!');
         broadcastState();
@@ -2482,7 +2596,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 /**
- * RENDERING WITH PLAYABLE POP-UP LOGIC
+ * RENDERING (WITH ADAPTIVE FLATTENED CURVE FOR 25-30+ CARDS)
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
@@ -2514,15 +2628,20 @@ function renderGame() {
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
   const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing);
 
-  // Render Local Player Hand with Two-Stage Playable Pop-Up
+  // Render Local Player Hand with Adaptive Flattening
   const handBox = document.getElementById('player-hand');
   handBox.innerHTML = '';
   const total = myPlayer.hand.length;
 
-  const maxAllowedWidth = Math.min(window.innerWidth * 0.82, 800);
+  // Viewport-safe bounds
+  const maxAllowedWidth = Math.min(window.innerWidth - 70, 960);
   const cardWidth = 92;
-  const step = total > 1 ? Math.min(46, (maxAllowedWidth - cardWidth) / (total - 1)) : 0;
-  const maxAngle = Math.min(46, total * 3.6);
+  const step = total > 1 ? Math.min(44, (maxAllowedWidth - cardWidth) / (total - 1)) : 0;
+
+  // Adaptive angle & curve dampening: as hand gets large, angle and translateY decrease towards 0
+  const angleDampener = total > 22 ? 0.28 : (total > 14 ? 0.5 : (total > 8 ? 0.8 : 1.0));
+  const maxAngle = Math.min(18, total * 2.2) * angleDampener;
+  const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
 
   myPlayer.hand.forEach((card, idx) => {
     const slotEl = document.createElement('div');
@@ -2530,7 +2649,6 @@ function renderGame() {
 
     const cardEl = createCardElement(card);
 
-    // Apply partial pop-up cue if card is playable on your turn
     if (isMyTurn) {
       if (canPlayCard(card)) {
         cardEl.classList.add('playable');
@@ -2543,7 +2661,7 @@ function renderGame() {
 
     const offset = idx - (total - 1) / 2;
     const rotateDeg = total > 1 ? (offset / ((total - 1) / 2 || 1)) * (maxAngle / 2) : 0;
-    const translateY = Math.abs(offset) * Math.min(4.2, 34 / (total || 1));
+    const translateY = Math.abs(offset) * yDampener;
     const translateX = offset * step;
 
     slotEl.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
@@ -2561,6 +2679,7 @@ function renderGame() {
     pCount0.classList.remove('won-badge');
   }
   document.getElementById('p-name-0').textContent = myPlayer.name;
+  document.getElementById('p-avatar-0').textContent = myPlayer.avatar || GameState.myAvatar || '⚡';
 
   document.getElementById('player-bottom').classList.toggle('active', isMyTurn);
 
@@ -2572,9 +2691,9 @@ function renderGame() {
 
   // Render Opponents
   const oppMap = [
-    { box: document.getElementById('player-left'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), id: 1 },
-    { box: document.getElementById('player-top'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), id: 2 },
-    { box: document.getElementById('player-right'), handEl: document.getElementById('opp-hand-3'), countEl: document.getElementById('p-count-3'), nameEl: document.getElementById('p-name-3'), id: 3 }
+    { box: document.getElementById('player-left'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), avatarEl: document.getElementById('p-avatar-1'), id: 1 },
+    { box: document.getElementById('player-top'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), avatarEl: document.getElementById('p-avatar-2'), id: 2 },
+    { box: document.getElementById('player-right'), handEl: document.getElementById('opp-hand-3'), countEl: document.getElementById('p-count-3'), nameEl: document.getElementById('p-name-3'), avatarEl: document.getElementById('p-avatar-3'), id: 3 }
   ];
 
   oppMap.forEach(spot => {
@@ -2583,6 +2702,7 @@ function renderGame() {
       spot.box.style.display = 'flex';
       spot.box.classList.toggle('active', GameState.turnIndex === spot.id && !opp.hasWon && !GameState.isDealing);
       spot.nameEl.textContent = opp.name;
+      spot.avatarEl.textContent = opp.avatar || '🤖';
 
       if (opp.hasWon) {
         spot.countEl.textContent = `Won #${opp.rank}`;
@@ -2651,6 +2771,7 @@ function renderLeaderboard() {
     row.innerHTML = `
       <div class="lb-left">
         <span class="lb-rank">${rankSymbol}</span>
+        <span style="font-size:0.9rem;">${p.avatar || '👤'}</span>
         <span class="lb-name" style="${p.id === GameState.myPlayerId ? 'color:#f7b300; font-weight:900;' : ''}">${p.name}</span>
       </div>
       <span class="lb-score ${p.hasWon ? 'won' : ''}">${scoreText}</span>
