@@ -46,14 +46,28 @@
     align-items: center;
   }
 
-  /* 3D World Viewport */
+  /* ========================================================
+     SCREEN ROUTING ARCHITECTURE (Auth -> Lobby -> Game)
+     ======================================================== */
+  #auth-screen, #lobby-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+  }
+
+  /* 3D Arena is HIDDEN until match actually starts */
   #viewport-3d {
     width: 100vw;
     height: 100vh;
     position: relative;
     perspective: 1100px;
     overflow: hidden;
-    display: flex;
+    display: none; /* Initially hidden */
     justify-content: center;
     align-items: center;
     transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
@@ -788,92 +802,286 @@
   }
 
   /* ========================================================
-     FRIEND SYSTEM & DIRECT INVITATION MODALS
+     HOME SCREEN & PROFILE STYLES
      ======================================================== */
-  /* User Profile Header in Lobby */
-  .lobby-top-bar {
+  #lobby-screen {
+    background: #060912;
+    padding: 20px 0;
+  }
+
+  .lobby-nebula {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.38;
+    pointer-events: none;
+    animation: nebulaDrift 14s infinite alternate ease-in-out;
+  }
+  .neb-red { width: 550px; height: 550px; background: #ea2323; top: -15%; left: -10%; }
+  .neb-blue { width: 600px; height: 600px; background: #0076e6; bottom: -20%; right: -10%; animation-duration: 18s; }
+  .neb-yellow { width: 450px; height: 450px; background: #f7b300; top: 20%; right: -5%; animation-duration: 12s; }
+  .neb-green { width: 500px; height: 500px; background: #37a324; bottom: -10%; left: 10%; animation-duration: 16s; }
+
+  @keyframes nebulaDrift {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(45px, -35px) scale(1.12); }
+  }
+
+  .lobby-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 45px 45px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
+    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
+    pointer-events: none;
+  }
+
+  /* User Header Banner on Home Screen */
+  .home-profile-banner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: min(92vw, 470px);
-    background: rgba(14, 21, 37, 0.75);
+    background: rgba(14, 21, 37, 0.85);
     backdrop-filter: blur(20px);
     border: 1.5px solid rgba(255, 255, 255, 0.18);
     border-radius: 20px;
-    padding: 8px 16px;
-    margin-bottom: 2px;
+    padding: 10px 18px;
+    margin-bottom: 6px;
     z-index: 20;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
   }
   .user-badge-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
   .user-avatar-tag {
-    font-size: 1.7rem;
-    background: rgba(255,255,255,0.1);
+    font-size: 1.8rem;
+    background: rgba(255,255,255,0.08);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1.5px solid #f7b300;
+    border: 2px solid #f7b300;
   }
-  .user-text-info {
-    display: flex;
-    flex-direction: column;
-  }
-  .user-username {
-    font-weight: 900;
-    font-size: 0.95rem;
-    color: #fff;
-  }
-  .user-wins-stat {
-    font-size: 0.7rem;
-    font-weight: 800;
-    color: #f7b300;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .user-actions-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .user-text-info { display: flex; flex-direction: column; }
+  .user-username { font-weight: 900; font-size: 1rem; color: #fff; }
+  .user-wins-stat { font-size: 0.72rem; font-weight: 800; color: #f7b300; letter-spacing: 1px; }
+
   .pill-btn {
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.25);
     color: #fff;
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
     outline: none;
+  }
+  .pill-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
+  .pill-btn.danger { background: rgba(234, 35, 35, 0.25); border-color: rgba(234, 35, 35, 0.5); }
+  .pill-btn.danger:hover { background: rgba(234, 35, 35, 0.5); }
+
+  .title-logo-container {
+    position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
+    z-index: 10;
   }
-  .pill-btn:hover {
-    background: rgba(255,255,255,0.22);
-    transform: scale(1.04);
+  .title-logo {
+    font-size: 5.2rem;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 4px;
+    text-shadow: 0 14px 40px rgba(234,35,35,0.85), 0 0 25px rgba(247,179,0,0.9);
+    background: linear-gradient(180deg, #fffb52 0%, #ff8c00 45%, #ea2323 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transform: skew(-10deg);
+    filter: drop-shadow(0 8px 0px rgba(0,0,0,0.95));
+    line-height: 1;
   }
-  .pill-btn.danger {
-    background: rgba(234, 35, 35, 0.25);
-    border-color: rgba(234, 35, 35, 0.5);
-  }
-  .pill-btn.danger:hover {
-    background: rgba(234, 35, 35, 0.5);
+  .title-sub {
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 6px;
+    color: #f7b300;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+    margin-top: 2px;
   }
 
-  /* Friends Drawer Modal */
-  #friends-modal {
+  /* Lobby Form Card */
+  .lobby-card {
+    background: rgba(14, 21, 37, 0.82);
+    backdrop-filter: blur(30px);
+    border: 2px solid rgba(255, 255, 255, 0.18);
+    border-radius: 26px;
+    padding: 24px 34px;
+    width: min(92vw, 470px);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    z-index: 10;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 0.74rem; text-transform: uppercase; color: #94a3b8; font-weight: 800; letter-spacing: 1.5px; }
+  input, select {
+    background: rgba(4, 9, 18, 0.75);
+    border: 1.5px solid rgba(255,255,255,0.22);
+    border-radius: 12px;
+    padding: 11px 14px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, select:focus {
+    border-color: #f7b300;
+    box-shadow: 0 0 18px rgba(247, 179, 0, 0.45);
+  }
+
+  /* Emoji Picker */
+  .avatar-picker-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0,0,0,0.3);
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .avatar-top-row { display: flex; align-items: center; justify-content: space-between; }
+  .current-avatar-preview { display: flex; align-items: center; gap: 10px; }
+  .avatar-bubble {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 2px solid #f7b300;
+    box-shadow: 0 0 15px rgba(247, 179, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+  }
+  .avatar-grid {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+  .avatar-option {
+    flex: 0 0 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .avatar-option:hover {
+    transform: scale(1.18);
+    border-color: #f7b300;
+    background: rgba(247, 179, 0, 0.2);
+  }
+  .avatar-option.selected {
+    border-color: #ffea00;
+    background: rgba(255, 234, 0, 0.25);
+    box-shadow: 0 0 10px rgba(255, 234, 0, 0.5);
+  }
+  .custom-emoji-input {
+    width: 105px !important;
+    text-align: center;
+    font-size: 1.1rem !important;
+    padding: 4px 8px !important;
+  }
+
+  /* Console Action Buttons */
+  .btn-group { display: flex; gap: 10px; }
+  .btn {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(135deg, #ffc400 0%, #f77000 50%, #ea2323 100%);
+    border: none;
+    color: white;
+    font-weight: 900;
+    font-size: 0.95rem;
+    padding: 13px;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(234,35,35,0.55), inset 0 1px 0 rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    outline: none;
+    overflow: hidden;
+  }
+  .btn::before {
+    content: '';
     position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 40%;
+    height: 200%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: rotate(25deg);
+    transition: left 0.75s ease;
+  }
+  .btn:hover::before { left: 120%; }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(247, 179, 0, 0.65);
+    filter: brightness(1.15);
+  }
+  .btn:active { transform: translateY(1px) scale(0.98); }
+
+  .btn.secondary {
+    background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%);
+    box-shadow: 0 6px 20px rgba(0, 118, 230, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
+  }
+  .btn.secondary:hover { box-shadow: 0 10px 30px rgba(0, 153, 255, 0.75); }
+
+  /* Dedicated Vibrant Friends List Button on Home Screen */
+  .btn.friends-btn {
+    background: linear-gradient(135deg, #8a2be2 0%, #4a00e0 100%);
+    box-shadow: 0 6px 20px rgba(138, 43, 226, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
+  }
+  .btn.friends-btn:hover { box-shadow: 0 10px 30px rgba(138, 43, 226, 0.8); }
+
+  .btn.join-btn {
+    flex: 0 0 95px;
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
+    padding: 11px;
+  }
+  .btn.join-btn:hover { box-shadow: 0 10px 24px rgba(46, 204, 113, 0.75); }
+
+  /* ========================================================
+     FRIENDS MODAL
+     ======================================================== */
+  #friends-modal {
+    position: fixed;
     inset: 0;
-    background: rgba(4, 7, 13, 0.85);
-    backdrop-filter: blur(18px);
+    background: rgba(4, 7, 13, 0.88);
+    backdrop-filter: blur(20px);
     z-index: 700;
     display: none;
     justify-content: center;
@@ -889,7 +1097,6 @@
     flex-direction: column;
     gap: 16px;
     box-shadow: 0 25px 70px rgba(0,0,0,0.85);
-    position: relative;
   }
   .friends-list-container {
     max-height: 250px;
@@ -909,43 +1116,17 @@
     border-radius: 14px;
     padding: 8px 12px;
   }
-  .friend-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .friend-avatar {
-    font-size: 1.4rem;
-  }
-  .friend-name-col {
-    display: flex;
-    flex-direction: column;
-  }
-  .friend-name {
-    font-weight: 800;
-    font-size: 0.9rem;
-  }
-  .friend-status {
-    font-size: 0.7rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
+  .friend-info { display: flex; align-items: center; gap: 10px; }
+  .friend-avatar { font-size: 1.4rem; }
+  .friend-name-col { display: flex; flex-direction: column; }
+  .friend-name { font-weight: 800; font-size: 0.9rem; }
+  .friend-status { font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; gap: 4px; }
   .friend-status.online { color: #00ff73; }
   .friend-status.offline { color: #8fa0b5; }
-  .friend-status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-  }
+  .friend-status-dot { width: 6px; height: 6px; border-radius: 50%; }
   .friend-status.online .friend-status-dot { background: #00ff73; box-shadow: 0 0 6px #00ff73; }
   .friend-status.offline .friend-status-dot { background: #8fa0b5; }
-  .friend-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+  .friend-actions { display: flex; align-items: center; gap: 6px; }
   .invite-friend-btn {
     background: linear-gradient(135deg, #0099ff, #005bb5);
     border: none;
@@ -975,7 +1156,7 @@
 
   /* Direct Game Invitation Popup */
   #invite-popup {
-    position: absolute;
+    position: fixed;
     top: 25px;
     left: 50%;
     transform: translateX(-50%) translateY(-150%);
@@ -990,13 +1171,8 @@
     z-index: 1000;
     transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
-  #invite-popup.show {
-    transform: translateX(-50%) translateY(0);
-  }
-  .invite-popup-txt {
-    font-weight: 800;
-    font-size: 0.9rem;
-  }
+  #invite-popup.show { transform: translateX(-50%) translateY(0); }
+  .invite-popup-txt { font-weight: 800; font-size: 0.9rem; }
   .invite-popup-txt b { color: #f7b300; }
   .invite-btn-accept {
     background: #00ff73;
@@ -1019,16 +1195,11 @@
     font-size: 0.82rem;
   }
 
-  /* Auth (Login / Register) Screen */
+  /* Auth Screen */
   #auth-screen {
-    position: absolute;
-    inset: 0;
-    background: rgba(4, 7, 13, 0.94);
+    background: rgba(4, 7, 13, 0.96);
     backdrop-filter: blur(25px);
     z-index: 800;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
   .auth-card {
     background: #0f182b;
@@ -1128,19 +1299,114 @@
         <button class="del-friend-btn" onclick="closeFriendsModal()" style="font-size:1.4rem;">✕</button>
       </div>
 
-      <!-- Add Friend Bar -->
       <div style="display:flex; gap:8px;">
         <input type="text" id="add-friend-input" placeholder="Enter friend's username..." style="flex:1;" maxlength="12">
         <button class="btn join-btn" onclick="addFriendFromInput()">ADD</button>
       </div>
 
-      <div class="friends-list-container" id="friends-list-el">
-        <!-- Friends rendered dynamically -->
-      </div>
+      <div class="friends-list-container" id="friends-list-el"></div>
     </div>
   </div>
 
-  <!-- 3D Arena Viewport -->
+  <!-- HOME SCREEN (LOBBY) -->
+  <div id="lobby-screen" style="display:none;">
+    <div class="lobby-nebula neb-red"></div>
+    <div class="lobby-nebula neb-blue"></div>
+    <div class="lobby-nebula neb-yellow"></div>
+    <div class="lobby-nebula neb-green"></div>
+
+    <div class="lobby-grid-overlay"></div>
+
+    <!-- Active User Profile Banner on Home Screen -->
+    <div class="home-profile-banner">
+      <div class="user-badge-left">
+        <div class="user-avatar-tag" id="bar-user-avatar">⚡</div>
+        <div class="user-text-info">
+          <span class="user-username" id="bar-user-name">Player</span>
+          <span class="user-wins-stat" id="bar-user-wins">Wins: 0</span>
+        </div>
+      </div>
+      <div>
+        <button class="pill-btn danger" onclick="logoutUser()">LOGOUT</button>
+      </div>
+    </div>
+
+    <!-- Title & Logo -->
+    <div class="title-logo-container">
+      <div class="title-logo">UNO</div>
+      <div class="title-sub">Ultimate 3D Edition</div>
+    </div>
+
+    <!-- Home Screen Form & Action Center -->
+    <div class="lobby-card">
+      <!-- Emoji Avatar Selector -->
+      <div class="avatar-picker-section">
+        <div class="avatar-top-row">
+          <div class="current-avatar-preview">
+            <div class="avatar-bubble" id="lobby-avatar-bubble">⚡</div>
+            <label style="margin:0;">Avatar Emoji</label>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label style="margin:0; font-size:0.65rem;">Custom:</label>
+            <input type="text" id="custom-emoji-box" class="custom-emoji-input" placeholder="Emoji" maxlength="4" oninput="onCustomEmojiInput(this.value)">
+          </div>
+        </div>
+
+        <div class="avatar-grid" id="avatar-grid">
+          <div class="avatar-option selected" onclick="selectEmoji('⚡')">⚡</div>
+          <div class="avatar-option" onclick="selectEmoji('🔥')">🔥</div>
+          <div class="avatar-option" onclick="selectEmoji('👑')">👑</div>
+          <div class="avatar-option" onclick="selectEmoji('😎')">😎</div>
+          <div class="avatar-option" onclick="selectEmoji('🤖')">🤖</div>
+          <div class="avatar-option" onclick="selectEmoji('🐱')">🐱</div>
+          <div class="avatar-option" onclick="selectEmoji('🐶')">🐶</div>
+          <div class="avatar-option" onclick="selectEmoji('🐭')">🐭</div>
+          <div class="avatar-option" onclick="selectEmoji('🦊')">🦊</div>
+          <div class="avatar-option" onclick="selectEmoji('🐼')">🐼</div>
+          <div class="avatar-option" onclick="selectEmoji('🦁')">🦁</div>
+          <div class="avatar-option" onclick="selectEmoji('🦄')">🦄</div>
+          <div class="avatar-option" onclick="selectEmoji('🐉')">🐉</div>
+          <div class="avatar-option" onclick="selectEmoji('💀')">💀</div>
+          <div class="avatar-option" onclick="selectEmoji('👻')">👻</div>
+          <div class="avatar-option" onclick="selectEmoji('🎮')">🎮</div>
+          <div class="avatar-option" onclick="selectEmoji('🚀')">🚀</div>
+          <div class="avatar-option" onclick="selectEmoji('💎')">💎</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Game Edition</label>
+        <select id="game-edition">
+          <option value="flip">UNO FLIP! (Light & Dark Sides)</option>
+          <option value="classic">Standard UNO (Classic Rules)</option>
+          <option value="nomercy">UNO Show 'Em NO MERCY!</option>
+        </select>
+      </div>
+
+      <!-- Main Action Buttons -->
+      <div class="btn-group">
+        <button class="btn" onclick="startSoloGame()">Play vs Bots</button>
+        <button class="btn secondary" onclick="createRoom()">Create Room</button>
+      </div>
+
+      <!-- Dedicated Friends List Button Directly in Home Screen -->
+      <button class="btn friends-btn" onclick="openFriendsModal()">
+        👥 Friends List (<span id="friends-count-num">0</span>)
+      </button>
+
+      <div class="form-group" style="margin-top: 2px;">
+        <label>Join Friend's Room Code</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="join-room-id" placeholder="Paste Code Here">
+          <button class="btn join-btn" onclick="joinRoom()">Join</button>
+        </div>
+      </div>
+      <div id="room-info" style="font-size: 0.85rem; color: #f7b300; text-align: center; display:none;"></div>
+      <button id="start-hosted-btn" class="btn" style="display:none;" onclick="startHostedGame()">Start Game</button>
+    </div>
+  </div>
+
+  <!-- 3D ARENA VIEWPORT (Strictly hidden during Lobby / Auth) -->
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
@@ -1241,7 +1507,7 @@
     <!-- Human Player Hand (ID 0 - Bottom) -->
     <div id="player-bottom">
       <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-0">You</div><span id="p-avatar-0">⚡</span></div>
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div><span id="p-avatar-0">⚡</span></div>
         <div class="card-count-badge" id="p-count-0">0</div>
       </div>
       <div class="human-hand-viewport">
@@ -1249,7 +1515,7 @@
       </div>
     </div>
 
-    <!-- Attack Alert -->
+    <!-- Attack / Penalty Alert -->
     <div id="penalty-streak-box">ATTACK! +4</div>
 
     <!-- Center Screen VFX -->
@@ -1263,147 +1529,6 @@
 
     <!-- Flying Card Transient Layer -->
     <div id="fly-animation-layer"></div>
-  </div>
-
-  <!-- Lobby Screen with User Account Header & Friends Access -->
-  <div id="lobby-screen">
-    <div class="lobby-nebula neb-red"></div>
-    <div class="lobby-nebula neb-blue"></div>
-    <div class="lobby-nebula neb-yellow"></div>
-    <div class="lobby-nebula neb-green"></div>
-
-    <div class="lobby-grid-overlay"></div>
-
-    <!-- Showcase Cards -->
-    <div class="showcase-card sc-1 card c-wild">
-      <div class="card-face">
-        <div class="mini-uno-badge">UNO</div>
-        <div class="card-corner top-left"><div class="wild-quadrant" style="width:12px; height:12px; border-radius:50%; border:1px solid #fff;"></div></div>
-        <div class="card-oval"><div class="wild-quadrant"></div><span style="font-family:'Montserrat'; font-weight:900; font-size:1.4rem; color:#fff; transform:rotate(28deg); text-shadow:2px 2px 0 #000;">WILD</span></div>
-        <div class="card-corner bottom-right"><div class="wild-quadrant" style="width:12px; height:12px; border-radius:50%; border:1px solid #fff;"></div></div>
-      </div>
-    </div>
-
-    <div class="showcase-card sc-2 card c-blue">
-      <div class="card-face">
-        <div class="mini-uno-badge">UNO</div>
-        <div class="card-corner top-left">⇄</div>
-        <div class="card-oval">
-          <svg viewBox="0 0 100 100" style="width:68%; height:68%; transform: rotate(28deg);">
-            <path d="M 28,62 L 14,44 L 30,44 C 40,44 50,50 50,62 L 40,62 C 40,54 34,51 30,51 L 28,62 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"/>
-            <path d="M 72,38 L 86,56 L 70,56 C 60,56 50,50 50,38 L 60,38 C 60,46 66,49 70,49 L 72,38 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"/>
-          </svg>
-        </div>
-        <div class="card-corner bottom-right">⇄</div>
-      </div>
-    </div>
-
-    <div class="showcase-card sc-3 card c-teal">
-      <div class="card-face">
-        <div class="mini-uno-badge">FLIP!</div>
-        <div class="card-corner top-left">+5</div>
-        <div class="card-oval">
-          <span class="card-val-num" style="font-size:2.5rem;">+5</span>
-        </div>
-        <div class="card-corner bottom-right">+5</div>
-      </div>
-    </div>
-
-    <div class="showcase-card sc-4 card c-red">
-      <div class="card-face">
-        <div class="mini-uno-badge">UNO</div>
-        <div class="card-corner top-left">7</div>
-        <div class="card-oval">
-          <span class="card-val-num">7</span>
-        </div>
-        <div class="card-corner bottom-right">7</div>
-      </div>
-    </div>
-
-    <!-- Active User Profile Bar -->
-    <div class="lobby-top-bar">
-      <div class="user-badge-left">
-        <div class="user-avatar-tag" id="bar-user-avatar">⚡</div>
-        <div class="user-text-info">
-          <span class="user-username" id="bar-user-name">Player</span>
-          <span class="user-wins-stat" id="bar-user-wins">Wins: 0</span>
-        </div>
-      </div>
-      <div class="user-actions-right">
-        <button class="pill-btn" onclick="openFriendsModal()">👥 FRIENDS (<span id="friends-count-num">0</span>)</button>
-        <button class="pill-btn danger" onclick="logoutUser()">LOGOUT</button>
-      </div>
-    </div>
-
-    <div class="title-logo-container">
-      <div class="status-pill">
-        <span class="live-dot"></span>
-        <span>AUTHENTICATED MULTIPLAYER ENGINE</span>
-      </div>
-      <div class="title-logo">UNO</div>
-      <div class="title-sub">Ultimate 3D Edition</div>
-    </div>
-
-    <!-- Lobby Form -->
-    <div class="lobby-card">
-      <div class="avatar-picker-section">
-        <div class="avatar-top-row">
-          <div class="current-avatar-preview">
-            <div class="avatar-bubble" id="lobby-avatar-bubble">⚡</div>
-            <label style="margin:0;">Avatar Emoji</label>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <label style="margin:0; font-size:0.65rem;">Custom:</label>
-            <input type="text" id="custom-emoji-box" class="custom-emoji-input" placeholder="Emoji" maxlength="4" oninput="onCustomEmojiInput(this.value)">
-          </div>
-        </div>
-
-        <div class="avatar-grid" id="avatar-grid">
-          <div class="avatar-option selected" onclick="selectEmoji('⚡')">⚡</div>
-          <div class="avatar-option" onclick="selectEmoji('🔥')">🔥</div>
-          <div class="avatar-option" onclick="selectEmoji('👑')">👑</div>
-          <div class="avatar-option" onclick="selectEmoji('😎')">😎</div>
-          <div class="avatar-option" onclick="selectEmoji('🤖')">🤖</div>
-          <div class="avatar-option" onclick="selectEmoji('🐱')">🐱</div>
-          <div class="avatar-option" onclick="selectEmoji('🐶')">🐶</div>
-          <div class="avatar-option" onclick="selectEmoji('🐭')">🐭</div>
-          <div class="avatar-option" onclick="selectEmoji('🦊')">🦊</div>
-          <div class="avatar-option" onclick="selectEmoji('🐼')">🐼</div>
-          <div class="avatar-option" onclick="selectEmoji('🦁')">🦁</div>
-          <div class="avatar-option" onclick="selectEmoji('🦄')">🦄</div>
-          <div class="avatar-option" onclick="selectEmoji('🐉')">🐉</div>
-          <div class="avatar-option" onclick="selectEmoji('💀')">💀</div>
-          <div class="avatar-option" onclick="selectEmoji('👻')">👻</div>
-          <div class="avatar-option" onclick="selectEmoji('🎮')">🎮</div>
-          <div class="avatar-option" onclick="selectEmoji('🚀')">🚀</div>
-          <div class="avatar-option" onclick="selectEmoji('💎')">💎</div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Game Edition</label>
-        <select id="game-edition">
-          <option value="flip">UNO FLIP! (Light & Dark Sides)</option>
-          <option value="classic">Standard UNO (Classic Rules)</option>
-          <option value="nomercy">UNO Show 'Em NO MERCY!</option>
-        </select>
-      </div>
-
-      <div class="btn-group">
-        <button class="btn" onclick="startSoloGame()">Play vs Bots</button>
-        <button class="btn secondary" onclick="createRoom()">Create Room</button>
-      </div>
-
-      <div class="form-group" style="margin-top: 4px;">
-        <label>Join Friend's Room Code</label>
-        <div style="display:flex; gap:8px;">
-          <input type="text" id="join-room-id" placeholder="Paste Code Here">
-          <button class="btn join-btn" onclick="joinRoom()">Join</button>
-        </div>
-      </div>
-      <div id="room-info" style="font-size: 0.85rem; color: #f7b300; text-align: center; display:none;"></div>
-      <button id="start-hosted-btn" class="btn" style="display:none;" onclick="startHostedGame()">Start Game</button>
-    </div>
   </div>
 
   <!-- Color Selector Modal with Cancel Option -->
@@ -1502,6 +1627,23 @@ const AudioEngine = {
 };
 
 /**
+ * CLEAN STATE ROUTER (Auth -> Lobby -> Game)
+ */
+function showScreen(screen) {
+  const authEl = document.getElementById('auth-screen');
+  const lobbyEl = document.getElementById('lobby-screen');
+  const gameEl = document.getElementById('viewport-3d');
+
+  authEl.style.display = (screen === 'auth') ? 'flex' : 'none';
+  lobbyEl.style.display = (screen === 'lobby') ? 'flex' : 'none';
+  gameEl.style.display = (screen === 'game') ? 'flex' : 'none';
+
+  if (screen === 'lobby') {
+    updateUserUI();
+  }
+}
+
+/**
  * AUTH & USER PROFILE STORE
  */
 let CurrentUser = {
@@ -1511,7 +1653,7 @@ let CurrentUser = {
   friends: []
 };
 
-let authMode = 'login'; // 'login' or 'register'
+let authMode = 'login';
 let incomingInviteData = null;
 
 function sanitizeUsername(str) {
@@ -1585,15 +1727,13 @@ function submitAuth() {
 function loginSuccess(userObj) {
   CurrentUser = userObj;
   localStorage.setItem('uno_current_session', sanitizeUsername(userObj.username));
-  document.getElementById('auth-screen').style.display = 'none';
-
-  updateUserUI();
+  showScreen('lobby');
   initUserPeerNetwork();
 }
 
 function updateUserUI() {
   document.getElementById('bar-user-name').textContent = CurrentUser.username;
-  document.getElementById('bar-user-avatar').textContent = CurrentUser.avatar;
+  document.getElementById('bar-user-avatar').textContent = CurrentUser.avatar || '⚡';
   document.getElementById('bar-user-wins').textContent = `Wins: ${CurrentUser.wins || 0}`;
   document.getElementById('friends-count-num').textContent = CurrentUser.friends ? CurrentUser.friends.length : 0;
   selectEmoji(CurrentUser.avatar || '⚡');
@@ -1604,7 +1744,7 @@ function logoutUser() {
   if (GameState.presencePeer) {
     try { GameState.presencePeer.destroy(); } catch (e) {}
   }
-  document.getElementById('auth-screen').style.display = 'flex';
+  showScreen('auth');
   document.getElementById('auth-username').value = '';
   document.getElementById('auth-pin').value = '';
   document.getElementById('auth-msg-text').textContent = '';
@@ -1619,7 +1759,7 @@ function checkSavedSession() {
       return;
     }
   }
-  document.getElementById('auth-screen').style.display = 'flex';
+  showScreen('auth');
 }
 
 /**
@@ -1710,7 +1850,6 @@ function renderFriendsList() {
     `;
     container.appendChild(row);
 
-    // Ping Peer Presence
     checkFriendPresence(friendKey);
   });
 }
@@ -1810,30 +1949,31 @@ function declineInvite() {
   incomingInviteData = null;
 }
 
-/**
- * INITIALIZE BACKGROUND NETWORK FOR PRESENCE & INVITES
- */
 function initUserPeerNetwork() {
   if (GameState.presencePeer) {
     try { GameState.presencePeer.destroy(); } catch(e) {}
   }
 
   const myId = `uno_usr_${sanitizeUsername(CurrentUser.username)}`;
-  GameState.presencePeer = new Peer(myId);
+  try {
+    GameState.presencePeer = new Peer(myId);
 
-  GameState.presencePeer.on('open', () => {
-    console.log("Logged into UNO Network as:", myId);
-  });
-
-  GameState.presencePeer.on('connection', (conn) => {
-    conn.on('data', (data) => {
-      if (data.type === 'PRESENCE_PING') {
-        conn.send({ type: 'PRESENCE_PONG', avatar: CurrentUser.avatar });
-      } else if (data.type === 'DIRECT_INVITE') {
-        receiveInvite(data);
-      }
+    GameState.presencePeer.on('connection', (conn) => {
+      conn.on('data', (data) => {
+        if (data.type === 'PRESENCE_PING') {
+          conn.send({ type: 'PRESENCE_PONG', avatar: CurrentUser.avatar });
+        } else if (data.type === 'DIRECT_INVITE') {
+          receiveInvite(data);
+        }
+      });
     });
-  });
+
+    GameState.presencePeer.on('error', (err) => {
+      console.warn("Presence Peer Notice:", err);
+    });
+  } catch (e) {
+    console.warn("Peer connection error:", e);
+  }
 }
 
 /**
@@ -1906,6 +2046,9 @@ function onCustomEmojiInput(val) {
   }
 }
 
+/**
+ * LEAVE GAME & CLEAN RESET
+ */
 function confirmQuitGame() {
   if (!confirm("Are you sure you want to quit this match and return to the main menu?")) return;
 
@@ -1917,11 +2060,14 @@ function confirmQuitGame() {
     GameState.peer = null;
   }
 
+  document.getElementById('player-hand').innerHTML = '';
+  document.getElementById('discard-pile-3d').innerHTML = '';
   document.getElementById('color-picker-modal').style.display = 'none';
-  document.getElementById('lobby-screen').style.display = 'flex';
   document.getElementById('room-info').style.display = 'none';
   document.getElementById('start-hosted-btn').style.display = 'none';
   GameState.hostingRoomId = null;
+
+  showScreen('lobby');
 }
 
 /**
@@ -2419,7 +2565,7 @@ function createRoom() {
   GameState.peer.on('open', (id) => {
     GameState.hostingRoomId = id;
     document.getElementById('room-info').style.display = 'block';
-    document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Friends can also be invited directly from your Friends List!`;
+    document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Share code or invite friends directly!`;
     document.getElementById('start-hosted-btn').style.display = 'block';
 
     GameState.players = [{
@@ -2469,7 +2615,7 @@ function joinRoom() {
         GameState.currentColor = data.state.currentColor;
         GameState.myPlayerId = data.yourId;
 
-        document.getElementById('lobby-screen').style.display = 'none';
+        showScreen('game');
         if (sideChanged) triggerFlip3DTransition();
         else { updateTheme(); renderGame(); }
       } else if (data.type === 'VFX') {
@@ -2551,7 +2697,7 @@ function startSoloGame() {
     { id: 2, name: 'Archie', avatar: '🐱', hand: [], isBot: true, hasWon: false },
     { id: 3, name: 'Ringo', avatar: '🐶', hand: [], isBot: true, hasWon: false }
   ];
-  document.getElementById('lobby-screen').style.display = 'none';
+  showScreen('game');
   initGameEngine();
 }
 
@@ -2565,7 +2711,7 @@ function startHostedGame() {
     const b = defaultBots[i-1] || { name: `Bot ${i}`, avatar: '🤖' };
     GameState.players.push({ id: i, name: b.name, avatar: b.avatar, hand: [], isBot: true, conn: null, hasWon: false });
   }
-  document.getElementById('lobby-screen').style.display = 'none';
+  showScreen('game');
   initGameEngine();
 }
 
@@ -2679,7 +2825,6 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
       player.rank = rank;
       GameState.rankings.push({ id: player.id, name: player.name, avatar: player.avatar, rank: rank });
 
-      // Update Win Count for user
       if (player.id === 0 && rank === 1) {
         CurrentUser.wins = (CurrentUser.wins || 0) + 1;
         const users = getStoredUsers();
@@ -2974,7 +3119,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 /**
- * RENDERING (WITH ADAPTIVE FLATTENED CURVE FOR 25-30+ CARDS)
+ * RENDERING
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
@@ -3154,7 +3299,6 @@ function renderLeaderboard() {
   });
 }
 
-// Check saved session upon loading
 window.addEventListener('load', () => {
   checkSavedSession();
 });
