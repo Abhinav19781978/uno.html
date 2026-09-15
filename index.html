@@ -787,348 +787,291 @@
     100% { transform: scale(1.18); filter: brightness(1.3) drop-shadow(0 0 25px #f7b300); }
   }
 
-  /* Color Picker Modal & Cancel Button */
-  #color-picker-modal {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.82);
-    backdrop-filter: blur(14px);
-    z-index: 500;
-    display: none;
-    justify-content: center;
-    align-items: center;
-  }
-  .picker-modal-content {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .color-wheel {
-    width: 290px;
-    height: 290px;
-    border-radius: 50%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 12px;
-    padding: 12px;
-    background: #111;
-    border: 4px solid #fff;
-    box-shadow: 0 0 60px rgba(0,0,0,0.9);
-  }
-  .color-segment {
-    border-radius: 20px;
-    cursor: pointer;
-    transition: transform 0.15s, filter 0.15s;
-  }
-  .color-segment:hover { transform: scale(1.08); filter: brightness(1.2); }
-
-  .close-picker-btn {
-    position: absolute;
-    right: -85px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #ea2323 30%, #850000 100%);
-    border: 3.5px solid #ffffff;
-    color: #ffffff;
-    font-size: 1.6rem;
-    font-weight: 900;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 30px rgba(234, 35, 35, 0.8), 0 6px 16px rgba(0,0,0,0.7);
-    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.4, 1), filter 0.2s;
-    outline: none;
-  }
-  .close-picker-btn:hover {
-    transform: translateY(-50%) scale(1.15);
-    filter: brightness(1.25) drop-shadow(0 0 15px #f7b300);
-  }
-  .close-picker-btn:active { transform: translateY(-50%) scale(0.95); }
-
   /* ========================================================
-     LOBBY / HOME SCREEN WITH EMOJI AVATAR PICKER
+     FRIEND SYSTEM & DIRECT INVITATION MODALS
      ======================================================== */
-  #lobby-screen {
-    position: absolute;
-    inset: 0;
-    background: #060912;
-    z-index: 600;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
-    overflow-y: auto;
-    padding: 20px 0;
-  }
-
-  .lobby-nebula {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.38;
-    pointer-events: none;
-    animation: nebulaDrift 14s infinite alternate ease-in-out;
-  }
-  .neb-red { width: 550px; height: 550px; background: #ea2323; top: -15%; left: -10%; }
-  .neb-blue { width: 600px; height: 600px; background: #0076e6; bottom: -20%; right: -10%; animation-duration: 18s; }
-  .neb-yellow { width: 450px; height: 450px; background: #f7b300; top: 20%; right: -5%; animation-duration: 12s; }
-  .neb-green { width: 500px; height: 500px; background: #37a324; bottom: -10%; left: 10%; animation-duration: 16s; }
-
-  @keyframes nebulaDrift {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(45px, -35px) scale(1.12); }
-  }
-
-  .lobby-grid-overlay {
-    position: absolute;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 45px 45px;
-    mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
-    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
-    pointer-events: none;
-  }
-
-  .showcase-card {
-    position: absolute;
-    width: 140px;
-    height: 215px;
-    border-radius: 18px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.85);
-    pointer-events: none;
-    animation: cardFloat3D 10s infinite alternate ease-in-out;
-    transform-style: preserve-3d;
-  }
-  .sc-1 { top: 6%; left: 8%; transform: rotateX(20deg) rotateY(-18deg) rotateZ(-12deg); animation-duration: 11s; }
-  .sc-2 { bottom: 8%; left: 6%; transform: rotateX(-15deg) rotateY(25deg) rotateZ(16deg); animation-duration: 13s; }
-  .sc-3 { top: 8%; right: 9%; transform: rotateX(15deg) rotateY(22deg) rotateZ(14deg); animation-duration: 12s; }
-  .sc-4 { bottom: 10%; right: 8%; transform: rotateX(-20deg) rotateY(-20deg) rotateZ(-10deg); animation-duration: 9.5s; }
-
-  @keyframes cardFloat3D {
-    0% { transform: translateY(0px) rotateZ(-12deg) scale(1); }
-    100% { transform: translateY(-32px) rotateZ(-6deg) scale(1.06); }
-  }
-
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.18);
-    backdrop-filter: blur(12px);
-    padding: 5px 14px;
-    border-radius: 30px;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    color: #e2e8f0;
-    text-transform: uppercase;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    margin-bottom: 2px;
-  }
-  .live-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #00ff66;
-    box-shadow: 0 0 10px #00ff66;
-    animation: livePulse 1.2s infinite alternate;
-  }
-  @keyframes livePulse {
-    0% { transform: scale(0.8); opacity: 0.6; }
-    100% { transform: scale(1.25); opacity: 1; }
-  }
-
-  .title-logo-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 10;
-  }
-  .title-logo {
-    font-size: 5.2rem;
-    font-weight: 900;
-    font-style: italic;
-    letter-spacing: 4px;
-    text-shadow: 0 14px 40px rgba(234,35,35,0.85), 0 0 25px rgba(247,179,0,0.9);
-    background: linear-gradient(180deg, #fffb52 0%, #ff8c00 45%, #ea2323 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transform: skew(-10deg);
-    filter: drop-shadow(0 8px 0px rgba(0,0,0,0.95));
-    line-height: 1;
-  }
-  .title-sub {
-    font-size: 0.85rem;
-    font-weight: 900;
-    letter-spacing: 6px;
-    color: #f7b300;
-    text-transform: uppercase;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-    margin-top: 2px;
-  }
-
-  .lobby-card {
-    background: rgba(14, 21, 37, 0.82);
-    backdrop-filter: blur(30px);
-    border: 2px solid rgba(255, 255, 255, 0.18);
-    border-radius: 26px;
-    padding: 24px 34px;
-    width: min(92vw, 470px);
-    box-shadow: 0 30px 90px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.35);
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    position: relative;
-    z-index: 10;
-  }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  label { font-size: 0.74rem; text-transform: uppercase; color: #94a3b8; font-weight: 800; letter-spacing: 1.5px; }
-  input, select {
-    background: rgba(4, 9, 18, 0.75);
-    border: 1.5px solid rgba(255,255,255,0.22);
-    border-radius: 12px;
-    padding: 11px 14px;
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 700;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  input:focus, select:focus {
-    border-color: #f7b300;
-    box-shadow: 0 0 18px rgba(247, 179, 0, 0.45);
-  }
-
-  /* Emoji Avatar Picker Bar */
-  .avatar-picker-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background: rgba(0,0,0,0.3);
-    padding: 10px 12px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .avatar-top-row {
+  /* User Profile Header in Lobby */
+  .lobby-top-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: min(92vw, 470px);
+    background: rgba(14, 21, 37, 0.75);
+    backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    padding: 8px 16px;
+    margin-bottom: 2px;
+    z-index: 20;
   }
-  .current-avatar-preview {
+  .user-badge-left {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .avatar-bubble {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border: 2px solid #f7b300;
-    box-shadow: 0 0 15px rgba(247, 179, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .user-avatar-tag {
     font-size: 1.7rem;
-  }
-  .avatar-grid {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: thin;
-  }
-  .avatar-option {
-    flex: 0 0 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    border: 1.5px solid #f7b300;
   }
-  .avatar-option:hover {
-    transform: scale(1.18);
-    border-color: #f7b300;
-    background: rgba(247, 179, 0, 0.2);
+  .user-text-info {
+    display: flex;
+    flex-direction: column;
   }
-  .avatar-option.selected {
-    border-color: #ffea00;
-    background: rgba(255, 234, 0, 0.25);
-    box-shadow: 0 0 10px rgba(255, 234, 0, 0.5);
-  }
-  .custom-emoji-input {
-    width: 105px !important;
-    text-align: center;
-    font-size: 1.1rem !important;
-    padding: 4px 8px !important;
-  }
-
-  .btn-group { display: flex; gap: 12px; }
-  .btn {
-    flex: 1;
-    position: relative;
-    background: linear-gradient(135deg, #ffc400 0%, #f77000 50%, #ea2323 100%);
-    border: none;
-    color: white;
+  .user-username {
     font-weight: 900;
     font-size: 0.95rem;
-    padding: 13px;
-    border-radius: 14px;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(234,35,35,0.55), inset 0 1px 0 rgba(255,255,255,0.45);
+    color: #fff;
+  }
+  .user-wins-stat {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #f7b300;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    letter-spacing: 1px;
+  }
+  .user-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pill-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
     outline: none;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
-  .btn::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -60%;
-    width: 40%;
-    height: 200%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-    transform: rotate(25deg);
-    transition: left 0.75s ease;
+  .pill-btn:hover {
+    background: rgba(255,255,255,0.22);
+    transform: scale(1.04);
   }
-  .btn:hover::before { left: 120%; }
-  .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(247, 179, 0, 0.65);
-    filter: brightness(1.15);
+  .pill-btn.danger {
+    background: rgba(234, 35, 35, 0.25);
+    border-color: rgba(234, 35, 35, 0.5);
   }
-  .btn:active { transform: translateY(1px) scale(0.98); }
+  .pill-btn.danger:hover {
+    background: rgba(234, 35, 35, 0.5);
+  }
 
-  .btn.secondary {
-    background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%);
-    box-shadow: 0 6px 20px rgba(0, 118, 230, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
+  /* Friends Drawer Modal */
+  #friends-modal {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 7, 13, 0.85);
+    backdrop-filter: blur(18px);
+    z-index: 700;
+    display: none;
+    justify-content: center;
+    align-items: center;
   }
-  .btn.secondary:hover { box-shadow: 0 10px 30px rgba(0, 153, 255, 0.75); }
-  .btn.join-btn {
-    flex: 0 0 95px;
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
-    padding: 11px;
+  .friends-card {
+    background: #0f182b;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 26px;
+    width: min(92vw, 440px);
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.85);
+    position: relative;
   }
-  .btn.join-btn:hover { box-shadow: 0 10px 24px rgba(46, 204, 113, 0.75); }
+  .friends-list-container {
+    max-height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+    scrollbar-width: thin;
+  }
+  .friend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 8px 12px;
+  }
+  .friend-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .friend-avatar {
+    font-size: 1.4rem;
+  }
+  .friend-name-col {
+    display: flex;
+    flex-direction: column;
+  }
+  .friend-name {
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .friend-status {
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .friend-status.online { color: #00ff73; }
+  .friend-status.offline { color: #8fa0b5; }
+  .friend-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .friend-status.online .friend-status-dot { background: #00ff73; box-shadow: 0 0 6px #00ff73; }
+  .friend-status.offline .friend-status-dot { background: #8fa0b5; }
+  .friend-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .invite-friend-btn {
+    background: linear-gradient(135deg, #0099ff, #005bb5);
+    border: none;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 153, 255, 0.4);
+    outline: none;
+  }
+  .invite-friend-btn:disabled {
+    background: rgba(255,255,255,0.1);
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .del-friend-btn {
+    background: transparent;
+    border: none;
+    color: #ff5252;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  /* Direct Game Invitation Popup */
+  #invite-popup {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    background: #0f182b;
+    border: 2px solid #f7b300;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 25px rgba(247, 179, 0, 0.5);
+    border-radius: 20px;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  #invite-popup.show {
+    transform: translateX(-50%) translateY(0);
+  }
+  .invite-popup-txt {
+    font-weight: 800;
+    font-size: 0.9rem;
+  }
+  .invite-popup-txt b { color: #f7b300; }
+  .invite-btn-accept {
+    background: #00ff73;
+    border: none;
+    color: #000;
+    font-weight: 900;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.82rem;
+  }
+  .invite-btn-decline {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    font-weight: 800;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.82rem;
+  }
+
+  /* Auth (Login / Register) Screen */
+  #auth-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(4, 7, 13, 0.94);
+    backdrop-filter: blur(25px);
+    z-index: 800;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .auth-card {
+    background: #0f182b;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 26px;
+    width: min(92vw, 420px);
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.85);
+  }
+  .auth-toggle-row {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    border-radius: 14px;
+    padding: 4px;
+    margin-bottom: 6px;
+  }
+  .auth-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #8fa0b5;
+    font-weight: 800;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .auth-tab-btn.active {
+    background: #f7b300;
+    color: #000;
+    box-shadow: 0 2px 10px rgba(247, 179, 0, 0.4);
+  }
+  .auth-msg {
+    font-size: 0.78rem;
+    color: #ff5252;
+    text-align: center;
+    min-height: 18px;
+    font-weight: 800;
+  }
 </style>
 </head>
 <body>
@@ -1136,6 +1079,68 @@
   <!-- Screen Flash -->
   <div id="flash-overlay"></div>
 
+  <!-- Direct Game Invitation Toast Banner -->
+  <div id="invite-popup">
+    <div style="font-size: 1.8rem;" id="invite-from-avatar">⚡</div>
+    <div class="invite-popup-txt">
+      <span id="invite-from-name">Player</span> invited you to play <b id="invite-edition">UNO FLIP!</b>
+    </div>
+    <button class="invite-btn-accept" onclick="acceptInvite()">ACCEPT</button>
+    <button class="invite-btn-decline" onclick="declineInvite()">✕</button>
+  </div>
+
+  <!-- Account Auth Screen (Login / Sign Up without Google) -->
+  <div id="auth-screen">
+    <div class="auth-card">
+      <div style="text-align: center;">
+        <div style="font-size: 2.6rem; font-weight: 900; font-style: italic; color: #f7b300;">UNO LOGIN</div>
+        <p style="font-size: 0.8rem; color: #8fa0b5; margin-top: 4px;">Sign in with your Unique Username & 4-Digit PIN</p>
+      </div>
+
+      <div class="auth-toggle-row">
+        <button class="auth-tab-btn active" id="tab-login-btn" onclick="setAuthMode('login')">LOGIN</button>
+        <button class="auth-tab-btn" id="tab-register-btn" onclick="setAuthMode('register')">CREATE ACCOUNT</button>
+      </div>
+
+      <div class="form-group">
+        <label>Unique Username</label>
+        <input type="text" id="auth-username" placeholder="e.g. Shiny_99" maxlength="12">
+      </div>
+
+      <div class="form-group">
+        <label>4-Digit Security PIN</label>
+        <input type="password" id="auth-pin" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+      </div>
+
+      <div class="auth-msg" id="auth-msg-text"></div>
+
+      <button class="btn" id="auth-action-btn" onclick="submitAuth()">LOG IN</button>
+    </div>
+  </div>
+
+  <!-- Friends List Modal -->
+  <div id="friends-modal">
+    <div class="friends-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size: 1.25rem; font-weight: 900; color: #f7b300; display:flex; align-items:center; gap:8px;">
+          <span>👥</span><span>FRIENDS LIST</span>
+        </div>
+        <button class="del-friend-btn" onclick="closeFriendsModal()" style="font-size:1.4rem;">✕</button>
+      </div>
+
+      <!-- Add Friend Bar -->
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="add-friend-input" placeholder="Enter friend's username..." style="flex:1;" maxlength="12">
+        <button class="btn join-btn" onclick="addFriendFromInput()">ADD</button>
+      </div>
+
+      <div class="friends-list-container" id="friends-list-el">
+        <!-- Friends rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D Arena Viewport -->
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
@@ -1236,7 +1241,7 @@
     <!-- Human Player Hand (ID 0 - Bottom) -->
     <div id="player-bottom">
       <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div><span id="p-avatar-0">⚡</span></div>
+        <div class="player-portrait"><div class="player-nameplate" id="p-name-0">You</div><span id="p-avatar-0">⚡</span></div>
         <div class="card-count-badge" id="p-count-0">0</div>
       </div>
       <div class="human-hand-viewport">
@@ -1244,7 +1249,7 @@
       </div>
     </div>
 
-    <!-- Attack / Penalty Alert -->
+    <!-- Attack Alert -->
     <div id="penalty-streak-box">ATTACK! +4</div>
 
     <!-- Center Screen VFX -->
@@ -1260,7 +1265,7 @@
     <div id="fly-animation-layer"></div>
   </div>
 
-  <!-- Lobby Screen with Custom Avatar Picker -->
+  <!-- Lobby Screen with User Account Header & Friends Access -->
   <div id="lobby-screen">
     <div class="lobby-nebula neb-red"></div>
     <div class="lobby-nebula neb-blue"></div>
@@ -1315,10 +1320,25 @@
       </div>
     </div>
 
+    <!-- Active User Profile Bar -->
+    <div class="lobby-top-bar">
+      <div class="user-badge-left">
+        <div class="user-avatar-tag" id="bar-user-avatar">⚡</div>
+        <div class="user-text-info">
+          <span class="user-username" id="bar-user-name">Player</span>
+          <span class="user-wins-stat" id="bar-user-wins">Wins: 0</span>
+        </div>
+      </div>
+      <div class="user-actions-right">
+        <button class="pill-btn" onclick="openFriendsModal()">👥 FRIENDS (<span id="friends-count-num">0</span>)</button>
+        <button class="pill-btn danger" onclick="logoutUser()">LOGOUT</button>
+      </div>
+    </div>
+
     <div class="title-logo-container">
       <div class="status-pill">
         <span class="live-dot"></span>
-        <span>MULTIPLAYER ENGINE ONLINE</span>
+        <span>AUTHENTICATED MULTIPLAYER ENGINE</span>
       </div>
       <div class="title-logo">UNO</div>
       <div class="title-sub">Ultimate 3D Edition</div>
@@ -1326,26 +1346,19 @@
 
     <!-- Lobby Form -->
     <div class="lobby-card">
-      <div class="form-group">
-        <label>Your Nickname</label>
-        <input type="text" id="player-name" value="Shiny" maxlength="12">
-      </div>
-
-      <!-- Emoji Avatar Selector Section -->
       <div class="avatar-picker-section">
         <div class="avatar-top-row">
           <div class="current-avatar-preview">
             <div class="avatar-bubble" id="lobby-avatar-bubble">⚡</div>
-            <label style="margin:0;">Profile Emoji</label>
+            <label style="margin:0;">Avatar Emoji</label>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
             <label style="margin:0; font-size:0.65rem;">Custom:</label>
-            <input type="text" id="custom-emoji-box" class="custom-emoji-input" placeholder="Type Emoji" maxlength="4" oninput="onCustomEmojiInput(this.value)">
+            <input type="text" id="custom-emoji-box" class="custom-emoji-input" placeholder="Emoji" maxlength="4" oninput="onCustomEmojiInput(this.value)">
           </div>
         </div>
 
         <div class="avatar-grid" id="avatar-grid">
-          <!-- Curated popular Google emojis -->
           <div class="avatar-option selected" onclick="selectEmoji('⚡')">⚡</div>
           <div class="avatar-option" onclick="selectEmoji('🔥')">🔥</div>
           <div class="avatar-option" onclick="selectEmoji('👑')">👑</div>
@@ -1364,7 +1377,6 @@
           <div class="avatar-option" onclick="selectEmoji('🎮')">🎮</div>
           <div class="avatar-option" onclick="selectEmoji('🚀')">🚀</div>
           <div class="avatar-option" onclick="selectEmoji('💎')">💎</div>
-          <div class="avatar-option" onclick="selectEmoji('🍕')">🍕</div>
         </div>
       </div>
 
@@ -1383,7 +1395,7 @@
       </div>
 
       <div class="form-group" style="margin-top: 4px;">
-        <label>Join Friend's Room</label>
+        <label>Join Friend's Room Code</label>
         <div style="display:flex; gap:8px;">
           <input type="text" id="join-room-id" placeholder="Paste Code Here">
           <button class="btn join-btn" onclick="joinRoom()">Join</button>
@@ -1490,6 +1502,341 @@ const AudioEngine = {
 };
 
 /**
+ * AUTH & USER PROFILE STORE
+ */
+let CurrentUser = {
+  username: '',
+  avatar: '⚡',
+  wins: 0,
+  friends: []
+};
+
+let authMode = 'login'; // 'login' or 'register'
+let incomingInviteData = null;
+
+function sanitizeUsername(str) {
+  return str.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+}
+
+function getStoredUsers() {
+  try {
+    return JSON.parse(localStorage.getItem('uno_registered_accounts')) || {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveStoredUsers(users) {
+  localStorage.setItem('uno_registered_accounts', JSON.stringify(users));
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.getElementById('tab-login-btn').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-register-btn').classList.toggle('active', mode === 'register');
+  document.getElementById('auth-action-btn').textContent = mode === 'login' ? 'LOG IN' : 'CREATE ACCOUNT';
+  document.getElementById('auth-msg-text').textContent = '';
+}
+
+function submitAuth() {
+  const rawUser = document.getElementById('auth-username').value;
+  const pin = document.getElementById('auth-pin').value.trim();
+  const clean = sanitizeUsername(rawUser);
+  const msgEl = document.getElementById('auth-msg-text');
+
+  if (clean.length < 3) {
+    msgEl.textContent = 'Username must be at least 3 characters.';
+    return;
+  }
+  if (!/^\d{4}$/.test(pin)) {
+    msgEl.textContent = 'PIN must be exactly 4 digits.';
+    return;
+  }
+
+  const users = getStoredUsers();
+
+  if (authMode === 'register') {
+    if (users[clean]) {
+      msgEl.textContent = 'Username already exists! Please choose another.';
+      return;
+    }
+    users[clean] = {
+      username: rawUser.trim(),
+      pin: pin,
+      avatar: GameState.myAvatar || '⚡',
+      wins: 0,
+      friends: []
+    };
+    saveStoredUsers(users);
+    loginSuccess(users[clean]);
+  } else {
+    if (!users[clean]) {
+      msgEl.textContent = 'User not found. Check spelling or create an account.';
+      return;
+    }
+    if (users[clean].pin !== pin) {
+      msgEl.textContent = 'Incorrect 4-digit PIN.';
+      return;
+    }
+    loginSuccess(users[clean]);
+  }
+}
+
+function loginSuccess(userObj) {
+  CurrentUser = userObj;
+  localStorage.setItem('uno_current_session', sanitizeUsername(userObj.username));
+  document.getElementById('auth-screen').style.display = 'none';
+
+  updateUserUI();
+  initUserPeerNetwork();
+}
+
+function updateUserUI() {
+  document.getElementById('bar-user-name').textContent = CurrentUser.username;
+  document.getElementById('bar-user-avatar').textContent = CurrentUser.avatar;
+  document.getElementById('bar-user-wins').textContent = `Wins: ${CurrentUser.wins || 0}`;
+  document.getElementById('friends-count-num').textContent = CurrentUser.friends ? CurrentUser.friends.length : 0;
+  selectEmoji(CurrentUser.avatar || '⚡');
+}
+
+function logoutUser() {
+  localStorage.removeItem('uno_current_session');
+  if (GameState.presencePeer) {
+    try { GameState.presencePeer.destroy(); } catch (e) {}
+  }
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('auth-username').value = '';
+  document.getElementById('auth-pin').value = '';
+  document.getElementById('auth-msg-text').textContent = '';
+}
+
+function checkSavedSession() {
+  const savedKey = localStorage.getItem('uno_current_session');
+  if (savedKey) {
+    const users = getStoredUsers();
+    if (users[savedKey]) {
+      loginSuccess(users[savedKey]);
+      return;
+    }
+  }
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+/**
+ * FRIENDS LIST & PEER PRESENCE NETWORK
+ */
+function openFriendsModal() {
+  document.getElementById('friends-modal').style.display = 'flex';
+  renderFriendsList();
+}
+
+function closeFriendsModal() {
+  document.getElementById('friends-modal').style.display = 'none';
+}
+
+function addFriendFromInput() {
+  const input = document.getElementById('add-friend-input');
+  const friendClean = sanitizeUsername(input.value);
+
+  if (!friendClean) return;
+  if (friendClean === sanitizeUsername(CurrentUser.username)) {
+    alert("You cannot add yourself as a friend!");
+    return;
+  }
+
+  if (!CurrentUser.friends) CurrentUser.friends = [];
+  if (CurrentUser.friends.includes(friendClean)) {
+    alert("This friend is already on your list!");
+    return;
+  }
+
+  CurrentUser.friends.push(friendClean);
+  input.value = '';
+
+  const users = getStoredUsers();
+  const myKey = sanitizeUsername(CurrentUser.username);
+  if (users[myKey]) {
+    users[myKey].friends = CurrentUser.friends;
+    saveStoredUsers(users);
+  }
+
+  renderFriendsList();
+  updateUserUI();
+}
+
+function removeFriend(friendKey) {
+  if (!confirm(`Remove ${friendKey} from your friends?`)) return;
+  CurrentUser.friends = CurrentUser.friends.filter(f => f !== friendKey);
+
+  const users = getStoredUsers();
+  const myKey = sanitizeUsername(CurrentUser.username);
+  if (users[myKey]) {
+    users[myKey].friends = CurrentUser.friends;
+    saveStoredUsers(users);
+  }
+
+  renderFriendsList();
+  updateUserUI();
+}
+
+function renderFriendsList() {
+  const container = document.getElementById('friends-list-el');
+  container.innerHTML = '';
+
+  if (!CurrentUser.friends || CurrentUser.friends.length === 0) {
+    container.innerHTML = '<div style="color:#8fa0b5; font-size:0.8rem; text-align:center; padding:15px;">No friends added yet. Add friends using their username above!</div>';
+    return;
+  }
+
+  CurrentUser.friends.forEach(friendKey => {
+    const row = document.createElement('div');
+    row.className = 'friend-row';
+    row.id = `friend-row-${friendKey}`;
+
+    row.innerHTML = `
+      <div class="friend-info">
+        <div class="friend-avatar" id="favatar-${friendKey}">👤</div>
+        <div class="friend-name-col">
+          <span class="friend-name">${friendKey}</span>
+          <span class="friend-status offline" id="fstatus-${friendKey}">
+            <span class="friend-status-dot"></span> Checking...
+          </span>
+        </div>
+      </div>
+      <div class="friend-actions">
+        <button class="invite-friend-btn" id="finvite-${friendKey}" onclick="sendDirectInvite('${friendKey}')" disabled>INVITE</button>
+        <button class="del-friend-btn" onclick="removeFriend('${friendKey}')">✕</button>
+      </div>
+    `;
+    container.appendChild(row);
+
+    // Ping Peer Presence
+    checkFriendPresence(friendKey);
+  });
+}
+
+function checkFriendPresence(friendKey) {
+  if (!GameState.presencePeer || GameState.presencePeer.destroyed) return;
+  const targetId = `uno_usr_${friendKey}`;
+  const conn = GameState.presencePeer.connect(targetId);
+
+  let responded = false;
+  const timer = setTimeout(() => {
+    if (!responded) {
+      updateFriendPresenceUI(friendKey, false);
+      try { conn.close(); } catch(e) {}
+    }
+  }, 3500);
+
+  conn.on('open', () => {
+    conn.send({ type: 'PRESENCE_PING', from: sanitizeUsername(CurrentUser.username) });
+  });
+
+  conn.on('data', (data) => {
+    if (data.type === 'PRESENCE_PONG') {
+      responded = true;
+      clearTimeout(timer);
+      updateFriendPresenceUI(friendKey, true, data.avatar);
+      conn.close();
+    }
+  });
+
+  conn.on('error', () => {
+    updateFriendPresenceUI(friendKey, false);
+  });
+}
+
+function updateFriendPresenceUI(friendKey, isOnline, avatar = null) {
+  const statusEl = document.getElementById(`fstatus-${friendKey}`);
+  const inviteBtn = document.getElementById(`finvite-${friendKey}`);
+  const avatarEl = document.getElementById(`favatar-${friendKey}`);
+
+  if (!statusEl) return;
+
+  if (isOnline) {
+    statusEl.className = 'friend-status online';
+    statusEl.innerHTML = '<span class="friend-status-dot"></span> Online';
+    if (inviteBtn) inviteBtn.disabled = !GameState.hostingRoomId;
+    if (avatar && avatarEl) avatarEl.textContent = avatar;
+  } else {
+    statusEl.className = 'friend-status offline';
+    statusEl.innerHTML = '<span class="friend-status-dot"></span> Offline';
+    if (inviteBtn) inviteBtn.disabled = true;
+  }
+}
+
+function sendDirectInvite(friendKey) {
+  if (!GameState.hostingRoomId) {
+    alert("Please create an online room first before inviting friends!");
+    return;
+  }
+  const targetId = `uno_usr_${friendKey}`;
+  const conn = GameState.presencePeer.connect(targetId);
+
+  conn.on('open', () => {
+    conn.send({
+      type: 'DIRECT_INVITE',
+      fromName: CurrentUser.username,
+      fromAvatar: CurrentUser.avatar,
+      edition: GameState.edition,
+      roomId: GameState.hostingRoomId
+    });
+    alert(`Invitation sent to ${friendKey}!`);
+    setTimeout(() => conn.close(), 1000);
+  });
+}
+
+function receiveInvite(data) {
+  incomingInviteData = data;
+  document.getElementById('invite-from-name').textContent = data.fromName;
+  document.getElementById('invite-from-avatar').textContent = data.fromAvatar || '⚡';
+  document.getElementById('invite-edition').textContent = data.edition.toUpperCase();
+
+  const popup = document.getElementById('invite-popup');
+  popup.classList.add('show');
+  AudioEngine.uno();
+}
+
+function acceptInvite() {
+  declineInvite();
+  if (incomingInviteData && incomingInviteData.roomId) {
+    document.getElementById('join-room-id').value = incomingInviteData.roomId;
+    joinRoom();
+  }
+}
+
+function declineInvite() {
+  document.getElementById('invite-popup').classList.remove('show');
+  incomingInviteData = null;
+}
+
+/**
+ * INITIALIZE BACKGROUND NETWORK FOR PRESENCE & INVITES
+ */
+function initUserPeerNetwork() {
+  if (GameState.presencePeer) {
+    try { GameState.presencePeer.destroy(); } catch(e) {}
+  }
+
+  const myId = `uno_usr_${sanitizeUsername(CurrentUser.username)}`;
+  GameState.presencePeer = new Peer(myId);
+
+  GameState.presencePeer.on('open', () => {
+    console.log("Logged into UNO Network as:", myId);
+  });
+
+  GameState.presencePeer.on('connection', (conn) => {
+    conn.on('data', (data) => {
+      if (data.type === 'PRESENCE_PING') {
+        conn.send({ type: 'PRESENCE_PONG', avatar: CurrentUser.avatar });
+      } else if (data.type === 'DIRECT_INVITE') {
+        receiveInvite(data);
+      }
+    });
+  });
+}
+
+/**
  * GAME STATE
  */
 let GameState = {
@@ -1509,6 +1856,8 @@ let GameState = {
   myPlayerId: 0,
   myAvatar: '⚡',
   peer: null,
+  presencePeer: null,
+  hostingRoomId: null,
   pendingWildCard: null,
   isDealing: false,
   inGame: false
@@ -1534,6 +1883,17 @@ function selectEmoji(emoji) {
   document.getElementById('lobby-avatar-bubble').textContent = emoji;
   document.getElementById('custom-emoji-box').value = emoji;
 
+  if (CurrentUser && CurrentUser.username) {
+    CurrentUser.avatar = emoji;
+    const users = getStoredUsers();
+    const myKey = sanitizeUsername(CurrentUser.username);
+    if (users[myKey]) {
+      users[myKey].avatar = emoji;
+      saveStoredUsers(users);
+    }
+    document.getElementById('bar-user-avatar').textContent = emoji;
+  }
+
   document.querySelectorAll('.avatar-option').forEach(el => {
     el.classList.toggle('selected', el.textContent.trim() === emoji);
   });
@@ -1542,11 +1902,7 @@ function selectEmoji(emoji) {
 function onCustomEmojiInput(val) {
   const trimmed = val.trim();
   if (trimmed) {
-    GameState.myAvatar = trimmed;
-    document.getElementById('lobby-avatar-bubble').textContent = trimmed;
-    document.querySelectorAll('.avatar-option').forEach(el => {
-      el.classList.toggle('selected', el.textContent.trim() === trimmed);
-    });
+    selectEmoji(trimmed);
   }
 }
 
@@ -1565,6 +1921,7 @@ function confirmQuitGame() {
   document.getElementById('lobby-screen').style.display = 'flex';
   document.getElementById('room-info').style.display = 'none';
   document.getElementById('start-hosted-btn').style.display = 'none';
+  GameState.hostingRoomId = null;
 }
 
 /**
@@ -2052,19 +2409,28 @@ function triggerCenterSpecialVFX(type, text) {
 }
 
 /**
- * MULTIPLAYER (PeerJS)
+ * MULTIPLAYER PEER CONNECTION (GAMEPLAY)
  */
 function createRoom() {
-  const name = document.getElementById('player-name').value || 'Shiny';
+  const name = CurrentUser.username || 'Shiny';
   GameState.edition = document.getElementById('game-edition').value;
 
   GameState.peer = new Peer();
   GameState.peer.on('open', (id) => {
+    GameState.hostingRoomId = id;
     document.getElementById('room-info').style.display = 'block';
-    document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Share this code with your friends!`;
+    document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Friends can also be invited directly from your Friends List!`;
     document.getElementById('start-hosted-btn').style.display = 'block';
 
-    GameState.players = [{ id: 0, name: `${name} (You)`, avatar: GameState.myAvatar || '⚡', hand: [], isBot: false, conn: null, hasWon: false }];
+    GameState.players = [{
+      id: 0,
+      name: `${name} (You)`,
+      avatar: CurrentUser.avatar || '⚡',
+      hand: [],
+      isBot: false,
+      conn: null,
+      hasWon: false
+    }];
   });
 
   GameState.peer.on('connection', (conn) => {
@@ -2078,7 +2444,7 @@ function createRoom() {
 
 function joinRoom() {
   const roomId = document.getElementById('join-room-id').value.trim();
-  const name = document.getElementById('player-name').value || 'Guest';
+  const name = CurrentUser.username || 'Guest';
   if (!roomId) return alert('Enter a room code');
 
   GameState.peer = new Peer();
@@ -2086,7 +2452,7 @@ function joinRoom() {
     const conn = GameState.peer.connect(roomId);
     GameState.isHost = false;
 
-    conn.on('open', () => conn.send({ type: 'JOIN_REQ', name: name, avatar: GameState.myAvatar || '⚡' }));
+    conn.on('open', () => conn.send({ type: 'JOIN_REQ', name: name, avatar: CurrentUser.avatar || '⚡' }));
 
     conn.on('data', (data) => {
       if (data.type === 'SYNC_STATE') {
@@ -2177,10 +2543,10 @@ function broadcastState() {
  * INITIALIZATION
  */
 function startSoloGame() {
-  const name = document.getElementById('player-name').value || 'Shiny';
+  const name = CurrentUser.username || 'Shiny';
   GameState.edition = document.getElementById('game-edition').value;
   GameState.players = [
-    { id: 0, name: `${name} (You)`, avatar: GameState.myAvatar || '⚡', hand: [], isBot: false, hasWon: false },
+    { id: 0, name: `${name} (You)`, avatar: CurrentUser.avatar || '⚡', hand: [], isBot: false, hasWon: false },
     { id: 1, name: 'Shorty', avatar: '🐭', hand: [], isBot: true, hasWon: false },
     { id: 2, name: 'Archie', avatar: '🐱', hand: [], isBot: true, hasWon: false },
     { id: 3, name: 'Ringo', avatar: '🐶', hand: [], isBot: true, hasWon: false }
@@ -2312,6 +2678,18 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
       const rank = GameState.rankings.length + 1;
       player.rank = rank;
       GameState.rankings.push({ id: player.id, name: player.name, avatar: player.avatar, rank: rank });
+
+      // Update Win Count for user
+      if (player.id === 0 && rank === 1) {
+        CurrentUser.wins = (CurrentUser.wins || 0) + 1;
+        const users = getStoredUsers();
+        const myKey = sanitizeUsername(CurrentUser.username);
+        if (users[myKey]) {
+          users[myKey].wins = CurrentUser.wins;
+          saveStoredUsers(users);
+        }
+        updateUserUI();
+      }
 
       const medalTxt = rank === 1 ? '🥇 1ST PLACE!' : rank === 2 ? '🥈 2ND PLACE!' : '🥉 3RD PLACE!';
       triggerCenterSpecialVFX('reverse', `${player.name} ${medalTxt}`);
@@ -2624,21 +3002,17 @@ function renderGame() {
     discardBox.appendChild(el);
   });
 
-  // Local Player Turn Check
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
   const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing);
 
-  // Render Local Player Hand with Adaptive Flattening
   const handBox = document.getElementById('player-hand');
   handBox.innerHTML = '';
   const total = myPlayer.hand.length;
 
-  // Viewport-safe bounds
   const maxAllowedWidth = Math.min(window.innerWidth - 70, 960);
   const cardWidth = 92;
   const step = total > 1 ? Math.min(44, (maxAllowedWidth - cardWidth) / (total - 1)) : 0;
 
-  // Adaptive angle & curve dampening: as hand gets large, angle and translateY decrease towards 0
   const angleDampener = total > 22 ? 0.28 : (total > 14 ? 0.5 : (total > 8 ? 0.8 : 1.0));
   const maxAngle = Math.min(18, total * 2.2) * angleDampener;
   const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
@@ -2679,7 +3053,7 @@ function renderGame() {
     pCount0.classList.remove('won-badge');
   }
   document.getElementById('p-name-0').textContent = myPlayer.name;
-  document.getElementById('p-avatar-0').textContent = myPlayer.avatar || GameState.myAvatar || '⚡';
+  document.getElementById('p-avatar-0').textContent = myPlayer.avatar || CurrentUser.avatar || '⚡';
 
   document.getElementById('player-bottom').classList.toggle('active', isMyTurn);
 
@@ -2779,6 +3153,11 @@ function renderLeaderboard() {
     lbList.appendChild(row);
   });
 }
+
+// Check saved session upon loading
+window.addEventListener('load', () => {
+  checkSavedSession();
+});
 
 window.addEventListener('resize', () => { if (GameState.players.length > 0) renderGame(); });
 </script>
