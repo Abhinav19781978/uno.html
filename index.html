@@ -812,6 +812,58 @@
   .btn.friends-btn { background: linear-gradient(135deg, #8a2be2 0%, #4a00e0 100%); }
   .btn.join-btn { flex: 0 0 95px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
 
+  /* Room Waiting Lobby Overlay */
+  #room-lobby-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 9, 18, 0.92);
+    backdrop-filter: blur(20px);
+    z-index: 600;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+  .room-lobby-card {
+    background: #0f182b;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 26px;
+    width: min(92vw, 440px);
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.85);
+    text-align: center;
+  }
+  .room-code-tag {
+    background: rgba(255,255,255,0.08);
+    border: 1.5px dashed #f7b300;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #f7b300;
+    cursor: pointer;
+  }
+  .lobby-players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .lobby-player-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-weight: 800;
+  }
+
   /* Google Auth Button */
   .google-login-btn {
     display: flex;
@@ -985,7 +1037,6 @@
         <p style="font-size: 0.85rem; color: #8fa0b5; margin-top: 6px;">Sign in with your Google Account to play with friends across devices.</p>
       </div>
 
-      <!-- Google Sign In Button -->
       <button class="google-login-btn" onclick="loginWithGoogle()">
         <svg class="google-icon" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1029,6 +1080,23 @@
     </div>
   </div>
 
+  <!-- LIVE ROOM LOBBY MODAL (PRE-GAME WAITING ROOM) -->
+  <div id="room-lobby-modal">
+    <div class="room-lobby-card">
+      <div style="font-size: 1.4rem; font-weight: 900; color: #f7b300;">GAME ROOM LOBBY</div>
+      <div style="font-size: 0.8rem; color: #8fa0b5;">Share code or invite friends from your list:</div>
+      <div class="room-code-tag" id="lobby-room-code" onclick="copyRoomCode()">ROOM CODE</div>
+      
+      <div style="text-align:left; font-size:0.8rem; font-weight:800; color:#94a3b8; margin-top:4px;">PLAYERS IN LOBBY (<span id="lobby-player-count">1</span>/4):</div>
+      <div class="lobby-players-list" id="lobby-players-list"></div>
+
+      <div id="lobby-status-msg" style="font-size:0.82rem; color:#00ff73; font-weight:800;"></div>
+
+      <button id="lobby-start-btn" class="btn" style="display:none;" onclick="startHostedGame()">START MATCH</button>
+      <button class="pill-btn danger" style="padding:10px; margin-top:4px;" onclick="leaveRoomLobby()">LEAVE ROOM</button>
+    </div>
+  </div>
+
   <!-- HOME SCREEN (LOBBY) -->
   <div id="lobby-screen" style="display:none;">
     <div class="lobby-nebula neb-red"></div>
@@ -1066,7 +1134,7 @@
 
       <div class="btn-group">
         <button class="btn" onclick="startSoloGame()">Play vs Bots</button>
-        <button class="btn secondary" onclick="createRoom()">Create Room</button>
+        <button class="btn secondary" id="create-room-btn" onclick="createRoom()">Create Room</button>
       </div>
 
       <button class="btn friends-btn" onclick="openFriendsModal()">
@@ -1077,11 +1145,10 @@
         <label>Join Friend's Room Code</label>
         <div style="display:flex; gap:8px;">
           <input type="text" id="join-room-id" placeholder="Paste Code Here">
-          <button class="btn join-btn" onclick="joinRoom()">Join</button>
+          <button class="btn join-btn" id="join-btn-el" onclick="joinRoom()">Join</button>
         </div>
       </div>
       <div id="room-info" style="font-size: 0.85rem; color: #f7b300; text-align: center; display:none;"></div>
-      <button id="start-hosted-btn" class="btn" style="display:none;" onclick="startHostedGame()">Start Game</button>
     </div>
   </div>
 
@@ -1173,12 +1240,10 @@
 
 <script>
 /**
- * -------------------------------------------------------------
- * FIREBASE CONFIGURATION (PASTE YOUR KEYS HERE)
- * -------------------------------------------------------------
+ * FIREBASE CONFIGURATION
  */
 const firebaseConfig = {
-  apiKey: "AIzaSyBZQZngpuKna9aPsvyFMtdnWy35XdIwB08",
+  apiKey: "AIzaSyBZQzngPukna9aPsvyFMtdnWy35XdIwB08",
   authDomain: "uno-online-cb4c8.firebaseapp.com",
   projectId: "uno-online-cb4c8",
   storageBucket: "uno-online-cb4c8.firebasestorage.app",
@@ -1187,14 +1252,28 @@ const firebaseConfig = {
 };
 
 let auth = null;
-if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-  try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-  } catch (e) {
-    console.error("Firebase Init Error:", e);
-  }
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+} catch (e) {
+  console.warn("Firebase Init Notice:", e);
 }
+
+/**
+ * HIGH-RELIABILITY WEBRTC STUN CONFIGURATION
+ */
+const PEER_CONFIG = {
+  debug: 1,
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' }
+    ]
+  }
+};
 
 /**
  * AUDIO ENGINE
@@ -1283,7 +1362,7 @@ const AudioEngine = {
 };
 
 /**
- * AUTHENTICATION LOGIC (GOOGLE SIGN-IN)
+ * AUTH & PROFILE
  */
 let CurrentUser = {
   uid: '',
@@ -1297,7 +1376,7 @@ let CurrentUser = {
 let incomingInviteData = null;
 
 function sanitizeUsername(str) {
-  return str.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+  return (str || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
 }
 
 function loginWithGoogle() {
@@ -1305,7 +1384,7 @@ function loginWithGoogle() {
   msgEl.textContent = '';
 
   if (!auth) {
-    msgEl.textContent = "Firebase keys not set! Paste your firebaseConfig keys in index.html to enable Google login.";
+    msgEl.textContent = "Firebase is initializing, please check your network.";
     return;
   }
 
@@ -1347,11 +1426,10 @@ function loginSuccess() {
 }
 
 function logoutUser() {
-  if (auth && auth.currentUser) {
-    auth.signOut();
-  }
+  if (auth && auth.currentUser) auth.signOut();
   if (GameState.presencePeer) {
     try { GameState.presencePeer.destroy(); } catch (e) {}
+    GameState.presencePeer = null;
   }
   showScreen('auth');
 }
@@ -1365,7 +1443,7 @@ function updateUserUI() {
   if (CurrentUser.isPhoto) {
     barAvatar.innerHTML = `<img src="${CurrentUser.avatar}" alt="avatar">`;
   } else {
-    barAvatar.textContent = CurrentUser.avatar;
+    barAvatar.textContent = CurrentUser.avatar || '⚡';
   }
 }
 
@@ -1374,9 +1452,7 @@ function showScreen(screen) {
   document.getElementById('lobby-screen').style.display = (screen === 'lobby') ? 'flex' : 'none';
   document.getElementById('viewport-3d').style.display = (screen === 'game') ? 'flex' : 'none';
 
-  if (screen === 'lobby') {
-    updateUserUI();
-  }
+  if (screen === 'lobby') updateUserUI();
 }
 
 /**
@@ -1464,7 +1540,7 @@ function checkFriendPresence(friendKey) {
       updateFriendPresenceUI(friendKey, false);
       try { conn.close(); } catch(e) {}
     }
-  }, 3500);
+  }, 4000);
 
   conn.on('open', () => {
     conn.send({ type: 'PRESENCE_PING', from: sanitizeUsername(CurrentUser.username) });
@@ -1505,7 +1581,7 @@ function updateFriendPresenceUI(friendKey, isOnline, avatar = null, isPhoto = fa
 
 function sendDirectInvite(friendKey) {
   if (!GameState.hostingRoomId) {
-    alert("Create an online room first before inviting friends!");
+    alert("Please create a room first!");
     return;
   }
   const targetId = `uno_usr_${friendKey}`;
@@ -1523,13 +1599,17 @@ function sendDirectInvite(friendKey) {
     alert(`Invite sent to ${friendKey}!`);
     setTimeout(() => conn.close(), 1000);
   });
+
+  conn.on('error', () => {
+    alert(`Could not connect to ${friendKey}. Make sure they are active on the site.`);
+  });
 }
 
 function receiveInvite(data) {
   incomingInviteData = data;
   document.getElementById('invite-from-name').textContent = data.fromName;
   const avatarEl = document.getElementById('invite-from-avatar');
-  avatarEl.innerHTML = data.isPhoto ? `<img src="${data.fromAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">` : data.fromAvatar;
+  avatarEl.innerHTML = data.isPhoto ? `<img src="${data.fromAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">` : (data.fromAvatar || '⚡');
   document.getElementById('invite-edition').textContent = data.edition.toUpperCase();
 
   const popup = document.getElementById('invite-popup');
@@ -1538,10 +1618,10 @@ function receiveInvite(data) {
 }
 
 function acceptInvite() {
+  const invite = incomingInviteData;
   declineInvite();
-  if (incomingInviteData && incomingInviteData.roomId) {
-    document.getElementById('join-room-id').value = incomingInviteData.roomId;
-    joinRoom();
+  if (invite && invite.roomId) {
+    joinRoomWithId(invite.roomId);
   }
 }
 
@@ -1557,7 +1637,7 @@ function initUserPeerNetwork() {
 
   const myId = `uno_usr_${sanitizeUsername(CurrentUser.username)}`;
   try {
-    GameState.presencePeer = new Peer(myId);
+    GameState.presencePeer = new Peer(myId, PEER_CONFIG);
     GameState.presencePeer.on('connection', (conn) => {
       conn.on('data', (data) => {
         if (data.type === 'PRESENCE_PING') {
@@ -1568,12 +1648,12 @@ function initUserPeerNetwork() {
       });
     });
   } catch (e) {
-    console.warn("Peer connection error:", e);
+    console.warn("Peer presence notice:", e);
   }
 }
 
 /**
- * GAME ENGINE STATE & TIMERS
+ * GAME ENGINE STATE & HANDSHAKE ROUTING
  */
 let GameState = {
   edition: 'flip',
@@ -1593,6 +1673,7 @@ let GameState = {
   peer: null,
   presencePeer: null,
   hostingRoomId: null,
+  guestHostConn: null,
   pendingWildCard: null,
   isDealing: false,
   inGame: false
@@ -1617,15 +1698,389 @@ function getActivePlayers() {
 }
 
 /**
- * FIXED LEAVE GAME (CLEARS TIMERS, ANIMATIONS & SAFELY RESTORES DOM)
+ * ROOM CREATION (HOST)
  */
+function createRoom() {
+  const name = CurrentUser.username || 'Shiny';
+  GameState.edition = document.getElementById('game-edition').value;
+  GameState.isHost = true;
+  GameState.myPlayerId = 0;
+
+  const btn = document.getElementById('create-room-btn');
+  btn.textContent = "Creating...";
+
+  if (GameState.peer) {
+    try { GameState.peer.destroy(); } catch (e) {}
+  }
+
+  GameState.peer = new Peer(PEER_CONFIG);
+
+  GameState.peer.on('open', (id) => {
+    btn.textContent = "Create Room";
+    GameState.hostingRoomId = id;
+
+    GameState.players = [{
+      id: 0,
+      name: `${name} (Host)`,
+      avatar: CurrentUser.avatar || '⚡',
+      isPhoto: CurrentUser.isPhoto,
+      hand: [],
+      isBot: false,
+      conn: null,
+      hasWon: false
+    }];
+
+    openRoomLobbyModal(id, true);
+  });
+
+  GameState.peer.on('connection', (conn) => {
+    if (GameState.players.length >= 4) {
+      conn.send({ type: 'ERROR', msg: 'Room is full' });
+      return;
+    }
+
+    conn.on('data', (data) => handleHostData(conn, data));
+
+    conn.on('close', () => {
+      GameState.players = GameState.players.filter(p => p.conn !== conn);
+      broadcastLobbyUpdate();
+      updateLobbyPlayerListUI();
+    });
+  });
+
+  GameState.peer.on('error', (err) => {
+    btn.textContent = "Create Room";
+    alert("Network error creating room: " + err.message);
+  });
+}
+
+/**
+ * ROOM JOINING (GUEST)
+ */
+function joinRoom() {
+  const code = document.getElementById('join-room-id').value.trim();
+  if (!code) return alert('Enter a room code!');
+  joinRoomWithId(code);
+}
+
+function joinRoomWithId(roomId) {
+  const name = CurrentUser.username || 'Guest';
+  GameState.isHost = false;
+  GameState.hostingRoomId = roomId;
+
+  const joinBtn = document.getElementById('join-btn-el');
+  if (joinBtn) joinBtn.textContent = "...";
+
+  if (GameState.peer) {
+    try { GameState.peer.destroy(); } catch (e) {}
+  }
+
+  GameState.peer = new Peer(PEER_CONFIG);
+
+  GameState.peer.on('open', () => {
+    const conn = GameState.peer.connect(roomId, { reliable: true });
+    GameState.guestHostConn = conn;
+
+    conn.on('open', () => {
+      if (joinBtn) joinBtn.textContent = "Join";
+      // Send Join Handshake
+      conn.send({
+        type: 'JOIN_REQ',
+        name: name,
+        avatar: CurrentUser.avatar || '⚡',
+        isPhoto: CurrentUser.isPhoto
+      });
+    });
+
+    conn.on('data', (data) => handleGuestData(conn, data));
+
+    conn.on('error', (err) => {
+      if (joinBtn) joinBtn.textContent = "Join";
+      alert("Failed to connect to host: " + err);
+    });
+
+    conn.on('close', () => {
+      if (!GameState.inGame) {
+        alert("Disconnected from host.");
+        leaveRoomLobby();
+      }
+    });
+  });
+
+  GameState.peer.on('error', (err) => {
+    if (joinBtn) joinBtn.textContent = "Join";
+    alert("Connection error: " + err.message);
+  });
+}
+
+/**
+ * HOST MESSAGE HANDLER
+ */
+function handleHostData(conn, data) {
+  if (data.type === 'JOIN_REQ') {
+    const newId = GameState.players.length;
+    const newPlayer = {
+      id: newId,
+      name: data.name,
+      avatar: data.avatar || '😎',
+      isPhoto: data.isPhoto || false,
+      hand: [],
+      isBot: false,
+      conn: conn,
+      hasWon: false
+    };
+    GameState.players.push(newPlayer);
+
+    // 1. Send Instant Acceptance Handshake back to the Joiner
+    conn.send({
+      type: 'JOIN_ACCEPTED',
+      yourId: newId,
+      roomId: GameState.hostingRoomId,
+      edition: GameState.edition,
+      players: GameState.players.map(p => ({ name: p.name, avatar: p.avatar, isPhoto: p.isPhoto }))
+    });
+
+    // 2. Broadcast updated lobby list to ALL connected players
+    broadcastLobbyUpdate();
+    updateLobbyPlayerListUI();
+  }
+  else if (data.type === 'PLAY_CARD') {
+    executePlayCard(data.playerId, data.cardIndex, data.chosenColor);
+  } 
+  else if (data.type === 'DRAW_CARD') {
+    handlePlayerDraw(data.playerId);
+  } 
+  else if (data.type === 'CALL_UNO') {
+    GameState.unoCalledPlayers.add(data.playerId);
+    triggerCenterSpecialVFX('reverse', `${GameState.players[data.playerId].name} UNO!`);
+    AudioEngine.uno();
+    broadcastState();
+  }
+}
+
+/**
+ * GUEST MESSAGE HANDLER
+ */
+function handleGuestData(conn, data) {
+  if (data.type === 'JOIN_ACCEPTED') {
+    GameState.myPlayerId = data.yourId;
+    GameState.edition = data.edition;
+    openRoomLobbyModal(data.roomId, false);
+    renderLobbyPlayerRows(data.players);
+  }
+  else if (data.type === 'LOBBY_UPDATE') {
+    renderLobbyPlayerRows(data.players);
+  }
+  else if (data.type === 'GAME_STARTING') {
+    document.getElementById('room-lobby-modal').style.display = 'none';
+    showScreen('game');
+  }
+  else if (data.type === 'SYNC_STATE') {
+    const sideChanged = GameState.flipSide !== data.state.flipSide;
+    GameState.inGame = true;
+    GameState.edition = data.state.edition;
+    GameState.flipSide = data.state.flipSide;
+    GameState.discardPile = data.state.discardPile;
+    GameState.players = data.state.players;
+    GameState.rankings = data.state.rankings || [];
+    GameState.turnIndex = data.state.turnIndex;
+    GameState.direction = data.state.direction;
+    GameState.stackedDrawCount = data.state.stackedDrawCount;
+    GameState.currentColor = data.state.currentColor;
+    GameState.myPlayerId = data.yourId;
+
+    document.getElementById('room-lobby-modal').style.display = 'none';
+    showScreen('game');
+
+    if (sideChanged) triggerFlip3DTransition();
+    else { updateTheme(); renderGame(); }
+  } 
+  else if (data.type === 'VFX') {
+    triggerCenterSpecialVFX(data.vfxType, data.text);
+  }
+}
+
+function broadcastLobbyUpdate() {
+  if (!GameState.isHost) return;
+  const pList = GameState.players.map(p => ({ name: p.name, avatar: p.avatar, isPhoto: p.isPhoto }));
+  GameState.players.forEach(p => {
+    if (p.conn && p.conn.open) {
+      p.conn.send({ type: 'LOBBY_UPDATE', players: pList });
+    }
+  });
+}
+
+function broadcastState() {
+  if (!GameState.isHost || !GameState.inGame) return;
+  GameState.players.forEach(p => {
+    if (p.conn && p.conn.open) {
+      p.conn.send({
+        type: 'SYNC_STATE',
+        yourId: p.id,
+        state: {
+          edition: GameState.edition,
+          flipSide: GameState.flipSide,
+          discardPile: GameState.discardPile,
+          rankings: GameState.rankings,
+          players: GameState.players.map(pl => ({
+            id: pl.id,
+            name: pl.name,
+            avatar: pl.avatar,
+            isPhoto: pl.isPhoto,
+            handCount: pl.hand.length,
+            hand: pl.id === p.id ? pl.hand : [],
+            oppositeFaces: GameState.edition === 'flip' ? pl.hand.map(c => getOppositeFace(c)) : [],
+            isBot: pl.isBot,
+            hasWon: pl.hasWon,
+            rank: pl.rank,
+            eliminated: pl.eliminated
+          })),
+          turnIndex: GameState.turnIndex,
+          direction: GameState.direction,
+          stackedDrawCount: GameState.stackedDrawCount,
+          currentColor: GameState.currentColor
+        }
+      });
+    }
+  });
+  renderGame();
+}
+
+/**
+ * ROOM WAITING LOBBY UI
+ */
+function openRoomLobbyModal(roomId, isHost) {
+  const modal = document.getElementById('room-lobby-modal');
+  modal.style.display = 'flex';
+  document.getElementById('lobby-room-code').textContent = roomId;
+  
+  const startBtn = document.getElementById('lobby-start-btn');
+  const statusMsg = document.getElementById('lobby-status-msg');
+
+  if (isHost) {
+    startBtn.style.display = 'block';
+    statusMsg.textContent = "You are the Host. Click 'Start Match' when everyone is ready!";
+    updateLobbyPlayerListUI();
+  } else {
+    startBtn.style.display = 'none';
+    statusMsg.textContent = "Waiting for the Host to start the game...";
+  }
+}
+
+function copyRoomCode() {
+  const code = document.getElementById('lobby-room-code').textContent;
+  navigator.clipboard.writeText(code).then(() => alert("Room Code copied to clipboard!"));
+}
+
+function updateLobbyPlayerListUI() {
+  const listEl = document.getElementById('lobby-players-list');
+  listEl.innerHTML = '';
+  document.getElementById('lobby-player-count').textContent = GameState.players.length;
+
+  GameState.players.forEach((p, idx) => {
+    const row = document.createElement('div');
+    row.className = 'lobby-player-row';
+    const av = p.isPhoto ? `<img src="${p.avatar}" style="width:24px; height:24px; border-radius:50%;">` : (p.avatar || '👤');
+    row.innerHTML = `<span>${av} ${p.name}</span><span style="color:#00ff73; font-size:0.75rem;">READY</span>`;
+    listEl.appendChild(row);
+  });
+}
+
+function renderLobbyPlayerRows(players) {
+  const listEl = document.getElementById('lobby-players-list');
+  listEl.innerHTML = '';
+  document.getElementById('lobby-player-count').textContent = players.length;
+
+  players.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'lobby-player-row';
+    const av = p.isPhoto ? `<img src="${p.avatar}" style="width:24px; height:24px; border-radius:50%;">` : (p.avatar || '👤');
+    row.innerHTML = `<span>${av} ${p.name}</span><span style="color:#00ff73; font-size:0.75rem;">CONNECTED</span>`;
+    listEl.appendChild(row);
+  });
+}
+
+function leaveRoomLobby() {
+  document.getElementById('room-lobby-modal').style.display = 'none';
+  if (GameState.peer) {
+    try { GameState.peer.destroy(); } catch (e) {}
+    GameState.peer = null;
+  }
+  GameState.hostingRoomId = null;
+  GameState.guestHostConn = null;
+  showScreen('lobby');
+}
+
+/**
+ * GAME START & RESET
+ */
+function startHostedGame() {
+  const defaultBots = [
+    { name: 'Shorty', avatar: '🐭' },
+    { name: 'Archie', avatar: '🐱' },
+    { name: 'Ringo', avatar: '🐶' }
+  ];
+  for (let i = GameState.players.length; i < 4; i++) {
+    const b = defaultBots[i-1] || { name: `Bot ${i}`, avatar: '🤖' };
+    GameState.players.push({ id: i, name: b.name, avatar: b.avatar, isPhoto: false, hand: [], isBot: true, conn: null, hasWon: false });
+  }
+
+  // Notify all guests that match has started
+  GameState.players.forEach(p => {
+    if (p.conn && p.conn.open) p.conn.send({ type: 'GAME_STARTING' });
+  });
+
+  document.getElementById('room-lobby-modal').style.display = 'none';
+  showScreen('game');
+  initGameEngine();
+}
+
+function startSoloGame() {
+  GameState.edition = document.getElementById('game-edition').value;
+  GameState.isHost = true;
+  GameState.myPlayerId = 0;
+  GameState.players = [
+    { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, isPhoto: CurrentUser.isPhoto, hand: [], isBot: false, hasWon: false },
+    { id: 1, name: 'Shorty', avatar: '🐭', isPhoto: false, hand: [], isBot: true, hasWon: false },
+    { id: 2, name: 'Archie', avatar: '🐱', isPhoto: false, hand: [], isBot: true, hasWon: false },
+    { id: 3, name: 'Ringo', avatar: '🐶', isPhoto: false, hand: [], isBot: true, hasWon: false }
+  ];
+  showScreen('game');
+  initGameEngine();
+}
+
+function initGameEngine() {
+  GameState.inGame = true;
+  GameState.drawPile = buildDeck(GameState.edition);
+  GameState.discardPile = [];
+  GameState.discardRotations = [];
+  GameState.rankings = [];
+  GameState.flipSide = 'light';
+  GameState.stackedDrawCount = 0;
+  GameState.direction = 1;
+  GameState.turnIndex = 0;
+
+  GameState.players.forEach(p => {
+    p.hand = [];
+    p.hasWon = false;
+  });
+
+  updateTheme();
+  renderGame();
+
+  runInitialDealAnimation(() => {
+    if (GameState.inGame && GameState.players[GameState.turnIndex] && GameState.players[GameState.turnIndex].isBot) {
+      activeBotTurnTimeout = setTimeout(botTurn, 1000);
+    }
+  });
+}
+
 function confirmQuitGame() {
   if (!confirm("Quit match and return to home screen?")) return;
 
   GameState.inGame = false;
   GameState.isDealing = false;
 
-  // Clear running timers
   if (activeDealIntervalTimer) {
     clearInterval(activeDealIntervalTimer);
     activeDealIntervalTimer = null;
@@ -1635,17 +2090,14 @@ function confirmQuitGame() {
     activeBotTurnTimeout = null;
   }
 
-  // Clear animation layer
   const flyLayer = document.getElementById('fly-animation-layer');
   if (flyLayer) flyLayer.innerHTML = '';
 
-  // Close PeerJS match room
   if (GameState.peer) {
     try { GameState.peer.destroy(); } catch (e) {}
     GameState.peer = null;
   }
 
-  // Reset player containers
   const handBox = document.getElementById('player-hand');
   if (handBox) handBox.innerHTML = '';
   
@@ -1654,7 +2106,6 @@ function confirmQuitGame() {
     if (oppHand) oppHand.innerHTML = '';
   });
 
-  // Safely clear discard pile cards while preserving active-color-badge
   const discardBox = document.getElementById('discard-pile-3d');
   if (discardBox) {
     const cards = discardBox.querySelectorAll('.card');
@@ -1662,15 +2113,15 @@ function confirmQuitGame() {
   }
 
   document.getElementById('color-picker-modal').style.display = 'none';
-  document.getElementById('room-info').style.display = 'none';
-  document.getElementById('start-hosted-btn').style.display = 'none';
+  document.getElementById('room-lobby-modal').style.display = 'none';
   GameState.hostingRoomId = null;
+  GameState.guestHostConn = null;
 
   showScreen('lobby');
 }
 
 /**
- * DECK BUILDER
+ * DECK & CARD VISUALS
  */
 function buildDeck(edition) {
   let deck = [];
@@ -1757,17 +2208,13 @@ function shuffle(arr) {
 
 function getCardFace(card) {
   if (!card) return { color: 'red', value: '0', type: 'number' };
-  if (GameState.edition === 'flip') {
-    return GameState.flipSide === 'light' ? card.light : card.dark;
-  }
+  if (GameState.edition === 'flip') return GameState.flipSide === 'light' ? card.light : card.dark;
   return card;
 }
 
 function getOppositeFace(card) {
   if (!card) return { color: 'pink', value: '0', type: 'number' };
-  if (GameState.edition === 'flip') {
-    return GameState.flipSide === 'light' ? card.dark : card.light;
-  }
+  if (GameState.edition === 'flip') return GameState.flipSide === 'light' ? card.dark : card.light;
   return card;
 }
 
@@ -1775,107 +2222,35 @@ function getVectorCardInner(face) {
   const val = face.value;
 
   if (val === 'WILD') {
-    return `
-      <div class="wild-quadrant"></div>
-      <div style="position:relative; z-index:2; transform: rotate(28deg);">
-        <span style="font-family:'Montserrat'; font-weight:900; font-size:1.5rem; color:#fff; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000; letter-spacing:1px;">WILD</span>
-      </div>
-    `;
+    return `<div class="wild-quadrant"></div><div style="position:relative; z-index:2; transform: rotate(28deg);"><span style="font-family:'Montserrat'; font-weight:900; font-size:1.5rem; color:#fff; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000; letter-spacing:1px;">WILD</span></div>`;
   }
-
   if (val === 'WILD_COLOR') {
-    return `
-      <div class="wild-dark-quadrant"></div>
-      <div style="position:relative; z-index:2; transform: rotate(28deg);">
-        <span style="font-family:'Montserrat'; font-weight:900; font-size:1.1rem; color:#fff; text-shadow: 2px 2px 0 #000;">COLOR</span>
-      </div>
-    `;
+    return `<div class="wild-dark-quadrant"></div><div style="position:relative; z-index:2; transform: rotate(28deg);"><span style="font-family:'Montserrat'; font-weight:900; font-size:1.1rem; color:#fff; text-shadow: 2px 2px 0 #000;">COLOR</span></div>`;
   }
-
   if (val === 'discard_all') {
-    return `
-      <svg viewBox="0 0 100 100" style="width:78%; height:78%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
-        <rect x="14" y="24" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(-22 29 47)"/>
-        <rect x="32" y="16" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(-4 47 39)"/>
-        <rect x="52" y="22" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(16 67 45)"/>
-        <path d="M 50,56 L 50,84 M 40,74 L 50,84 L 60,74" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.8))"/>
-      </svg>
-    `;
+    return `<svg viewBox="0 0 100 100" style="width:78%; height:78%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));"><rect x="14" y="24" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(-22 29 47)"/><rect x="32" y="16" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(-4 47 39)"/><rect x="52" y="22" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(16 67 45)"/><path d="M 50,56 L 50,84 M 40,74 L 50,84 L 60,74" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.8))"/></svg>`;
   }
-
   if (val === 'wild_rev_+4') {
-    return `
-      <svg viewBox="0 0 100 100" style="width:78%; height:78%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
-        <rect x="18" y="24" width="28" height="42" rx="3" fill="#37a324" stroke="#fff" stroke-width="2" transform="rotate(-15 32 45)"/>
-        <rect x="34" y="15" width="28" height="42" rx="3" fill="#0076e6" stroke="#fff" stroke-width="2"/>
-        <rect x="52" y="20" width="28" height="42" rx="3" fill="#ea2323" stroke="#fff" stroke-width="2" transform="rotate(12 66 41)"/>
-        <path d="M 26,62 L 15,48 L 28,48 C 38,48 48,53 48,62 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
-        <path d="M 74,38 L 85,52 L 72,52 C 62,52 52,47 52,38 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
-      </svg>
-    `;
+    return `<svg viewBox="0 0 100 100" style="width:78%; height:78%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));"><rect x="18" y="24" width="28" height="42" rx="3" fill="#37a324" stroke="#fff" stroke-width="2" transform="rotate(-15 32 45)"/><rect x="34" y="15" width="28" height="42" rx="3" fill="#0076e6" stroke="#fff" stroke-width="2"/><rect x="52" y="20" width="28" height="42" rx="3" fill="#ea2323" stroke="#fff" stroke-width="2" transform="rotate(12 66 41)"/><path d="M 26,62 L 15,48 L 28,48 C 38,48 48,53 48,62 Z" fill="#ffffff" stroke="#000" stroke-width="2"/><path d="M 74,38 L 85,52 L 72,52 C 62,52 52,47 52,38 Z" fill="#ffffff" stroke="#000" stroke-width="2"/></svg>`;
   }
-
   if (val === '+4' || val === '+6' || val === '+10') {
-    return `
-      <div style="display:flex; flex-direction:column; align-items:center; transform: rotate(28deg);">
-        <svg viewBox="0 0 100 70" style="width:72px; height:50px; margin-bottom:-10px;">
-          <rect x="15" y="15" width="22" height="34" rx="3" fill="#37a324" stroke="#fff" stroke-width="2" transform="rotate(-18 26 32)"/>
-          <rect x="32" y="8" width="22" height="34" rx="3" fill="#0076e6" stroke="#fff" stroke-width="2"/>
-          <rect x="48" y="12" width="22" height="34" rx="3" fill="#ea2323" stroke="#fff" stroke-width="2" transform="rotate(14 59 29)"/>
-          <rect x="62" y="6" width="22" height="34" rx="3" fill="#f7b300" stroke="#fff" stroke-width="2" transform="rotate(24 73 23)"/>
-        </svg>
-        <span class="card-val-num" style="transform:none; font-size:2.4rem;">${val}</span>
-      </div>
-    `;
+    return `<div style="display:flex; flex-direction:column; align-items:center; transform: rotate(28deg);"><svg viewBox="0 0 100 70" style="width:72px; height:50px; margin-bottom:-10px;"><rect x="15" y="15" width="22" height="34" rx="3" fill="#37a324" stroke="#fff" stroke-width="2" transform="rotate(-18 26 32)"/><rect x="32" y="8" width="22" height="34" rx="3" fill="#0076e6" stroke="#fff" stroke-width="2"/><rect x="48" y="12" width="22" height="34" rx="3" fill="#ea2323" stroke="#fff" stroke-width="2" transform="rotate(14 59 29)"/><rect x="62" y="6" width="22" height="34" rx="3" fill="#f7b300" stroke="#fff" stroke-width="2" transform="rotate(24 73 23)"/></svg><span class="card-val-num" style="transform:none; font-size:2.4rem;">${val}</span></div>`;
   }
-
   if (val === 'reverse') {
-    return `
-      <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));">
-        <path d="M 28,62 L 14,44 L 30,44 C 40,44 50,50 50,62 L 40,62 C 40,54 34,51 30,51 L 28,62 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"/>
-        <path d="M 72,38 L 86,56 L 70,56 C 60,56 50,50 50,38 L 60,38 C 60,46 66,49 70,49 L 72,38 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"/>
-      </svg>
-    `;
+    return `<svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));"><path d="M 28,62 L 14,44 L 30,44 C 40,44 50,50 50,62 L 40,62 C 40,54 34,51 30,51 L 28,62 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"/><path d="M 72,38 L 86,56 L 70,56 C 60,56 50,50 50,38 L 60,38 C 60,46 66,49 70,49 L 72,38 Z" fill="#ffffff" stroke="#111" stroke-width="2.5"/></svg>`;
   }
-
   if (val === 'skip') {
-    return `
-      <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));">
-        <circle cx="50" cy="50" r="32" fill="none" stroke="#ffffff" stroke-width="11"/>
-        <line x1="28" y1="28" x2="72" y2="72" stroke="#ffffff" stroke-width="11"/>
-        <circle cx="50" cy="50" r="32" fill="none" stroke="#000" stroke-width="2"/>
-        <line x1="28" y1="28" x2="72" y2="72" stroke="#000" stroke-width="2"/>
-      </svg>
-    `;
+    return `<svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));"><circle cx="50" cy="50" r="32" fill="none" stroke="#ffffff" stroke-width="11"/><line x1="28" y1="28" x2="72" y2="72" stroke="#ffffff" stroke-width="11"/><circle cx="50" cy="50" r="32" fill="none" stroke="#000" stroke-width="2"/><line x1="28" y1="28" x2="72" y2="72" stroke="#000" stroke-width="2"/></svg>`;
   }
-
   if (val === 'skip_all') {
-    return `
-      <svg viewBox="0 0 100 100" style="width:75%; height:75%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));">
-        <circle cx="50" cy="50" r="35" fill="none" stroke="#ffffff" stroke-width="8"/>
-        <circle cx="50" cy="50" r="22" fill="none" stroke="#ffffff" stroke-width="6"/>
-        <line x1="25" y1="25" x2="75" y2="75" stroke="#ffffff" stroke-width="9"/>
-      </svg>
-    `;
+    return `<svg viewBox="0 0 100 100" style="width:75%; height:75%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));"><circle cx="50" cy="50" r="35" fill="none" stroke="#ffffff" stroke-width="8"/><circle cx="50" cy="50" r="22" fill="none" stroke="#ffffff" stroke-width="6"/><line x1="25" y1="25" x2="75" y2="75" stroke="#ffffff" stroke-width="9"/></svg>`;
   }
-
   if (val === '+1' || val === '+2' || val === '+5') {
-    return `
-      <div style="display:flex; flex-direction:column; align-items:center; transform: rotate(28deg);">
-        <span class="card-val-num" style="transform:none; font-size:2.4rem;">${val}</span>
-      </div>
-    `;
+    return `<div style="display:flex; flex-direction:column; align-items:center; transform: rotate(28deg);"><span class="card-val-num" style="transform:none; font-size:2.4rem;">${val}</span></div>`;
   }
-
   if (val === 'FLIP') {
-    return `
-      <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
-        <path d="M 50 18 A 32 32 0 0 1 82 50 L 92 42 L 88 64 L 66 60 L 74 54 A 24 24 0 0 0 50 26 Z" fill="#fff" stroke="#000" stroke-width="2.5"/>
-        <path d="M 50 82 A 32 32 0 0 1 18 50 L 8 58 L 12 36 L 34 40 L 26 46 A 24 24 0 0 0 50 74 Z" fill="#fff" stroke="#000" stroke-width="2.5"/>
-      </svg>
-    `;
+    return `<svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));"><path d="M 50 18 A 32 32 0 0 1 82 50 L 92 42 L 88 64 L 66 60 L 74 54 A 24 24 0 0 0 50 26 Z" fill="#fff" stroke="#000" stroke-width="2.5"/><path d="M 50 82 A 32 32 0 0 1 18 50 L 8 58 L 12 36 L 34 40 L 26 46 A 24 24 0 0 0 50 74 Z" fill="#fff" stroke="#000" stroke-width="2.5"/></svg>`;
   }
-
   return `<span class="card-val-num">${val}</span>`;
 }
 
@@ -1927,9 +2302,6 @@ function createMiniOpponentCard(face) {
   return cardDiv;
 }
 
-/**
- * ANIMATIONS
- */
 function animateCardThrow(fromEl, cardData, chosenColor, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
   const discardBox = document.getElementById('discard-pile-3d');
@@ -2106,39 +2478,16 @@ function triggerCenterSpecialVFX(type, text) {
   gfx.innerHTML = '';
 
   if (type === 'reverse') {
-    gfx.innerHTML = `
-      <svg class="vfx-icon-burst" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="45" fill="none" stroke="#f7b300" stroke-width="6"/>
-        <path d="M 30,65 L 12,45 L 32,45 C 45,45 58,52 58,65 Z" fill="#fff"/>
-        <path d="M 70,35 L 88,55 L 68,55 C 55,55 42,48 42,35 Z" fill="#fff"/>
-      </svg>
-    `;
+    gfx.innerHTML = `<svg class="vfx-icon-burst" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#f7b300" stroke-width="6"/><path d="M 30,65 L 12,45 L 32,45 C 45,45 58,52 58,65 Z" fill="#fff"/><path d="M 70,35 L 88,55 L 68,55 C 55,55 42,48 42,35 Z" fill="#fff"/></svg>`;
     AudioEngine.vfxBoom();
   } else if (type === 'skip' || type === 'skip_all') {
-    gfx.innerHTML = `
-      <svg class="vfx-icon-burst" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="42" fill="rgba(234,35,35,0.8)" stroke="#fff" stroke-width="8"/>
-        <line x1="22" y1="22" x2="78" y2="78" stroke="#fff" stroke-width="10"/>
-      </svg>
-    `;
+    gfx.innerHTML = `<svg class="vfx-icon-burst" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="rgba(234,35,35,0.8)" stroke="#fff" stroke-width="8"/><line x1="22" y1="22" x2="78" y2="78" stroke="#fff" stroke-width="10"/></svg>`;
     AudioEngine.vfxBoom();
   } else if (type === 'flip') {
-    gfx.innerHTML = `
-      <svg class="vfx-icon-burst" viewBox="0 0 100 100">
-        <path d="M 50 15 A 35 35 0 0 1 85 50 L 95 40 L 90 65 L 65 60 L 75 52 A 25 25 0 0 0 50 25 Z" fill="#ff00a0"/>
-        <path d="M 50 85 A 35 35 0 0 1 15 50 L 5 60 L 10 35 L 35 40 L 25 48 A 25 25 0 0 0 50 75 Z" fill="#00e5ff"/>
-      </svg>
-    `;
+    gfx.innerHTML = `<svg class="vfx-icon-burst" viewBox="0 0 100 100"><path d="M 50 15 A 35 35 0 0 1 85 50 L 95 40 L 90 65 L 65 60 L 75 52 A 25 25 0 0 0 50 25 Z" fill="#ff00a0"/><path d="M 50 85 A 35 35 0 0 1 15 50 L 5 60 L 10 35 L 35 40 L 25 48 A 25 25 0 0 0 50 75 Z" fill="#00e5ff"/></svg>`;
     triggerFlip3DTransition();
   } else if (type === 'discard_all') {
-    gfx.innerHTML = `
-      <svg class="vfx-icon-burst" viewBox="0 0 100 100">
-        <rect x="18" y="22" width="34" height="50" rx="4" fill="#37a324" stroke="#fff" stroke-width="3" transform="rotate(-18 35 47)"/>
-        <rect x="34" y="16" width="34" height="50" rx="4" fill="#0076e6" stroke="#fff" stroke-width="3"/>
-        <rect x="52" y="24" width="34" height="50" rx="4" fill="#ea2323" stroke="#fff" stroke-width="3" transform="rotate(16 69 49)"/>
-        <path d="M 22 84 L 78 84" stroke="#ffea00" stroke-width="6" stroke-linecap="round"/>
-      </svg>
-    `;
+    gfx.innerHTML = `<svg class="vfx-icon-burst" viewBox="0 0 100 100"><rect x="18" y="22" width="34" height="50" rx="4" fill="#37a324" stroke="#fff" stroke-width="3" transform="rotate(-18 35 47)"/><rect x="34" y="16" width="34" height="50" rx="4" fill="#0076e6" stroke="#fff" stroke-width="3"/><rect x="52" y="24" width="34" height="50" rx="4" fill="#ea2323" stroke="#fff" stroke-width="3" transform="rotate(16 69 49)"/><path d="M 22 84 L 78 84" stroke="#ffea00" stroke-width="6" stroke-linecap="round"/></svg>`;
     AudioEngine.vfxBoom();
   } else if (type === 'penalty') {
     const streak = document.getElementById('penalty-streak-box');
@@ -2153,219 +2502,7 @@ function triggerCenterSpecialVFX(type, text) {
 }
 
 /**
- * MULTIPLAYER PEER CONNECTION
- */
-function createRoom() {
-  const name = CurrentUser.username || 'Shiny';
-  GameState.edition = document.getElementById('game-edition').value;
-
-  GameState.peer = new Peer();
-  GameState.peer.on('open', (id) => {
-    GameState.hostingRoomId = id;
-    document.getElementById('room-info').style.display = 'block';
-    document.getElementById('room-info').innerHTML = `Room Code: <b>${id}</b><br>Share code or invite friends directly!`;
-    document.getElementById('start-hosted-btn').style.display = 'block';
-
-    GameState.players = [{
-      id: 0,
-      name: `${name} (You)`,
-      avatar: CurrentUser.avatar || '⚡',
-      isPhoto: CurrentUser.isPhoto,
-      hand: [],
-      isBot: false,
-      conn: null,
-      hasWon: false
-    }];
-  });
-
-  GameState.peer.on('connection', (conn) => {
-    if (GameState.players.length >= 4) {
-      conn.send({ type: 'ERROR', msg: 'Room is full' });
-      return;
-    }
-    conn.on('data', (data) => handleHostData(conn, data));
-  });
-}
-
-function joinRoom() {
-  const roomId = document.getElementById('join-room-id').value.trim();
-  const name = CurrentUser.username || 'Guest';
-  if (!roomId) return alert('Enter a room code');
-
-  GameState.peer = new Peer();
-  GameState.peer.on('open', () => {
-    const conn = GameState.peer.connect(roomId);
-    GameState.isHost = false;
-
-    conn.on('open', () => conn.send({ type: 'JOIN_REQ', name: name, avatar: CurrentUser.avatar || '⚡', isPhoto: CurrentUser.isPhoto }));
-
-    conn.on('data', (data) => {
-      if (data.type === 'SYNC_STATE') {
-        const sideChanged = GameState.flipSide !== data.state.flipSide;
-        GameState.inGame = true;
-        GameState.edition = data.state.edition;
-        GameState.flipSide = data.state.flipSide;
-        GameState.discardPile = data.state.discardPile;
-        GameState.players = data.state.players;
-        GameState.rankings = data.state.rankings || [];
-        GameState.turnIndex = data.state.turnIndex;
-        GameState.direction = data.state.direction;
-        GameState.stackedDrawCount = data.state.stackedDrawCount;
-        GameState.currentColor = data.state.currentColor;
-        GameState.myPlayerId = data.yourId;
-
-        showScreen('game');
-        if (sideChanged) triggerFlip3DTransition();
-        else { updateTheme(); renderGame(); }
-      } else if (data.type === 'VFX') {
-        triggerCenterSpecialVFX(data.vfxType, data.text);
-      }
-    });
-  });
-}
-
-function handleHostData(conn, data) {
-  if (data.type === 'JOIN_REQ') {
-    const newId = GameState.players.length;
-    GameState.players.push({
-      id: newId,
-      name: data.name,
-      avatar: data.avatar || '😎',
-      isPhoto: data.isPhoto || false,
-      hand: [],
-      isBot: false,
-      conn: conn,
-      hasWon: false
-    });
-    document.getElementById('room-info').innerHTML += `<br>Joined: <b>${data.name}</b>`;
-  } else if (data.type === 'PLAY_CARD') {
-    executePlayCard(data.playerId, data.cardIndex, data.chosenColor);
-  } else if (data.type === 'DRAW_CARD') {
-    handlePlayerDraw(data.playerId);
-  } else if (data.type === 'CALL_UNO') {
-    GameState.unoCalledPlayers.add(data.playerId);
-    triggerCenterSpecialVFX('reverse', `${GameState.players[data.playerId].name} UNO!`);
-    AudioEngine.uno();
-    broadcastState();
-  }
-}
-
-function broadcastState() {
-  if (!GameState.isHost || !GameState.inGame) return;
-  GameState.players.forEach(p => {
-    if (p.conn && p.conn.open) {
-      p.conn.send({
-        type: 'SYNC_STATE',
-        yourId: p.id,
-        state: {
-          edition: GameState.edition,
-          flipSide: GameState.flipSide,
-          discardPile: GameState.discardPile,
-          rankings: GameState.rankings,
-          players: GameState.players.map(pl => ({
-            id: pl.id,
-            name: pl.name,
-            avatar: pl.avatar,
-            isPhoto: pl.isPhoto,
-            handCount: pl.hand.length,
-            hand: pl.id === p.id ? pl.hand : [],
-            oppositeFaces: GameState.edition === 'flip' ? pl.hand.map(c => getOppositeFace(c)) : [],
-            isBot: pl.isBot,
-            hasWon: pl.hasWon,
-            rank: pl.rank,
-            eliminated: pl.eliminated
-          })),
-          turnIndex: GameState.turnIndex,
-          direction: GameState.direction,
-          stackedDrawCount: GameState.stackedDrawCount,
-          currentColor: GameState.currentColor
-        }
-      });
-    }
-  });
-  renderGame();
-}
-
-/**
- * INITIALIZATION
- */
-function startSoloGame() {
-  GameState.edition = document.getElementById('game-edition').value;
-  GameState.players = [
-    { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, isPhoto: CurrentUser.isPhoto, hand: [], isBot: false, hasWon: false },
-    { id: 1, name: 'Shorty', avatar: '🐭', isPhoto: false, hand: [], isBot: true, hasWon: false },
-    { id: 2, name: 'Archie', avatar: '🐱', isPhoto: false, hand: [], isBot: true, hasWon: false },
-    { id: 3, name: 'Ringo', avatar: '🐶', isPhoto: false, hand: [], isBot: true, hasWon: false }
-  ];
-  showScreen('game');
-  initGameEngine();
-}
-
-function startHostedGame() {
-  const defaultBots = [
-    { name: 'Shorty', avatar: '🐭' },
-    { name: 'Archie', avatar: '🐱' },
-    { name: 'Ringo', avatar: '🐶' }
-  ];
-  for (let i = GameState.players.length; i < 4; i++) {
-    const b = defaultBots[i-1] || { name: `Bot ${i}`, avatar: '🤖' };
-    GameState.players.push({ id: i, name: b.name, avatar: b.avatar, isPhoto: false, hand: [], isBot: true, conn: null, hasWon: false });
-  }
-  showScreen('game');
-  initGameEngine();
-}
-
-function initGameEngine() {
-  GameState.inGame = true;
-  GameState.drawPile = buildDeck(GameState.edition);
-  GameState.discardPile = [];
-  GameState.discardRotations = [];
-  GameState.rankings = [];
-  GameState.flipSide = 'light';
-  GameState.stackedDrawCount = 0;
-  GameState.direction = 1;
-  GameState.turnIndex = 0;
-
-  GameState.players.forEach(p => {
-    p.hand = [];
-    p.hasWon = false;
-  });
-
-  updateTheme();
-  renderGame();
-
-  runInitialDealAnimation(() => {
-    if (GameState.inGame && GameState.players[GameState.turnIndex] && GameState.players[GameState.turnIndex].isBot) {
-      activeBotTurnTimeout = setTimeout(botTurn, 1000);
-    }
-  });
-}
-
-function updateTheme() {
-  const stage = document.getElementById('table-stage');
-  const arena = document.getElementById('arena-bg');
-  const deckLogo = document.getElementById('draw-pile-logo');
-
-  stage.className = 'table-stage';
-  arena.className = '';
-
-  if (GameState.edition === 'flip') {
-    deckLogo.textContent = 'UNO FLIP!';
-    if (GameState.flipSide === 'dark') {
-      stage.classList.add('dark-stage');
-      arena.classList.add('dark-theme');
-    }
-  } else if (GameState.edition === 'classic') {
-    stage.classList.add('blue-stage');
-    arena.classList.add('blue-theme');
-    deckLogo.textContent = 'UNO';
-  } else {
-    deckLogo.textContent = 'NO MERCY';
-  }
-}
-
-/**
- * GAME PLAY RULES
+ * GAMEPLAY MECHANICS
  */
 function canPlayCard(card) {
   const topCard = GameState.discardPile[GameState.discardPile.length - 1];
@@ -2627,8 +2764,8 @@ function onHumanCardClick(idx) {
   } else {
     if (GameState.isHost) {
       executePlayCard(GameState.myPlayerId, idx);
-    } else {
-      GameState.players[0].conn.send({ type: 'PLAY_CARD', playerId: GameState.myPlayerId, cardIndex: idx });
+    } else if (GameState.guestHostConn) {
+      GameState.guestHostConn.send({ type: 'PLAY_CARD', playerId: GameState.myPlayerId, cardIndex: idx });
     }
   }
 }
@@ -2639,7 +2776,7 @@ function onDrawDeckClick() {
   if (GameState.players[GameState.myPlayerId].hasWon) return;
 
   if (GameState.isHost) handlePlayerDraw(GameState.myPlayerId);
-  else GameState.players[0].conn.send({ type: 'DRAW_CARD', playerId: GameState.myPlayerId });
+  else if (GameState.guestHostConn) GameState.guestHostConn.send({ type: 'DRAW_CARD', playerId: GameState.myPlayerId });
 }
 
 function callUno() {
@@ -2649,8 +2786,8 @@ function callUno() {
     triggerCenterSpecialVFX('reverse', 'YOU CALLED UNO!');
     AudioEngine.uno();
     document.getElementById('uno-btn').classList.remove('alert');
-  } else {
-    GameState.players[0].conn.send({ type: 'CALL_UNO', playerId: GameState.myPlayerId });
+  } else if (GameState.guestHostConn) {
+    GameState.guestHostConn.send({ type: 'CALL_UNO', playerId: GameState.myPlayerId });
   }
 }
 
@@ -2672,8 +2809,8 @@ function openColorPicker() {
       modal.style.display = 'none';
       if (GameState.isHost) {
         executePlayCard(GameState.myPlayerId, GameState.pendingWildCard, col.c);
-      } else {
-        GameState.players[0].conn.send({
+      } else if (GameState.guestHostConn) {
+        GameState.guestHostConn.send({
           type: 'PLAY_CARD',
           playerId: GameState.myPlayerId,
           cardIndex: GameState.pendingWildCard,
@@ -2697,8 +2834,31 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+function updateTheme() {
+  const stage = document.getElementById('table-stage');
+  const arena = document.getElementById('arena-bg');
+  const deckLogo = document.getElementById('draw-pile-logo');
+
+  stage.className = 'table-stage';
+  arena.className = '';
+
+  if (GameState.edition === 'flip') {
+    deckLogo.textContent = 'UNO FLIP!';
+    if (GameState.flipSide === 'dark') {
+      stage.classList.add('dark-stage');
+      arena.classList.add('dark-theme');
+    }
+  } else if (GameState.edition === 'classic') {
+    stage.classList.add('blue-stage');
+    arena.classList.add('blue-theme');
+    deckLogo.textContent = 'UNO';
+  } else {
+    deckLogo.textContent = 'NO MERCY';
+  }
+}
+
 /**
- * RENDERING (CRASH-PROOF BADGE & RECURSIVE DOM RETRIEVAL)
+ * RENDERING
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
@@ -2709,7 +2869,6 @@ function renderGame() {
 
   const discardBox = document.getElementById('discard-pile-3d');
   if (discardBox) {
-    // Recreate badge if ever missing from DOM
     let badgeEl = document.getElementById('active-color-badge');
     if (!badgeEl) {
       badgeEl = document.createElement('div');
@@ -2723,7 +2882,6 @@ function renderGame() {
     if (dotEl) dotEl.style.background = curColorHex;
     if (textEl) textEl.textContent = GameState.currentColor.toUpperCase();
 
-    // Remove only previous card elements, preserve badge
     const oldCards = discardBox.querySelectorAll('.card');
     oldCards.forEach(c => c.remove());
 
@@ -2808,11 +2966,10 @@ function renderGame() {
     }
   }
 
-  // Render Opponents
   const oppMap = [
-    { box: document.getElementById('player-left'), portrait: document.getElementById('p-portrait-1'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), id: 1 },
-    { box: document.getElementById('player-top'), portrait: document.getElementById('p-portrait-2'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), id: 2 },
-    { box: document.getElementById('player-right'), portrait: document.getElementById('p-portrait-3'), handEl: document.getElementById('opp-hand-3'), countEl: document.getElementById('p-count-3'), nameEl: document.getElementById('p-name-3'), id: 3 }
+    { box: document.getElementById('player-left'), portrait: document.getElementById('p-portrait-1'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), id: 1 },
+    { box: document.getElementById('player-top'), portrait: document.getElementById('p-portrait-2'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), id: 2 },
+    { box: document.getElementById('player-right'), portrait: document.getElementById('p-portrait-3'), handEl: document.getElementById('opp-hand-3'), countEl: document.getElementById('p-count-3'), id: 3 }
   ];
 
   oppMap.forEach(spot => {
