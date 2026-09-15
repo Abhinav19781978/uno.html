@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>UNO: Ubisoft 3D Edition</title>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<!-- PeerJS & Fonts -->
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,900&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
 <style>
@@ -46,9 +50,7 @@
     align-items: center;
   }
 
-  /* ========================================================
-     SCREEN ROUTING ARCHITECTURE (Auth -> Lobby -> Game)
-     ======================================================== */
+  /* Screen Routing */
   #auth-screen, #lobby-screen {
     position: fixed;
     inset: 0;
@@ -60,28 +62,24 @@
     overflow-y: auto;
   }
 
-  /* 3D Arena is HIDDEN until match actually starts */
   #viewport-3d {
     width: 100vw;
     height: 100vh;
     position: relative;
     perspective: 1100px;
     overflow: hidden;
-    display: none; /* Initially hidden */
+    display: none;
     justify-content: center;
     align-items: center;
     transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  #viewport-3d.flip-tumble {
-    animation: viewportFlip 0.85s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+  #viewport-3d.flip-tumble { animation: viewportFlip 0.85s cubic-bezier(0.4, 0, 0.2, 1); }
   @keyframes viewportFlip {
     0% { transform: scale(1) rotateY(0deg); }
     50% { transform: scale(0.85) rotateY(180deg) rotateZ(5deg); }
     100% { transform: scale(1) rotateY(360deg); }
   }
 
-  /* Screen Flash on Flip */
   #flash-overlay {
     position: absolute;
     inset: 0;
@@ -97,7 +95,6 @@
   }
   @keyframes flashFade { 0% { opacity: 0.85; } 100% { opacity: 0; } }
 
-  /* Arena Background */
   #arena-bg {
     position: absolute;
     inset: -50px;
@@ -108,7 +105,7 @@
   #arena-bg.blue-theme { background: radial-gradient(circle at 50% 45%, #0d2847 0%, #061426 55%, #02070f 100%); }
   #arena-bg.dark-theme { background: radial-gradient(circle at 50% 45%, #300636 0%, #150119 55%, #050007 100%); }
 
-  /* Table Stage */
+  /* 3D Table Stage */
   .table-stage {
     position: absolute;
     top: 48%;
@@ -157,24 +154,18 @@
     animation: ringSpinCW 9s linear infinite;
     z-index: 5;
   }
-  .direction-ring-3d.reverse {
-    animation: ringSpinCCW 9s linear infinite;
-  }
+  .direction-ring-3d.reverse { animation: ringSpinCCW 9s linear infinite; }
   .ring-svg { width: 100%; height: 100%; overflow: visible; }
-
   .arrow-unit .arrow-shape {
     transform-box: fill-box;
     transform-origin: center;
     transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .direction-ring-3d.reverse .arrow-unit .arrow-shape {
-    transform: rotate(180deg);
-  }
-
+  .direction-ring-3d.reverse .arrow-unit .arrow-shape { transform: rotate(180deg); }
   @keyframes ringSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
   @keyframes ringSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
 
-  /* Center Discard Pile & Active Color Aura */
+  /* Center Discard */
   #discard-pile-3d {
     position: absolute;
     top: 48%;
@@ -194,13 +185,8 @@
     background: radial-gradient(circle, var(--active-glow-color) 0%, transparent 75%);
     z-index: -1;
     animation: auraPulse 1.8s infinite alternate ease-in-out;
-    pointer-events: none;
   }
-  @keyframes auraPulse {
-    0% { transform: scale(0.92); opacity: 0.6; }
-    100% { transform: scale(1.18); opacity: 1; }
-  }
-
+  @keyframes auraPulse { 0% { transform: scale(0.92); opacity: 0.6; } 100% { transform: scale(1.18); opacity: 1; } }
   #discard-pile-3d .card {
     position: absolute !important;
     top: 0 !important;
@@ -210,7 +196,6 @@
     transition: transform 0.25s ease;
   }
 
-  /* Active Color Indicator Badge */
   #active-color-badge {
     position: absolute;
     top: -36px;
@@ -231,14 +216,8 @@
     white-space: nowrap;
     z-index: 50;
   }
-  .color-badge-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1px solid #fff;
-  }
+  .color-badge-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #fff; }
 
-  /* 3D Pickup Deck */
   #draw-deck-3d {
     position: absolute;
     top: 28%;
@@ -257,13 +236,9 @@
     inset: 0;
     border-radius: 12px;
     background: #ffffff;
-    box-shadow: 
-      -1px 1px 0 #ddd, -2px 2px 0 #ccc, -3px 3px 0 #bbb,
-      -4px 4px 0 #aaa, -5px 5px 0 #999, -6px 6px 0 #888,
-      -12px 14px 25px rgba(0,0,0,0.7);
+    box-shadow: -1px 1px 0 #ddd, -2px 2px 0 #ccc, -3px 3px 0 #bbb, -4px 4px 0 #aaa, -5px 5px 0 #999, -6px 6px 0 #888, -12px 14px 25px rgba(0,0,0,0.7);
   }
 
-  /* Leave Game Button */
   .leave-game-btn {
     position: absolute;
     top: 18px;
@@ -282,18 +257,12 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 4px 18px rgba(234, 35, 35, 0.5), 0 2px 6px rgba(0,0,0,0.6);
-    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    box-shadow: 0 4px 18px rgba(234, 35, 35, 0.5);
+    transition: transform 0.15s, filter 0.15s;
     outline: none;
   }
-  .leave-game-btn:hover {
-    transform: translateY(-2px) scale(1.05);
-    filter: brightness(1.2);
-    box-shadow: 0 6px 24px rgba(255, 50, 50, 0.8);
-  }
-  .leave-game-btn:active { transform: translateY(1px) scale(0.96); }
+  .leave-game-btn:hover { transform: translateY(-2px) scale(1.05); filter: brightness(1.2); }
 
-  /* Top-Left Leaderboard Widget */
   #leaderboard-widget {
     position: absolute;
     top: 18px;
@@ -331,33 +300,13 @@
     font-weight: 700;
     padding: 2px 0;
   }
-  .lb-left {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    overflow: hidden;
-  }
-  .lb-rank {
-    font-weight: 900;
-    width: 18px;
-    font-size: 0.82rem;
-  }
-  .lb-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 95px;
-  }
-  .lb-score {
-    font-size: 0.72rem;
-    font-weight: 900;
-    padding: 2px 6px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.1);
-  }
+  .lb-left { display: flex; align-items: center; gap: 6px; overflow: hidden; }
+  .lb-rank { font-weight: 900; width: 18px; font-size: 0.82rem; }
+  .lb-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 95px; }
+  .lb-score { font-size: 0.72rem; font-weight: 900; padding: 2px 6px; border-radius: 8px; background: rgba(255,255,255,0.1); }
   .lb-score.won { background: #f7b300; color: #000; }
 
-  /* Player Avatars & Radiant Turn Aura */
+  /* Players */
   .player-spot {
     position: absolute;
     display: flex;
@@ -365,12 +314,7 @@
     align-items: center;
     z-index: 50;
   }
-  .player-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-  }
+  .player-box { display: flex; align-items: center; gap: 8px; position: relative; }
   .player-nameplate {
     background: linear-gradient(180deg, #0076e6, #004b9e);
     border: 2px solid rgba(255,255,255,0.4);
@@ -396,8 +340,10 @@
     font-size: 2rem;
     box-shadow: 0 6px 20px rgba(0,0,0,0.6);
     position: relative;
+    overflow: hidden;
     transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   }
+  .player-portrait img { width: 100%; height: 100%; object-fit: cover; }
   
   .player-spot.active .player-portrait {
     border-color: #fff;
@@ -413,29 +359,11 @@
     animation: activeAuraRipple 1.4s infinite cubic-bezier(0.2, 0.8, 0.4, 1);
     pointer-events: none;
   }
-  .player-spot.active .player-portrait::after {
-    content: '';
-    position: absolute;
-    inset: -18px;
-    border-radius: 26px;
-    background: radial-gradient(circle, rgba(255, 187, 0, 0.6) 0%, rgba(255, 68, 0, 0.25) 50%, transparent 75%);
-    animation: activeAuraGlow 1.4s infinite alternate ease-in-out;
-    pointer-events: none;
-    z-index: -1;
-  }
-
   @keyframes activeAuraPulse {
     0% { box-shadow: 0 0 0 3px #fff, 0 0 20px #ffb700, 0 0 40px rgba(255, 183, 0, 0.8); }
-    100% { box-shadow: 0 0 0 4px #fff, 0 0 32px #ff4400, 0 0 65px rgba(255, 196, 0, 1), 0 0 90px rgba(255, 50, 0, 0.7); }
+    100% { box-shadow: 0 0 0 4px #fff, 0 0 32px #ff4400, 0 0 65px rgba(255, 196, 0, 1); }
   }
-  @keyframes activeAuraRipple {
-    0% { transform: scale(0.92); opacity: 0.95; }
-    100% { transform: scale(1.35); opacity: 0; }
-  }
-  @keyframes activeAuraGlow {
-    0% { transform: scale(0.95); opacity: 0.5; }
-    100% { transform: scale(1.22); opacity: 0.9; }
-  }
+  @keyframes activeAuraRipple { 0% { transform: scale(0.92); opacity: 0.95; } 100% { transform: scale(1.35); opacity: 0; } }
 
   .card-count-badge {
     background: #fff;
@@ -448,13 +376,9 @@
     border: 1.5px solid #000;
     margin-left: 2px;
   }
-  .card-count-badge.won-badge {
-    background: #f7b300;
-    color: #000;
-    border-color: #fff;
-  }
+  .card-count-badge.won-badge { background: #f7b300; color: #000; border-color: #fff; }
 
-  /* Card Elements */
+  /* Card Visuals */
   .card {
     width: var(--card-w);
     height: var(--card-h);
@@ -480,13 +404,11 @@
     align-items: center;
     transition: background 0.3s ease;
   }
-
   .c-red .card-face { background: var(--c-red); }
   .c-blue .card-face { background: var(--c-blue); }
   .c-green .card-face { background: var(--c-green); }
   .c-yellow .card-face { background: var(--c-yellow); }
   .c-wild .card-face { background: #121214; }
-
   .c-pink .card-face { background: var(--c-pink); }
   .c-teal .card-face { background: var(--c-teal); }
   .c-purple .card-face { background: var(--c-purple); }
@@ -504,7 +426,6 @@
     border: 3px solid #ffffff;
     position: relative;
     box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-    transition: background 0.3s ease;
   }
   .c-red .card-oval { background: var(--c-red-dark); }
   .c-blue .card-oval { background: var(--c-blue-dark); }
@@ -567,7 +488,6 @@
     text-shadow: 1px 1px 0 #000;
   }
 
-  /* Card Back */
   .card-back-design {
     width: 100%;
     height: 100%;
@@ -598,11 +518,10 @@
     transform: rotate(28deg);
   }
 
-  /* Seating Coordinates */
+  /* Seating */
   #player-left { top: 46%; left: 30px; transform: translateY(-50%); align-items: flex-start; }
   #player-top { top: 18px; left: 50%; transform: translateX(-50%); }
   #player-right { top: 46%; right: 30px; transform: translateY(-50%); align-items: flex-end; }
-  
   #player-bottom {
     position: absolute;
     bottom: 10px;
@@ -615,7 +534,6 @@
     pointer-events: none;
   }
 
-  /* Opponents 3D Hands */
   .opponent-3d-hand {
     display: flex;
     transform-style: preserve-3d;
@@ -625,7 +543,6 @@
   }
   #opp-hand-1 { transform: rotateY(35deg); }
   #opp-hand-3 { transform: rotateY(-35deg); }
-
   .opp-stand-card {
     width: 46px;
     height: 70px;
@@ -679,35 +596,23 @@
     transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.22s, filter 0.2s;
     pointer-events: none;
   }
-
   .card-slot .card.playable {
     transform: translateY(-18px);
     box-shadow: 0 14px 28px rgba(0,0,0,0.75), 0 0 16px rgba(255, 230, 0, 0.6);
     animation: playableGlowPulse 1.8s infinite alternate ease-in-out;
   }
-
   @keyframes playableGlowPulse {
     0% { box-shadow: 0 14px 28px rgba(0,0,0,0.75), 0 0 12px rgba(255, 215, 0, 0.4); }
     100% { box-shadow: 0 16px 32px rgba(0,0,0,0.85), 0 0 22px rgba(255, 235, 0, 0.85); }
   }
-
   .card-slot:hover .card {
     transform: translateY(-50px) scale(1.18) !important;
     box-shadow: 0 24px 48px rgba(0,0,0,0.9), 0 0 32px rgba(247, 179, 0, 0.95) !important;
     filter: brightness(1.08) !important;
   }
+  .card-slot .card.unplayable { filter: brightness(0.85); }
 
-  .card-slot .card.unplayable {
-    filter: brightness(0.85);
-  }
-
-  /* Transient Fly Layer */
-  #fly-animation-layer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 300;
-  }
+  #fly-animation-layer { position: absolute; inset: 0; pointer-events: none; z-index: 300; }
   .flying-card-obj {
     position: absolute;
     width: var(--card-w);
@@ -717,7 +622,6 @@
     z-index: 310;
   }
 
-  /* Center Screen VFX */
   #center-vfx-overlay {
     position: absolute;
     top: 50%;
@@ -749,13 +653,8 @@
     margin-top: 10px;
     letter-spacing: 2px;
   }
-  @keyframes vfxSpin {
-    0% { transform: scale(0.2) rotate(-90deg); filter: brightness(2); }
-    50% { transform: scale(1.2) rotate(15deg); }
-    100% { transform: scale(1) rotate(0deg); }
-  }
+  @keyframes vfxSpin { 0% { transform: scale(0.2) rotate(-90deg); filter: brightness(2); } 50% { transform: scale(1.2) rotate(15deg); } 100% { transform: scale(1) rotate(0deg); } }
 
-  /* Attack Stacking Penalty */
   #penalty-streak-box {
     position: absolute;
     top: 38%;
@@ -775,7 +674,6 @@
   }
   #penalty-streak-box.show { transform: translate(-50%, -50%) scale(1); }
 
-  /* UNO Button */
   #uno-btn {
     position: absolute;
     right: 35px;
@@ -796,50 +694,10 @@
     transition: 0.2s transform;
   }
   #uno-btn.alert { display: block; animation: unoAlertPulse 0.7s infinite alternate; }
-  @keyframes unoAlertPulse {
-    0% { transform: scale(0.95); }
-    100% { transform: scale(1.18); filter: brightness(1.3) drop-shadow(0 0 25px #f7b300); }
-  }
+  @keyframes unoAlertPulse { 0% { transform: scale(0.95); } 100% { transform: scale(1.18); filter: brightness(1.3) drop-shadow(0 0 25px #f7b300); } }
 
-  /* ========================================================
-     HOME SCREEN & PROFILE STYLES
-     ======================================================== */
-  #lobby-screen {
-    background: #060912;
-    padding: 20px 0;
-  }
-
-  .lobby-nebula {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-    opacity: 0.38;
-    pointer-events: none;
-    animation: nebulaDrift 14s infinite alternate ease-in-out;
-  }
-  .neb-red { width: 550px; height: 550px; background: #ea2323; top: -15%; left: -10%; }
-  .neb-blue { width: 600px; height: 600px; background: #0076e6; bottom: -20%; right: -10%; animation-duration: 18s; }
-  .neb-yellow { width: 450px; height: 450px; background: #f7b300; top: 20%; right: -5%; animation-duration: 12s; }
-  .neb-green { width: 500px; height: 500px; background: #37a324; bottom: -10%; left: 10%; animation-duration: 16s; }
-
-  @keyframes nebulaDrift {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(45px, -35px) scale(1.12); }
-  }
-
-  .lobby-grid-overlay {
-    position: absolute;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 45px 45px;
-    mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
-    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 85%);
-    pointer-events: none;
-  }
-
-  /* User Header Banner on Home Screen */
+  /* Home & UI Components */
+  #lobby-screen { background: #060912; padding: 20px 0; }
   .home-profile-banner {
     display: flex;
     align-items: center;
@@ -854,11 +712,7 @@
     z-index: 20;
     box-shadow: 0 8px 30px rgba(0,0,0,0.6);
   }
-  .user-badge-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .user-badge-left { display: flex; align-items: center; gap: 12px; }
   .user-avatar-tag {
     font-size: 1.8rem;
     background: rgba(255,255,255,0.08);
@@ -869,7 +723,9 @@
     align-items: center;
     justify-content: center;
     border: 2px solid #f7b300;
+    overflow: hidden;
   }
+  .user-avatar-tag img { width: 100%; height: 100%; object-fit: cover; }
   .user-text-info { display: flex; flex-direction: column; }
   .user-username { font-weight: 900; font-size: 1rem; color: #fff; }
   .user-wins-stat { font-size: 0.72rem; font-weight: 800; color: #f7b300; letter-spacing: 1px; }
@@ -890,13 +746,7 @@
   .pill-btn.danger { background: rgba(234, 35, 35, 0.25); border-color: rgba(234, 35, 35, 0.5); }
   .pill-btn.danger:hover { background: rgba(234, 35, 35, 0.5); }
 
-  .title-logo-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 10;
-  }
+  .title-logo-container { position: relative; display: flex; flex-direction: column; align-items: center; z-index: 10; }
   .title-logo {
     font-size: 5.2rem;
     font-weight: 900;
@@ -910,17 +760,8 @@
     filter: drop-shadow(0 8px 0px rgba(0,0,0,0.95));
     line-height: 1;
   }
-  .title-sub {
-    font-size: 0.85rem;
-    font-weight: 900;
-    letter-spacing: 6px;
-    color: #f7b300;
-    text-transform: uppercase;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.9);
-    margin-top: 2px;
-  }
+  .title-sub { font-size: 0.85rem; font-weight: 900; letter-spacing: 6px; color: #f7b300; text-transform: uppercase; margin-top: 2px; }
 
-  /* Lobby Form Card */
   .lobby-card {
     background: rgba(14, 21, 37, 0.82);
     backdrop-filter: blur(30px);
@@ -928,7 +769,7 @@
     border-radius: 26px;
     padding: 24px 34px;
     width: min(92vw, 470px);
-    box-shadow: 0 30px 90px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.35);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.85);
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -946,75 +787,8 @@
     font-size: 0.95rem;
     font-weight: 700;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  input:focus, select:focus {
-    border-color: #f7b300;
-    box-shadow: 0 0 18px rgba(247, 179, 0, 0.45);
   }
 
-  /* Emoji Picker */
-  .avatar-picker-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background: rgba(0,0,0,0.3);
-    padding: 10px 12px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .avatar-top-row { display: flex; align-items: center; justify-content: space-between; }
-  .current-avatar-preview { display: flex; align-items: center; gap: 10px; }
-  .avatar-bubble {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border: 2px solid #f7b300;
-    box-shadow: 0 0 15px rgba(247, 179, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.7rem;
-  }
-  .avatar-grid {
-    display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: thin;
-  }
-  .avatar-option {
-    flex: 0 0 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.06);
-    border: 1.5px solid rgba(255,255,255,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    cursor: pointer;
-    transition: transform 0.15s, border-color 0.15s, background 0.15s;
-  }
-  .avatar-option:hover {
-    transform: scale(1.18);
-    border-color: #f7b300;
-    background: rgba(247, 179, 0, 0.2);
-  }
-  .avatar-option.selected {
-    border-color: #ffea00;
-    background: rgba(255, 234, 0, 0.25);
-    box-shadow: 0 0 10px rgba(255, 234, 0, 0.5);
-  }
-  .custom-emoji-input {
-    width: 105px !important;
-    text-align: center;
-    font-size: 1.1rem !important;
-    padding: 4px 8px !important;
-  }
-
-  /* Console Action Buttons */
   .btn-group { display: flex; gap: 10px; }
   .btn {
     flex: 1;
@@ -1027,56 +801,42 @@
     padding: 13px;
     border-radius: 14px;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(234,35,35,0.55), inset 0 1px 0 rgba(255,255,255,0.45);
+    box-shadow: 0 6px 20px rgba(234,35,35,0.55);
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    transition: transform 0.15s, filter 0.15s;
     outline: none;
-    overflow: hidden;
   }
-  .btn::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -60%;
-    width: 40%;
-    height: 200%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-    transform: rotate(25deg);
-    transition: left 0.75s ease;
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+  .btn.secondary { background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%); }
+  .btn.friends-btn { background: linear-gradient(135deg, #8a2be2 0%, #4a00e0 100%); }
+  .btn.join-btn { flex: 0 0 95px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
+
+  /* Google Auth Button */
+  .google-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #ffffff;
+    color: #1f2937;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    transition: transform 0.15s, background 0.15s;
   }
-  .btn:hover::before { left: 120%; }
-  .btn:hover {
+  .google-login-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(247, 179, 0, 0.65);
-    filter: brightness(1.15);
+    background: #f8fafc;
   }
-  .btn:active { transform: translateY(1px) scale(0.98); }
+  .google-icon { width: 22px; height: 22px; }
 
-  .btn.secondary {
-    background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%);
-    box-shadow: 0 6px 20px rgba(0, 118, 230, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
-  }
-  .btn.secondary:hover { box-shadow: 0 10px 30px rgba(0, 153, 255, 0.75); }
-
-  /* Dedicated Vibrant Friends List Button on Home Screen */
-  .btn.friends-btn {
-    background: linear-gradient(135deg, #8a2be2 0%, #4a00e0 100%);
-    box-shadow: 0 6px 20px rgba(138, 43, 226, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
-  }
-  .btn.friends-btn:hover { box-shadow: 0 10px 30px rgba(138, 43, 226, 0.8); }
-
-  .btn.join-btn {
-    flex: 0 0 95px;
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.55), inset 0 1px 0 rgba(255,255,255,0.45);
-    padding: 11px;
-  }
-  .btn.join-btn:hover { box-shadow: 0 10px 24px rgba(46, 204, 113, 0.75); }
-
-  /* ========================================================
-     FRIENDS MODAL
-     ======================================================== */
+  /* Friends Modal */
   #friends-modal {
     position: fixed;
     inset: 0;
@@ -1104,8 +864,6 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding-right: 4px;
-    scrollbar-width: thin;
   }
   .friend-row {
     display: flex;
@@ -1126,7 +884,6 @@
   .friend-status-dot { width: 6px; height: 6px; border-radius: 50%; }
   .friend-status.online .friend-status-dot { background: #00ff73; box-shadow: 0 0 6px #00ff73; }
   .friend-status.offline .friend-status-dot { background: #8fa0b5; }
-  .friend-actions { display: flex; align-items: center; gap: 6px; }
   .invite-friend-btn {
     background: linear-gradient(135deg, #0099ff, #005bb5);
     border: none;
@@ -1136,25 +893,11 @@
     font-size: 0.72rem;
     font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 153, 255, 0.4);
-    outline: none;
   }
-  .invite-friend-btn:disabled {
-    background: rgba(255,255,255,0.1);
-    color: #666;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  .del-friend-btn {
-    background: transparent;
-    border: none;
-    color: #ff5252;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 4px;
-  }
+  .invite-friend-btn:disabled { background: rgba(255,255,255,0.1); color: #666; cursor: not-allowed; }
+  .del-friend-btn { background: transparent; border: none; color: #ff5252; font-size: 1rem; cursor: pointer; }
 
-  /* Direct Game Invitation Popup */
+  /* Invite Popup */
   #invite-popup {
     position: fixed;
     top: 25px;
@@ -1162,7 +905,6 @@
     transform: translateX(-50%) translateY(-150%);
     background: #0f182b;
     border: 2px solid #f7b300;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 25px rgba(247, 179, 0, 0.5);
     border-radius: 20px;
     padding: 14px 22px;
     display: flex;
@@ -1172,82 +914,57 @@
     transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
   #invite-popup.show { transform: translateX(-50%) translateY(0); }
-  .invite-popup-txt { font-weight: 800; font-size: 0.9rem; }
-  .invite-popup-txt b { color: #f7b300; }
-  .invite-btn-accept {
-    background: #00ff73;
-    border: none;
-    color: #000;
-    font-weight: 900;
-    padding: 8px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.82rem;
-  }
-  .invite-btn-decline {
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: #fff;
-    font-weight: 800;
-    padding: 8px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.82rem;
-  }
+  .invite-btn-accept { background: #00ff73; border: none; color: #000; font-weight: 900; padding: 8px 16px; border-radius: 10px; cursor: pointer; }
+  .invite-btn-decline { background: rgba(255,255,255,0.1); border: none; color: #fff; font-weight: 800; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
 
-  /* Auth Screen */
-  #auth-screen {
-    background: rgba(4, 7, 13, 0.96);
-    backdrop-filter: blur(25px);
-    z-index: 800;
+  /* Color Wheel */
+  #color-picker-modal {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    backdrop-filter: blur(14px);
+    z-index: 500;
+    display: none;
+    justify-content: center;
+    align-items: center;
   }
-  .auth-card {
-    background: #0f182b;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 26px;
-    width: min(92vw, 420px);
-    padding: 32px 36px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-shadow: 0 25px 80px rgba(0,0,0,0.85);
+  .picker-modal-content { position: relative; display: flex; align-items: center; justify-content: center; }
+  .color-wheel {
+    width: 290px;
+    height: 290px;
+    border-radius: 50%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    padding: 12px;
+    background: #111;
+    border: 4px solid #fff;
   }
-  .auth-toggle-row {
-    display: flex;
-    background: rgba(0,0,0,0.3);
-    border-radius: 14px;
-    padding: 4px;
-    margin-bottom: 6px;
-  }
-  .auth-tab-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: #8fa0b5;
-    font-weight: 800;
-    padding: 8px;
-    border-radius: 10px;
+  .color-segment { border-radius: 20px; cursor: pointer; transition: transform 0.15s; }
+  .color-segment:hover { transform: scale(1.08); }
+  .close-picker-btn {
+    position: absolute;
+    right: -85px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ea2323 30%, #850000 100%);
+    border: 3.5px solid #ffffff;
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 900;
     cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-  }
-  .auth-tab-btn.active {
-    background: #f7b300;
-    color: #000;
-    box-shadow: 0 2px 10px rgba(247, 179, 0, 0.4);
-  }
-  .auth-msg {
-    font-size: 0.78rem;
-    color: #ff5252;
-    text-align: center;
-    min-height: 18px;
-    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
 </head>
 <body>
 
-  <!-- Screen Flash -->
   <div id="flash-overlay"></div>
 
   <!-- Direct Game Invitation Toast Banner -->
@@ -1260,32 +977,36 @@
     <button class="invite-btn-decline" onclick="declineInvite()">✕</button>
   </div>
 
-  <!-- Account Auth Screen (Login / Sign Up without Google) -->
+  <!-- GOOGLE AUTHENTICATION SCREEN -->
   <div id="auth-screen">
-    <div class="auth-card">
-      <div style="text-align: center;">
-        <div style="font-size: 2.6rem; font-weight: 900; font-style: italic; color: #f7b300;">UNO LOGIN</div>
-        <p style="font-size: 0.8rem; color: #8fa0b5; margin-top: 4px;">Sign in with your Unique Username & 4-Digit PIN</p>
+    <div class="auth-card" style="background: #0f182b; border: 2px solid rgba(255,255,255,0.2); border-radius: 26px; width: min(92vw, 420px); padding: 36px 32px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 25px 80px rgba(0,0,0,0.85); text-align: center;">
+      <div>
+        <div style="font-size: 2.8rem; font-weight: 900; font-style: italic; color: #f7b300;">UNO ONLINE</div>
+        <p style="font-size: 0.85rem; color: #8fa0b5; margin-top: 6px;">Sign in with your Google Account to play with friends across devices.</p>
       </div>
 
-      <div class="auth-toggle-row">
-        <button class="auth-tab-btn active" id="tab-login-btn" onclick="setAuthMode('login')">LOGIN</button>
-        <button class="auth-tab-btn" id="tab-register-btn" onclick="setAuthMode('register')">CREATE ACCOUNT</button>
+      <!-- Google Sign In Button -->
+      <button class="google-login-btn" onclick="loginWithGoogle()">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Sign In with Google</span>
+      </button>
+
+      <div style="display:flex; align-items:center; gap:10px; margin: 4px 0;">
+        <div style="flex:1; height:1px; background:rgba(255,255,255,0.15);"></div>
+        <span style="font-size:0.75rem; color:#64748b; font-weight:800;">OR</span>
+        <div style="flex:1; height:1px; background:rgba(255,255,255,0.15);"></div>
       </div>
 
-      <div class="form-group">
-        <label>Unique Username</label>
-        <input type="text" id="auth-username" placeholder="e.g. Shiny_99" maxlength="12">
-      </div>
+      <button class="pill-btn" style="padding:12px; font-size:0.85rem; justify-content:center;" onclick="loginAsGuest()">
+        Play as Guest (Offline)
+      </button>
 
-      <div class="form-group">
-        <label>4-Digit Security PIN</label>
-        <input type="password" id="auth-pin" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric">
-      </div>
-
-      <div class="auth-msg" id="auth-msg-text"></div>
-
-      <button class="btn" id="auth-action-btn" onclick="submitAuth()">LOG IN</button>
+      <div id="auth-msg-text" style="font-size: 0.78rem; color: #ff5252; min-height: 18px; font-weight: 800;"></div>
     </div>
   </div>
 
@@ -1300,7 +1021,7 @@
       </div>
 
       <div style="display:flex; gap:8px;">
-        <input type="text" id="add-friend-input" placeholder="Enter friend's username..." style="flex:1;" maxlength="12">
+        <input type="text" id="add-friend-input" placeholder="Enter friend's username..." style="flex:1;" maxlength="24">
         <button class="btn join-btn" onclick="addFriendFromInput()">ADD</button>
       </div>
 
@@ -1315,9 +1036,6 @@
     <div class="lobby-nebula neb-yellow"></div>
     <div class="lobby-nebula neb-green"></div>
 
-    <div class="lobby-grid-overlay"></div>
-
-    <!-- Active User Profile Banner on Home Screen -->
     <div class="home-profile-banner">
       <div class="user-badge-left">
         <div class="user-avatar-tag" id="bar-user-avatar">⚡</div>
@@ -1331,49 +1049,12 @@
       </div>
     </div>
 
-    <!-- Title & Logo -->
     <div class="title-logo-container">
       <div class="title-logo">UNO</div>
       <div class="title-sub">Ultimate 3D Edition</div>
     </div>
 
-    <!-- Home Screen Form & Action Center -->
     <div class="lobby-card">
-      <!-- Emoji Avatar Selector -->
-      <div class="avatar-picker-section">
-        <div class="avatar-top-row">
-          <div class="current-avatar-preview">
-            <div class="avatar-bubble" id="lobby-avatar-bubble">⚡</div>
-            <label style="margin:0;">Avatar Emoji</label>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <label style="margin:0; font-size:0.65rem;">Custom:</label>
-            <input type="text" id="custom-emoji-box" class="custom-emoji-input" placeholder="Emoji" maxlength="4" oninput="onCustomEmojiInput(this.value)">
-          </div>
-        </div>
-
-        <div class="avatar-grid" id="avatar-grid">
-          <div class="avatar-option selected" onclick="selectEmoji('⚡')">⚡</div>
-          <div class="avatar-option" onclick="selectEmoji('🔥')">🔥</div>
-          <div class="avatar-option" onclick="selectEmoji('👑')">👑</div>
-          <div class="avatar-option" onclick="selectEmoji('😎')">😎</div>
-          <div class="avatar-option" onclick="selectEmoji('🤖')">🤖</div>
-          <div class="avatar-option" onclick="selectEmoji('🐱')">🐱</div>
-          <div class="avatar-option" onclick="selectEmoji('🐶')">🐶</div>
-          <div class="avatar-option" onclick="selectEmoji('🐭')">🐭</div>
-          <div class="avatar-option" onclick="selectEmoji('🦊')">🦊</div>
-          <div class="avatar-option" onclick="selectEmoji('🐼')">🐼</div>
-          <div class="avatar-option" onclick="selectEmoji('🦁')">🦁</div>
-          <div class="avatar-option" onclick="selectEmoji('🦄')">🦄</div>
-          <div class="avatar-option" onclick="selectEmoji('🐉')">🐉</div>
-          <div class="avatar-option" onclick="selectEmoji('💀')">💀</div>
-          <div class="avatar-option" onclick="selectEmoji('👻')">👻</div>
-          <div class="avatar-option" onclick="selectEmoji('🎮')">🎮</div>
-          <div class="avatar-option" onclick="selectEmoji('🚀')">🚀</div>
-          <div class="avatar-option" onclick="selectEmoji('💎')">💎</div>
-        </div>
-      </div>
-
       <div class="form-group">
         <label>Game Edition</label>
         <select id="game-edition">
@@ -1383,13 +1064,11 @@
         </select>
       </div>
 
-      <!-- Main Action Buttons -->
       <div class="btn-group">
         <button class="btn" onclick="startSoloGame()">Play vs Bots</button>
         <button class="btn secondary" onclick="createRoom()">Create Room</button>
       </div>
 
-      <!-- Dedicated Friends List Button Directly in Home Screen -->
       <button class="btn friends-btn" onclick="openFriendsModal()">
         👥 Friends List (<span id="friends-count-num">0</span>)
       </button>
@@ -1406,16 +1085,14 @@
     </div>
   </div>
 
-  <!-- 3D ARENA VIEWPORT (Strictly hidden during Lobby / Auth) -->
+  <!-- 3D ARENA VIEWPORT -->
   <div id="viewport-3d">
     <div id="arena-bg"></div>
 
-    <!-- Top-Right Leave Button -->
     <button class="leave-game-btn" onclick="confirmQuitGame()">
       <span>✕</span><span>LEAVE GAME</span>
     </button>
 
-    <!-- Top-Left Leaderboard Widget -->
     <div id="leaderboard-widget">
       <div class="lb-header">
         <span>🏆</span>
@@ -1424,7 +1101,6 @@
       <div id="lb-list"></div>
     </div>
 
-    <!-- Table Felt Stage -->
     <div class="table-stage" id="table-stage">
       <div class="direction-ring-3d" id="dir-ring">
         <svg viewBox="0 0 500 500" class="ring-svg">
@@ -1436,102 +1112,58 @@
             </linearGradient>
             <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="6" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
           </defs>
-
           <circle cx="250" cy="250" r="215" fill="none" stroke="url(#ringNeon)" stroke-width="6" stroke-dasharray="24 18" filter="url(#neonGlow)"/>
-
-          <g class="arrow-unit" transform="translate(250, 35) rotate(0)">
-            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
-          </g>
-          <g class="arrow-unit" transform="translate(465, 250) rotate(90)">
-            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
-          </g>
-          <g class="arrow-unit" transform="translate(250, 465) rotate(180)">
-            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
-          </g>
-          <g class="arrow-unit" transform="translate(35, 250) rotate(270)">
-            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
-          </g>
+          <g class="arrow-unit" transform="translate(250, 35) rotate(0)"><path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/></g>
+          <g class="arrow-unit" transform="translate(465, 250) rotate(90)"><path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/></g>
+          <g class="arrow-unit" transform="translate(250, 465) rotate(180)"><path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/></g>
+          <g class="arrow-unit" transform="translate(35, 250) rotate(270)"><path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/></g>
         </svg>
       </div>
     </div>
 
-    <!-- Center Discard Pile with Dynamic Recolor Aura -->
     <div id="discard-pile-3d">
       <div id="active-color-badge"><div class="color-badge-dot" id="badge-dot"></div><span id="badge-text">RED</span></div>
     </div>
 
-    <!-- Pickup Deck (Upper Left) -->
     <div id="draw-deck-3d" onclick="onDrawDeckClick()">
       <div class="deck-3d-stack">
-        <div class="card-back-design" id="pickup-deck-back">
-          <div class="card-back-oval">
-            <div class="card-back-logo" id="draw-pile-logo">UNO</div>
-          </div>
-        </div>
+        <div class="card-back-design" id="pickup-deck-back"><div class="card-back-oval"><div class="card-back-logo" id="draw-pile-logo">UNO</div></div></div>
       </div>
     </div>
 
-    <!-- Left Opponent (ID 1) -->
+    <!-- Opponents -->
     <div class="player-spot" id="player-left">
-      <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-1">Shorty</div><span id="p-avatar-1">🐭</span></div>
-        <div class="card-count-badge" id="p-count-1">0</div>
-      </div>
+      <div class="player-box"><div class="player-portrait" id="p-portrait-1"><div class="player-nameplate" id="p-name-1">Shorty</div>🐭</div><div class="card-count-badge" id="p-count-1">0</div></div>
       <div class="opponent-3d-hand" id="opp-hand-1"></div>
     </div>
-
-    <!-- Top Opponent (ID 2) -->
     <div class="player-spot" id="player-top">
-      <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-2">Archie</div><span id="p-avatar-2">🐱</span></div>
-        <div class="card-count-badge" id="p-count-2">0</div>
-      </div>
+      <div class="player-box"><div class="player-portrait" id="p-portrait-2"><div class="player-nameplate" id="p-name-2">Archie</div>🐱</div><div class="card-count-badge" id="p-count-2">0</div></div>
       <div class="opponent-3d-hand" id="opp-hand-2"></div>
     </div>
-
-    <!-- Right Opponent (ID 3) -->
     <div class="player-spot" id="player-right">
-      <div class="player-box">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-3">Ringo</div><span id="p-avatar-3">🐶</span></div>
-        <div class="card-count-badge" id="p-count-3">0</div>
-      </div>
+      <div class="player-box"><div class="player-portrait" id="p-portrait-3"><div class="player-nameplate" id="p-name-3">Ringo</div>🐶</div><div class="card-count-badge" id="p-count-3">0</div></div>
       <div class="opponent-3d-hand" id="opp-hand-3"></div>
     </div>
 
-    <!-- Human Player Hand (ID 0 - Bottom) -->
+    <!-- Human Hand -->
     <div id="player-bottom">
       <div class="player-box" style="margin-bottom: 8px; pointer-events: auto;">
-        <div class="player-portrait"><div class="player-nameplate" id="p-name-0">Shiny (You)</div><span id="p-avatar-0">⚡</span></div>
+        <div class="player-portrait" id="p-portrait-0"><div class="player-nameplate" id="p-name-0">You</div>⚡</div>
         <div class="card-count-badge" id="p-count-0">0</div>
       </div>
-      <div class="human-hand-viewport">
-        <div class="human-hand-container" id="player-hand"></div>
-      </div>
+      <div class="human-hand-viewport"><div class="human-hand-container" id="player-hand"></div></div>
     </div>
 
-    <!-- Attack / Penalty Alert -->
     <div id="penalty-streak-box">ATTACK! +4</div>
-
-    <!-- Center Screen VFX -->
-    <div id="center-vfx-overlay">
-      <div id="vfx-graphic-container"></div>
-      <div class="vfx-banner-txt" id="vfx-text">REVERSE!</div>
-    </div>
-
-    <!-- UNO Shout -->
+    <div id="center-vfx-overlay"><div id="vfx-graphic-container"></div><div class="vfx-banner-txt" id="vfx-text">REVERSE!</div></div>
     <button id="uno-btn" onclick="callUno()">UNO!</button>
-
-    <!-- Flying Card Transient Layer -->
     <div id="fly-animation-layer"></div>
   </div>
 
-  <!-- Color Selector Modal with Cancel Option -->
+  <!-- Color Wheel Modal -->
   <div id="color-picker-modal">
     <div class="picker-modal-content">
       <div class="color-wheel" id="color-picker-wheel"></div>
@@ -1540,6 +1172,30 @@
   </div>
 
 <script>
+/**
+ * -------------------------------------------------------------
+ * FIREBASE CONFIGURATION (PASTE YOUR KEYS HERE)
+ * -------------------------------------------------------------
+ */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+let auth = null;
+if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+  } catch (e) {
+    console.error("Firebase Init Error:", e);
+  }
+}
+
 /**
  * AUDIO ENGINE
  */
@@ -1627,16 +1283,96 @@ const AudioEngine = {
 };
 
 /**
- * CLEAN STATE ROUTER (Auth -> Lobby -> Game)
+ * AUTHENTICATION LOGIC (GOOGLE SIGN-IN)
  */
-function showScreen(screen) {
-  const authEl = document.getElementById('auth-screen');
-  const lobbyEl = document.getElementById('lobby-screen');
-  const gameEl = document.getElementById('viewport-3d');
+let CurrentUser = {
+  uid: '',
+  username: 'Player',
+  avatar: '⚡',
+  isPhoto: false,
+  wins: 0,
+  friends: []
+};
 
-  authEl.style.display = (screen === 'auth') ? 'flex' : 'none';
-  lobbyEl.style.display = (screen === 'lobby') ? 'flex' : 'none';
-  gameEl.style.display = (screen === 'game') ? 'flex' : 'none';
+let incomingInviteData = null;
+
+function sanitizeUsername(str) {
+  return str.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+}
+
+function loginWithGoogle() {
+  const msgEl = document.getElementById('auth-msg-text');
+  msgEl.textContent = '';
+
+  if (!auth) {
+    msgEl.textContent = "Firebase keys not set! Paste your firebaseConfig keys in index.html to enable Google login.";
+    return;
+  }
+
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then((result) => {
+      const user = result.user;
+      CurrentUser = {
+        uid: user.uid,
+        username: user.displayName || user.email.split('@')[0],
+        avatar: user.photoURL || '⚡',
+        isPhoto: !!user.photoURL,
+        wins: parseInt(localStorage.getItem(`uno_wins_${user.uid}`)) || 0,
+        friends: JSON.parse(localStorage.getItem(`uno_friends_${user.uid}`)) || []
+      };
+      loginSuccess();
+    })
+    .catch((error) => {
+      msgEl.textContent = error.message;
+    });
+}
+
+function loginAsGuest() {
+  const guestId = 'guest_' + Math.floor(1000 + Math.random() * 9000);
+  CurrentUser = {
+    uid: guestId,
+    username: guestId,
+    avatar: '😎',
+    isPhoto: false,
+    wins: 0,
+    friends: []
+  };
+  loginSuccess();
+}
+
+function loginSuccess() {
+  showScreen('lobby');
+  initUserPeerNetwork();
+}
+
+function logoutUser() {
+  if (auth && auth.currentUser) {
+    auth.signOut();
+  }
+  if (GameState.presencePeer) {
+    try { GameState.presencePeer.destroy(); } catch (e) {}
+  }
+  showScreen('auth');
+}
+
+function updateUserUI() {
+  document.getElementById('bar-user-name').textContent = CurrentUser.username;
+  document.getElementById('bar-user-wins').textContent = `Wins: ${CurrentUser.wins || 0}`;
+  document.getElementById('friends-count-num').textContent = CurrentUser.friends ? CurrentUser.friends.length : 0;
+
+  const barAvatar = document.getElementById('bar-user-avatar');
+  if (CurrentUser.isPhoto) {
+    barAvatar.innerHTML = `<img src="${CurrentUser.avatar}" alt="avatar">`;
+  } else {
+    barAvatar.textContent = CurrentUser.avatar;
+  }
+}
+
+function showScreen(screen) {
+  document.getElementById('auth-screen').style.display = (screen === 'auth') ? 'flex' : 'none';
+  document.getElementById('lobby-screen').style.display = (screen === 'lobby') ? 'flex' : 'none';
+  document.getElementById('viewport-3d').style.display = (screen === 'game') ? 'flex' : 'none';
 
   if (screen === 'lobby') {
     updateUserUI();
@@ -1644,126 +1380,7 @@ function showScreen(screen) {
 }
 
 /**
- * AUTH & USER PROFILE STORE
- */
-let CurrentUser = {
-  username: '',
-  avatar: '⚡',
-  wins: 0,
-  friends: []
-};
-
-let authMode = 'login';
-let incomingInviteData = null;
-
-function sanitizeUsername(str) {
-  return str.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-}
-
-function getStoredUsers() {
-  try {
-    return JSON.parse(localStorage.getItem('uno_registered_accounts')) || {};
-  } catch (e) {
-    return {};
-  }
-}
-
-function saveStoredUsers(users) {
-  localStorage.setItem('uno_registered_accounts', JSON.stringify(users));
-}
-
-function setAuthMode(mode) {
-  authMode = mode;
-  document.getElementById('tab-login-btn').classList.toggle('active', mode === 'login');
-  document.getElementById('tab-register-btn').classList.toggle('active', mode === 'register');
-  document.getElementById('auth-action-btn').textContent = mode === 'login' ? 'LOG IN' : 'CREATE ACCOUNT';
-  document.getElementById('auth-msg-text').textContent = '';
-}
-
-function submitAuth() {
-  const rawUser = document.getElementById('auth-username').value;
-  const pin = document.getElementById('auth-pin').value.trim();
-  const clean = sanitizeUsername(rawUser);
-  const msgEl = document.getElementById('auth-msg-text');
-
-  if (clean.length < 3) {
-    msgEl.textContent = 'Username must be at least 3 characters.';
-    return;
-  }
-  if (!/^\d{4}$/.test(pin)) {
-    msgEl.textContent = 'PIN must be exactly 4 digits.';
-    return;
-  }
-
-  const users = getStoredUsers();
-
-  if (authMode === 'register') {
-    if (users[clean]) {
-      msgEl.textContent = 'Username already exists! Please choose another.';
-      return;
-    }
-    users[clean] = {
-      username: rawUser.trim(),
-      pin: pin,
-      avatar: GameState.myAvatar || '⚡',
-      wins: 0,
-      friends: []
-    };
-    saveStoredUsers(users);
-    loginSuccess(users[clean]);
-  } else {
-    if (!users[clean]) {
-      msgEl.textContent = 'User not found. Check spelling or create an account.';
-      return;
-    }
-    if (users[clean].pin !== pin) {
-      msgEl.textContent = 'Incorrect 4-digit PIN.';
-      return;
-    }
-    loginSuccess(users[clean]);
-  }
-}
-
-function loginSuccess(userObj) {
-  CurrentUser = userObj;
-  localStorage.setItem('uno_current_session', sanitizeUsername(userObj.username));
-  showScreen('lobby');
-  initUserPeerNetwork();
-}
-
-function updateUserUI() {
-  document.getElementById('bar-user-name').textContent = CurrentUser.username;
-  document.getElementById('bar-user-avatar').textContent = CurrentUser.avatar || '⚡';
-  document.getElementById('bar-user-wins').textContent = `Wins: ${CurrentUser.wins || 0}`;
-  document.getElementById('friends-count-num').textContent = CurrentUser.friends ? CurrentUser.friends.length : 0;
-  selectEmoji(CurrentUser.avatar || '⚡');
-}
-
-function logoutUser() {
-  localStorage.removeItem('uno_current_session');
-  if (GameState.presencePeer) {
-    try { GameState.presencePeer.destroy(); } catch (e) {}
-  }
-  showScreen('auth');
-  document.getElementById('auth-username').value = '';
-  document.getElementById('auth-pin').value = '';
-  document.getElementById('auth-msg-text').textContent = '';
-}
-
-function checkSavedSession() {
-  const savedKey = localStorage.getItem('uno_current_session');
-  if (savedKey) {
-    const users = getStoredUsers();
-    if (users[savedKey]) {
-      loginSuccess(users[savedKey]);
-      return;
-    }
-  }
-  showScreen('auth');
-}
-
-/**
- * FRIENDS LIST & PEER PRESENCE NETWORK
+ * FRIENDS LIST SYSTEM
  */
 function openFriendsModal() {
   document.getElementById('friends-modal').style.display = 'flex';
@@ -1780,41 +1397,28 @@ function addFriendFromInput() {
 
   if (!friendClean) return;
   if (friendClean === sanitizeUsername(CurrentUser.username)) {
-    alert("You cannot add yourself as a friend!");
+    alert("You cannot add yourself!");
     return;
   }
 
   if (!CurrentUser.friends) CurrentUser.friends = [];
   if (CurrentUser.friends.includes(friendClean)) {
-    alert("This friend is already on your list!");
+    alert("Friend already in list!");
     return;
   }
 
   CurrentUser.friends.push(friendClean);
+  localStorage.setItem(`uno_friends_${CurrentUser.uid}`, JSON.stringify(CurrentUser.friends));
   input.value = '';
-
-  const users = getStoredUsers();
-  const myKey = sanitizeUsername(CurrentUser.username);
-  if (users[myKey]) {
-    users[myKey].friends = CurrentUser.friends;
-    saveStoredUsers(users);
-  }
 
   renderFriendsList();
   updateUserUI();
 }
 
 function removeFriend(friendKey) {
-  if (!confirm(`Remove ${friendKey} from your friends?`)) return;
+  if (!confirm(`Remove ${friendKey} from friends?`)) return;
   CurrentUser.friends = CurrentUser.friends.filter(f => f !== friendKey);
-
-  const users = getStoredUsers();
-  const myKey = sanitizeUsername(CurrentUser.username);
-  if (users[myKey]) {
-    users[myKey].friends = CurrentUser.friends;
-    saveStoredUsers(users);
-  }
-
+  localStorage.setItem(`uno_friends_${CurrentUser.uid}`, JSON.stringify(CurrentUser.friends));
   renderFriendsList();
   updateUserUI();
 }
@@ -1824,23 +1428,19 @@ function renderFriendsList() {
   container.innerHTML = '';
 
   if (!CurrentUser.friends || CurrentUser.friends.length === 0) {
-    container.innerHTML = '<div style="color:#8fa0b5; font-size:0.8rem; text-align:center; padding:15px;">No friends added yet. Add friends using their username above!</div>';
+    container.innerHTML = '<div style="color:#8fa0b5; font-size:0.8rem; text-align:center; padding:15px;">No friends added yet. Enter a username above!</div>';
     return;
   }
 
   CurrentUser.friends.forEach(friendKey => {
     const row = document.createElement('div');
     row.className = 'friend-row';
-    row.id = `friend-row-${friendKey}`;
-
     row.innerHTML = `
       <div class="friend-info">
         <div class="friend-avatar" id="favatar-${friendKey}">👤</div>
         <div class="friend-name-col">
           <span class="friend-name">${friendKey}</span>
-          <span class="friend-status offline" id="fstatus-${friendKey}">
-            <span class="friend-status-dot"></span> Checking...
-          </span>
+          <span class="friend-status offline" id="fstatus-${friendKey}"><span class="friend-status-dot"></span> Checking...</span>
         </div>
       </div>
       <div class="friend-actions">
@@ -1849,7 +1449,6 @@ function renderFriendsList() {
       </div>
     `;
     container.appendChild(row);
-
     checkFriendPresence(friendKey);
   });
 }
@@ -1875,17 +1474,15 @@ function checkFriendPresence(friendKey) {
     if (data.type === 'PRESENCE_PONG') {
       responded = true;
       clearTimeout(timer);
-      updateFriendPresenceUI(friendKey, true, data.avatar);
+      updateFriendPresenceUI(friendKey, true, data.avatar, data.isPhoto);
       conn.close();
     }
   });
 
-  conn.on('error', () => {
-    updateFriendPresenceUI(friendKey, false);
-  });
+  conn.on('error', () => updateFriendPresenceUI(friendKey, false));
 }
 
-function updateFriendPresenceUI(friendKey, isOnline, avatar = null) {
+function updateFriendPresenceUI(friendKey, isOnline, avatar = null, isPhoto = false) {
   const statusEl = document.getElementById(`fstatus-${friendKey}`);
   const inviteBtn = document.getElementById(`finvite-${friendKey}`);
   const avatarEl = document.getElementById(`favatar-${friendKey}`);
@@ -1896,7 +1493,9 @@ function updateFriendPresenceUI(friendKey, isOnline, avatar = null) {
     statusEl.className = 'friend-status online';
     statusEl.innerHTML = '<span class="friend-status-dot"></span> Online';
     if (inviteBtn) inviteBtn.disabled = !GameState.hostingRoomId;
-    if (avatar && avatarEl) avatarEl.textContent = avatar;
+    if (avatar && avatarEl) {
+      avatarEl.innerHTML = isPhoto ? `<img src="${avatar}" style="width:28px; height:28px; border-radius:50%; object-fit:cover;">` : avatar;
+    }
   } else {
     statusEl.className = 'friend-status offline';
     statusEl.innerHTML = '<span class="friend-status-dot"></span> Offline';
@@ -1906,7 +1505,7 @@ function updateFriendPresenceUI(friendKey, isOnline, avatar = null) {
 
 function sendDirectInvite(friendKey) {
   if (!GameState.hostingRoomId) {
-    alert("Please create an online room first before inviting friends!");
+    alert("Create an online room first before inviting friends!");
     return;
   }
   const targetId = `uno_usr_${friendKey}`;
@@ -1917,10 +1516,11 @@ function sendDirectInvite(friendKey) {
       type: 'DIRECT_INVITE',
       fromName: CurrentUser.username,
       fromAvatar: CurrentUser.avatar,
+      isPhoto: CurrentUser.isPhoto,
       edition: GameState.edition,
       roomId: GameState.hostingRoomId
     });
-    alert(`Invitation sent to ${friendKey}!`);
+    alert(`Invite sent to ${friendKey}!`);
     setTimeout(() => conn.close(), 1000);
   });
 }
@@ -1928,7 +1528,8 @@ function sendDirectInvite(friendKey) {
 function receiveInvite(data) {
   incomingInviteData = data;
   document.getElementById('invite-from-name').textContent = data.fromName;
-  document.getElementById('invite-from-avatar').textContent = data.fromAvatar || '⚡';
+  const avatarEl = document.getElementById('invite-from-avatar');
+  avatarEl.innerHTML = data.isPhoto ? `<img src="${data.fromAvatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">` : data.fromAvatar;
   document.getElementById('invite-edition').textContent = data.edition.toUpperCase();
 
   const popup = document.getElementById('invite-popup');
@@ -1957,19 +1558,14 @@ function initUserPeerNetwork() {
   const myId = `uno_usr_${sanitizeUsername(CurrentUser.username)}`;
   try {
     GameState.presencePeer = new Peer(myId);
-
     GameState.presencePeer.on('connection', (conn) => {
       conn.on('data', (data) => {
         if (data.type === 'PRESENCE_PING') {
-          conn.send({ type: 'PRESENCE_PONG', avatar: CurrentUser.avatar });
+          conn.send({ type: 'PRESENCE_PONG', avatar: CurrentUser.avatar, isPhoto: CurrentUser.isPhoto });
         } else if (data.type === 'DIRECT_INVITE') {
           receiveInvite(data);
         }
       });
-    });
-
-    GameState.presencePeer.on('error', (err) => {
-      console.warn("Presence Peer Notice:", err);
     });
   } catch (e) {
     console.warn("Peer connection error:", e);
@@ -1977,7 +1573,7 @@ function initUserPeerNetwork() {
 }
 
 /**
- * GAME STATE
+ * GAME ENGINE STATE & TIMERS
  */
 let GameState = {
   edition: 'flip',
@@ -1994,7 +1590,6 @@ let GameState = {
   unoCalledPlayers: new Set(),
   isHost: true,
   myPlayerId: 0,
-  myAvatar: '⚡',
   peer: null,
   presencePeer: null,
   hostingRoomId: null,
@@ -2002,6 +1597,9 @@ let GameState = {
   isDealing: false,
   inGame: false
 };
+
+let activeDealIntervalTimer = null;
+let activeBotTurnTimeout = null;
 
 const COLOR_HEX = {
   red: '#ea2323',
@@ -2018,50 +1616,51 @@ function getActivePlayers() {
   return GameState.players.filter(p => !p.hasWon && !p.eliminated);
 }
 
-function selectEmoji(emoji) {
-  GameState.myAvatar = emoji;
-  document.getElementById('lobby-avatar-bubble').textContent = emoji;
-  document.getElementById('custom-emoji-box').value = emoji;
-
-  if (CurrentUser && CurrentUser.username) {
-    CurrentUser.avatar = emoji;
-    const users = getStoredUsers();
-    const myKey = sanitizeUsername(CurrentUser.username);
-    if (users[myKey]) {
-      users[myKey].avatar = emoji;
-      saveStoredUsers(users);
-    }
-    document.getElementById('bar-user-avatar').textContent = emoji;
-  }
-
-  document.querySelectorAll('.avatar-option').forEach(el => {
-    el.classList.toggle('selected', el.textContent.trim() === emoji);
-  });
-}
-
-function onCustomEmojiInput(val) {
-  const trimmed = val.trim();
-  if (trimmed) {
-    selectEmoji(trimmed);
-  }
-}
-
 /**
- * LEAVE GAME & CLEAN RESET
+ * FIXED LEAVE GAME (CLEARS TIMERS, ANIMATIONS & SAFELY RESTORES DOM)
  */
 function confirmQuitGame() {
-  if (!confirm("Are you sure you want to quit this match and return to the main menu?")) return;
+  if (!confirm("Quit match and return to home screen?")) return;
 
   GameState.inGame = false;
   GameState.isDealing = false;
 
+  // Clear running timers
+  if (activeDealIntervalTimer) {
+    clearInterval(activeDealIntervalTimer);
+    activeDealIntervalTimer = null;
+  }
+  if (activeBotTurnTimeout) {
+    clearTimeout(activeBotTurnTimeout);
+    activeBotTurnTimeout = null;
+  }
+
+  // Clear animation layer
+  const flyLayer = document.getElementById('fly-animation-layer');
+  if (flyLayer) flyLayer.innerHTML = '';
+
+  // Close PeerJS match room
   if (GameState.peer) {
     try { GameState.peer.destroy(); } catch (e) {}
     GameState.peer = null;
   }
 
-  document.getElementById('player-hand').innerHTML = '';
-  document.getElementById('discard-pile-3d').innerHTML = '';
+  // Reset player containers
+  const handBox = document.getElementById('player-hand');
+  if (handBox) handBox.innerHTML = '';
+  
+  [1, 2, 3].forEach(id => {
+    const oppHand = document.getElementById(`opp-hand-${id}`);
+    if (oppHand) oppHand.innerHTML = '';
+  });
+
+  // Safely clear discard pile cards while preserving active-color-badge
+  const discardBox = document.getElementById('discard-pile-3d');
+  if (discardBox) {
+    const cards = discardBox.querySelectorAll('.card');
+    cards.forEach(c => c.remove());
+  }
+
   document.getElementById('color-picker-modal').style.display = 'none';
   document.getElementById('room-info').style.display = 'none';
   document.getElementById('start-hosted-btn').style.display = 'none';
@@ -2172,9 +1771,6 @@ function getOppositeFace(card) {
   return card;
 }
 
-/**
- * VECTOR CARD ARTWORK
- */
 function getVectorCardInner(face) {
   const val = face.value;
 
@@ -2332,7 +1928,7 @@ function createMiniOpponentCard(face) {
 }
 
 /**
- * 3D ANIMATION ENGINE
+ * ANIMATIONS
  */
 function animateCardThrow(fromEl, cardData, chosenColor, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
@@ -2418,9 +2014,10 @@ function runInitialDealAnimation(onComplete) {
   const totalCards = 7 * GameState.players.length;
   const dealInterval = 65;
 
-  const dealTimer = setInterval(() => {
+  activeDealIntervalTimer = setInterval(() => {
     if (!GameState.inGame) {
-      clearInterval(dealTimer);
+      clearInterval(activeDealIntervalTimer);
+      activeDealIntervalTimer = null;
       return;
     }
     const playerIdx = cardCount % GameState.players.length;
@@ -2452,7 +2049,8 @@ function runInitialDealAnimation(onComplete) {
 
     cardCount++;
     if (cardCount >= totalCards) {
-      clearInterval(dealTimer);
+      clearInterval(activeDealIntervalTimer);
+      activeDealIntervalTimer = null;
       setTimeout(() => {
         if (GameState.inGame) dealFirstDiscardCard(onComplete);
       }, 400);
@@ -2555,7 +2153,7 @@ function triggerCenterSpecialVFX(type, text) {
 }
 
 /**
- * MULTIPLAYER PEER CONNECTION (GAMEPLAY)
+ * MULTIPLAYER PEER CONNECTION
  */
 function createRoom() {
   const name = CurrentUser.username || 'Shiny';
@@ -2572,6 +2170,7 @@ function createRoom() {
       id: 0,
       name: `${name} (You)`,
       avatar: CurrentUser.avatar || '⚡',
+      isPhoto: CurrentUser.isPhoto,
       hand: [],
       isBot: false,
       conn: null,
@@ -2598,7 +2197,7 @@ function joinRoom() {
     const conn = GameState.peer.connect(roomId);
     GameState.isHost = false;
 
-    conn.on('open', () => conn.send({ type: 'JOIN_REQ', name: name, avatar: CurrentUser.avatar || '⚡' }));
+    conn.on('open', () => conn.send({ type: 'JOIN_REQ', name: name, avatar: CurrentUser.avatar || '⚡', isPhoto: CurrentUser.isPhoto }));
 
     conn.on('data', (data) => {
       if (data.type === 'SYNC_STATE') {
@@ -2632,6 +2231,7 @@ function handleHostData(conn, data) {
       id: newId,
       name: data.name,
       avatar: data.avatar || '😎',
+      isPhoto: data.isPhoto || false,
       hand: [],
       isBot: false,
       conn: conn,
@@ -2666,6 +2266,7 @@ function broadcastState() {
             id: pl.id,
             name: pl.name,
             avatar: pl.avatar,
+            isPhoto: pl.isPhoto,
             handCount: pl.hand.length,
             hand: pl.id === p.id ? pl.hand : [],
             oppositeFaces: GameState.edition === 'flip' ? pl.hand.map(c => getOppositeFace(c)) : [],
@@ -2689,13 +2290,12 @@ function broadcastState() {
  * INITIALIZATION
  */
 function startSoloGame() {
-  const name = CurrentUser.username || 'Shiny';
   GameState.edition = document.getElementById('game-edition').value;
   GameState.players = [
-    { id: 0, name: `${name} (You)`, avatar: CurrentUser.avatar || '⚡', hand: [], isBot: false, hasWon: false },
-    { id: 1, name: 'Shorty', avatar: '🐭', hand: [], isBot: true, hasWon: false },
-    { id: 2, name: 'Archie', avatar: '🐱', hand: [], isBot: true, hasWon: false },
-    { id: 3, name: 'Ringo', avatar: '🐶', hand: [], isBot: true, hasWon: false }
+    { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, isPhoto: CurrentUser.isPhoto, hand: [], isBot: false, hasWon: false },
+    { id: 1, name: 'Shorty', avatar: '🐭', isPhoto: false, hand: [], isBot: true, hasWon: false },
+    { id: 2, name: 'Archie', avatar: '🐱', isPhoto: false, hand: [], isBot: true, hasWon: false },
+    { id: 3, name: 'Ringo', avatar: '🐶', isPhoto: false, hand: [], isBot: true, hasWon: false }
   ];
   showScreen('game');
   initGameEngine();
@@ -2709,7 +2309,7 @@ function startHostedGame() {
   ];
   for (let i = GameState.players.length; i < 4; i++) {
     const b = defaultBots[i-1] || { name: `Bot ${i}`, avatar: '🤖' };
-    GameState.players.push({ id: i, name: b.name, avatar: b.avatar, hand: [], isBot: true, conn: null, hasWon: false });
+    GameState.players.push({ id: i, name: b.name, avatar: b.avatar, isPhoto: false, hand: [], isBot: true, conn: null, hasWon: false });
   }
   showScreen('game');
   initGameEngine();
@@ -2726,14 +2326,17 @@ function initGameEngine() {
   GameState.direction = 1;
   GameState.turnIndex = 0;
 
-  GameState.players.forEach(p => p.hand = []);
+  GameState.players.forEach(p => {
+    p.hand = [];
+    p.hasWon = false;
+  });
 
   updateTheme();
   renderGame();
 
   runInitialDealAnimation(() => {
-    if (GameState.inGame && GameState.players[GameState.turnIndex].isBot) {
-      setTimeout(botTurn, 1000);
+    if (GameState.inGame && GameState.players[GameState.turnIndex] && GameState.players[GameState.turnIndex].isBot) {
+      activeBotTurnTimeout = setTimeout(botTurn, 1000);
     }
   });
 }
@@ -2788,7 +2391,7 @@ function canPlayCard(card) {
 
 function executePlayCard(playerId, cardIdx, chosenColor = null) {
   const player = GameState.players[playerId];
-  if (player.hasWon || player.eliminated || !GameState.inGame) return;
+  if (!player || player.hasWon || player.eliminated || !GameState.inGame) return;
 
   const card = player.hand[cardIdx];
   const face = getCardFace(card);
@@ -2823,16 +2426,11 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
       player.hasWon = true;
       const rank = GameState.rankings.length + 1;
       player.rank = rank;
-      GameState.rankings.push({ id: player.id, name: player.name, avatar: player.avatar, rank: rank });
+      GameState.rankings.push({ id: player.id, name: player.name, avatar: player.avatar, isPhoto: player.isPhoto, rank: rank });
 
       if (player.id === 0 && rank === 1) {
         CurrentUser.wins = (CurrentUser.wins || 0) + 1;
-        const users = getStoredUsers();
-        const myKey = sanitizeUsername(CurrentUser.username);
-        if (users[myKey]) {
-          users[myKey].wins = CurrentUser.wins;
-          saveStoredUsers(users);
-        }
+        localStorage.setItem(`uno_wins_${CurrentUser.uid}`, CurrentUser.wins);
         updateUserUI();
       }
 
@@ -2846,7 +2444,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
           const lastP = remaining[0];
           lastP.hasWon = true;
           lastP.rank = GameState.rankings.length + 1;
-          GameState.rankings.push({ id: lastP.id, name: lastP.name, avatar: lastP.avatar, rank: lastP.rank });
+          GameState.rankings.push({ id: lastP.id, name: lastP.name, avatar: lastP.avatar, isPhoto: lastP.isPhoto, rank: lastP.rank });
         }
         triggerCenterSpecialVFX('reverse', 'MATCH FINISHED!');
         broadcastState();
@@ -2898,7 +2496,6 @@ function handleCardAction(face, playerId) {
       GameState.currentColor = newTopFace.color;
     }
     delete topCard.chosenColor;
-
     triggerCenterSpecialVFX('flip', `FLIPPED TO ${GameState.flipSide.toUpperCase()}!`);
   }
 
@@ -2909,11 +2506,8 @@ function handleCardAction(face, playerId) {
 
     player.hand.forEach(c => {
       const cFace = getCardFace(c);
-      if (cFace.color === targetColor) {
-        matching.push(c);
-      } else {
-        kept.push(c);
-      }
+      if (cFace.color === targetColor) matching.push(c);
+      else kept.push(c);
     });
 
     player.hand = kept;
@@ -2922,14 +2516,11 @@ function handleCardAction(face, playerId) {
       GameState.discardRotations.push(Math.floor(Math.random() * 40) - 20);
     });
 
-    triggerCenterSpecialVFX('discard_all', `DISCARDED ALL ${targetColor.toUpperCase()}! (-${matching.length + 1})`);
+    triggerCenterSpecialVFX('discard_all', `DISCARDED ALL ${targetColor.toUpperCase()}!`);
     AudioEngine.vfxBoom();
   }
 }
 
-/**
- * CIRCULAR TURN ROTATION
- */
 function nextTurn() {
   if (!GameState.inGame) return;
   const active = getActivePlayers();
@@ -2961,7 +2552,7 @@ function nextTurn() {
   }
 
   if (nextP.isBot) {
-    setTimeout(botTurn, 1100);
+    activeBotTurnTimeout = setTimeout(botTurn, 1100);
   }
 }
 
@@ -3000,18 +2591,13 @@ function botTurn() {
   }
 
   const valid = [];
-  bot.hand.forEach((card, idx) => {
-    if (canPlayCard(card)) valid.push(idx);
-  });
+  bot.hand.forEach((card, idx) => { if (canPlayCard(card)) valid.push(idx); });
 
   if (valid.length > 0) {
     let chosenIdx = valid[0];
     const discardAllIndex = valid.find(idx => getCardFace(bot.hand[idx]).value === 'discard_all');
-    if (discardAllIndex !== undefined) {
-      chosenIdx = discardAllIndex;
-    } else {
-      chosenIdx = valid[Math.floor(Math.random() * valid.length)];
-    }
+    if (discardAllIndex !== undefined) chosenIdx = discardAllIndex;
+    else chosenIdx = valid[Math.floor(Math.random() * valid.length)];
 
     const card = bot.hand[chosenIdx];
     const face = getCardFace(card);
@@ -3026,9 +2612,6 @@ function botTurn() {
   }
 }
 
-/**
- * HUMAN INPUTS
- */
 function onHumanCardClick(idx) {
   if (GameState.isDealing || !GameState.inGame) return;
   if (GameState.turnIndex !== GameState.myPlayerId) return;
@@ -3055,11 +2638,8 @@ function onDrawDeckClick() {
   if (GameState.turnIndex !== GameState.myPlayerId) return;
   if (GameState.players[GameState.myPlayerId].hasWon) return;
 
-  if (GameState.isHost) {
-    handlePlayerDraw(GameState.myPlayerId);
-  } else {
-    GameState.players[0].conn.send({ type: 'DRAW_CARD', playerId: GameState.myPlayerId });
-  }
+  if (GameState.isHost) handlePlayerDraw(GameState.myPlayerId);
+  else GameState.players[0].conn.send({ type: 'DRAW_CARD', playerId: GameState.myPlayerId });
 }
 
 function callUno() {
@@ -3107,8 +2687,7 @@ function openColorPicker() {
 }
 
 function cancelColorPicker() {
-  const modal = document.getElementById('color-picker-modal');
-  modal.style.display = 'none';
+  document.getElementById('color-picker-modal').style.display = 'none';
   GameState.pendingWildCard = null;
 }
 
@@ -3119,142 +2698,171 @@ window.addEventListener('keydown', (e) => {
 });
 
 /**
- * RENDERING
+ * RENDERING (CRASH-PROOF BADGE & RECURSIVE DOM RETRIEVAL)
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
-  dirEl.className = GameState.direction === -1 ? 'direction-ring-3d reverse' : 'direction-ring-3d';
+  if (dirEl) dirEl.className = GameState.direction === -1 ? 'direction-ring-3d reverse' : 'direction-ring-3d';
 
   const curColorHex = COLOR_HEX[GameState.currentColor] || '#ea2323';
   document.documentElement.style.setProperty('--active-glow-color', curColorHex);
-  document.getElementById('badge-dot').style.background = curColorHex;
-  document.getElementById('badge-text').textContent = GameState.currentColor.toUpperCase();
 
   const discardBox = document.getElementById('discard-pile-3d');
-  const badgeEl = document.getElementById('active-color-badge');
-  discardBox.innerHTML = '';
-  discardBox.appendChild(badgeEl);
+  if (discardBox) {
+    // Recreate badge if ever missing from DOM
+    let badgeEl = document.getElementById('active-color-badge');
+    if (!badgeEl) {
+      badgeEl = document.createElement('div');
+      badgeEl.id = 'active-color-badge';
+      badgeEl.innerHTML = '<div class="color-badge-dot" id="badge-dot"></div><span id="badge-text">RED</span>';
+      discardBox.appendChild(badgeEl);
+    }
 
-  const recentCards = GameState.discardPile.slice(-4);
-  const recentRotations = GameState.discardRotations.slice(-4);
+    const dotEl = document.getElementById('badge-dot');
+    const textEl = document.getElementById('badge-text');
+    if (dotEl) dotEl.style.background = curColorHex;
+    if (textEl) textEl.textContent = GameState.currentColor.toUpperCase();
 
-  recentCards.forEach((card, i) => {
-    const isTop = (i === recentCards.length - 1);
-    const overrideCol = (isTop && card.chosenColor) ? card.chosenColor : null;
-    const el = createCardElement(card, overrideCol);
-    const rot = recentRotations[i] || 0;
-    el.style.transform = `rotate(${rot}deg) translateZ(${i * 2}px)`;
-    discardBox.appendChild(el);
-  });
+    // Remove only previous card elements, preserve badge
+    const oldCards = discardBox.querySelectorAll('.card');
+    oldCards.forEach(c => c.remove());
+
+    const recentCards = GameState.discardPile.slice(-4);
+    const recentRotations = GameState.discardRotations.slice(-4);
+
+    recentCards.forEach((card, i) => {
+      const isTop = (i === recentCards.length - 1);
+      const overrideCol = (isTop && card.chosenColor) ? card.chosenColor : null;
+      const el = createCardElement(card, overrideCol);
+      const rot = recentRotations[i] || 0;
+      el.style.transform = `rotate(${rot}deg) translateZ(${i * 2}px)`;
+      discardBox.appendChild(el);
+    });
+  }
 
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
   const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing);
 
   const handBox = document.getElementById('player-hand');
-  handBox.innerHTML = '';
-  const total = myPlayer.hand.length;
+  if (handBox) {
+    handBox.innerHTML = '';
+    const total = myPlayer.hand.length;
 
-  const maxAllowedWidth = Math.min(window.innerWidth - 70, 960);
-  const cardWidth = 92;
-  const step = total > 1 ? Math.min(44, (maxAllowedWidth - cardWidth) / (total - 1)) : 0;
+    const maxAllowedWidth = Math.min(window.innerWidth - 70, 960);
+    const cardWidth = 92;
+    const step = total > 1 ? Math.min(44, (maxAllowedWidth - cardWidth) / (total - 1)) : 0;
 
-  const angleDampener = total > 22 ? 0.28 : (total > 14 ? 0.5 : (total > 8 ? 0.8 : 1.0));
-  const maxAngle = Math.min(18, total * 2.2) * angleDampener;
-  const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
+    const angleDampener = total > 22 ? 0.28 : (total > 14 ? 0.5 : (total > 8 ? 0.8 : 1.0));
+    const maxAngle = Math.min(18, total * 2.2) * angleDampener;
+    const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
 
-  myPlayer.hand.forEach((card, idx) => {
-    const slotEl = document.createElement('div');
-    slotEl.className = 'card-slot';
+    myPlayer.hand.forEach((card, idx) => {
+      const slotEl = document.createElement('div');
+      slotEl.className = 'card-slot';
 
-    const cardEl = createCardElement(card);
-
-    if (isMyTurn) {
-      if (canPlayCard(card)) {
-        cardEl.classList.add('playable');
-      } else {
-        cardEl.classList.add('unplayable');
+      const cardEl = createCardElement(card);
+      if (isMyTurn) {
+        if (canPlayCard(card)) cardEl.classList.add('playable');
+        else cardEl.classList.add('unplayable');
       }
-    }
 
-    slotEl.appendChild(cardEl);
+      slotEl.appendChild(cardEl);
+      const offset = idx - (total - 1) / 2;
+      const rotateDeg = total > 1 ? (offset / ((total - 1) / 2 || 1)) * (maxAngle / 2) : 0;
+      const translateY = Math.abs(offset) * yDampener;
+      const translateX = offset * step;
 
-    const offset = idx - (total - 1) / 2;
-    const rotateDeg = total > 1 ? (offset / ((total - 1) / 2 || 1)) * (maxAngle / 2) : 0;
-    const translateY = Math.abs(offset) * yDampener;
-    const translateX = offset * step;
-
-    slotEl.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
-    slotEl.style.zIndex = idx + 1;
-    slotEl.onclick = () => onHumanCardClick(idx);
-    handBox.appendChild(slotEl);
-  });
+      slotEl.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
+      slotEl.style.zIndex = idx + 1;
+      slotEl.onclick = () => onHumanCardClick(idx);
+      handBox.appendChild(slotEl);
+    });
+  }
 
   const pCount0 = document.getElementById('p-count-0');
-  if (myPlayer.hasWon) {
-    pCount0.textContent = `Won #${myPlayer.rank}`;
-    pCount0.classList.add('won-badge');
-  } else {
-    pCount0.textContent = myPlayer.hand.length;
-    pCount0.classList.remove('won-badge');
+  if (pCount0) {
+    if (myPlayer.hasWon) {
+      pCount0.textContent = `Won #${myPlayer.rank}`;
+      pCount0.classList.add('won-badge');
+    } else {
+      pCount0.textContent = myPlayer.hand.length;
+      pCount0.classList.remove('won-badge');
+    }
   }
-  document.getElementById('p-name-0').textContent = myPlayer.name;
-  document.getElementById('p-avatar-0').textContent = myPlayer.avatar || CurrentUser.avatar || '⚡';
 
-  document.getElementById('player-bottom').classList.toggle('active', isMyTurn);
+  const p0Portrait = document.getElementById('p-portrait-0');
+  if (p0Portrait) {
+    p0Portrait.innerHTML = `<div class="player-nameplate" id="p-name-0">${myPlayer.name}</div>` + 
+      (myPlayer.isPhoto ? `<img src="${myPlayer.avatar}">` : (myPlayer.avatar || '⚡'));
+  }
 
-  if (myPlayer.hand.length === 2 && !GameState.unoCalledPlayers.has(GameState.myPlayerId) && !myPlayer.hasWon && !GameState.isDealing) {
-    document.getElementById('uno-btn').classList.add('alert');
-  } else {
-    document.getElementById('uno-btn').classList.remove('alert');
+  const pBottom = document.getElementById('player-bottom');
+  if (pBottom) pBottom.classList.toggle('active', isMyTurn);
+
+  const unoBtn = document.getElementById('uno-btn');
+  if (unoBtn) {
+    if (myPlayer.hand.length === 2 && !GameState.unoCalledPlayers.has(GameState.myPlayerId) && !myPlayer.hasWon && !GameState.isDealing) {
+      unoBtn.classList.add('alert');
+    } else {
+      unoBtn.classList.remove('alert');
+    }
   }
 
   // Render Opponents
   const oppMap = [
-    { box: document.getElementById('player-left'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), avatarEl: document.getElementById('p-avatar-1'), id: 1 },
-    { box: document.getElementById('player-top'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), avatarEl: document.getElementById('p-avatar-2'), id: 2 },
-    { box: document.getElementById('player-right'), handEl: document.getElementById('opp-hand-3'), countEl: document.getElementById('p-count-3'), nameEl: document.getElementById('p-name-3'), avatarEl: document.getElementById('p-avatar-3'), id: 3 }
+    { box: document.getElementById('player-left'), portrait: document.getElementById('p-portrait-1'), handEl: document.getElementById('opp-hand-1'), countEl: document.getElementById('p-count-1'), nameEl: document.getElementById('p-name-1'), id: 1 },
+    { box: document.getElementById('player-top'), portrait: document.getElementById('p-portrait-2'), handEl: document.getElementById('opp-hand-2'), countEl: document.getElementById('p-count-2'), nameEl: document.getElementById('p-name-2'), id: 2 },
+    { box: document.getElementById('player-right'), portrait: document.getElementById('p-portrait-3'), handEl: document.getElementById('opp-hand-3'), countEl: document.getElementById('p-count-3'), nameEl: document.getElementById('p-name-3'), id: 3 }
   ];
 
   oppMap.forEach(spot => {
     const opp = GameState.players[spot.id];
-    if (opp) {
+    if (opp && spot.box) {
       spot.box.style.display = 'flex';
       spot.box.classList.toggle('active', GameState.turnIndex === spot.id && !opp.hasWon && !GameState.isDealing);
-      spot.nameEl.textContent = opp.name;
-      spot.avatarEl.textContent = opp.avatar || '🤖';
 
-      if (opp.hasWon) {
-        spot.countEl.textContent = `Won #${opp.rank}`;
-        spot.countEl.classList.add('won-badge');
-        spot.handEl.innerHTML = '';
-      } else {
-        const count = opp.hand ? opp.hand.length : (opp.handCount || 0);
-        spot.countEl.textContent = count;
-        spot.countEl.classList.remove('won-badge');
+      if (spot.portrait) {
+        spot.portrait.innerHTML = `<div class="player-nameplate">${opp.name}</div>` + 
+          (opp.isPhoto ? `<img src="${opp.avatar}">` : (opp.avatar || '🤖'));
+      }
 
-        spot.handEl.innerHTML = '';
-        const displayCards = Math.min(count, 8);
-        const oppHand = opp.hand || [];
-        const oppOppositeFaces = opp.oppositeFaces || [];
-        const oppStep = displayCards > 1 ? Math.min(22, 160 / (displayCards - 1)) : 0;
-
-        for (let i = 0; i < displayCards; i++) {
-          let standCard;
-          if (GameState.edition === 'flip') {
-            const cardData = oppHand[i];
-            const face = cardData ? getOppositeFace(cardData) : (oppOppositeFaces[i] || { color: 'pink', value: '0' });
-            standCard = createMiniOpponentCard(face);
-          } else {
-            standCard = document.createElement('div');
-            standCard.className = 'opp-stand-card';
-            standCard.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo" style="font-size:0.75rem;">UNO</div></div></div>`;
-          }
-
-          if (i > 0) standCard.style.marginLeft = `-${24 - oppStep}px`;
-          spot.handEl.appendChild(standCard);
+      if (spot.countEl) {
+        if (opp.hasWon) {
+          spot.countEl.textContent = `Won #${opp.rank}`;
+          spot.countEl.classList.add('won-badge');
+        } else {
+          const count = opp.hand ? opp.hand.length : (opp.handCount || 0);
+          spot.countEl.textContent = count;
+          spot.countEl.classList.remove('won-badge');
         }
       }
-    } else {
+
+      if (spot.handEl) {
+        spot.handEl.innerHTML = '';
+        if (!opp.hasWon) {
+          const count = opp.hand ? opp.hand.length : (opp.handCount || 0);
+          const displayCards = Math.min(count, 8);
+          const oppHand = opp.hand || [];
+          const oppOppositeFaces = opp.oppositeFaces || [];
+          const oppStep = displayCards > 1 ? Math.min(22, 160 / (displayCards - 1)) : 0;
+
+          for (let i = 0; i < displayCards; i++) {
+            let standCard;
+            if (GameState.edition === 'flip') {
+              const cardData = oppHand[i];
+              const face = cardData ? getOppositeFace(cardData) : (oppOppositeFaces[i] || { color: 'pink', value: '0' });
+              standCard = createMiniOpponentCard(face);
+            } else {
+              standCard = document.createElement('div');
+              standCard.className = 'opp-stand-card';
+              standCard.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo" style="font-size:0.75rem;">UNO</div></div></div>`;
+            }
+            if (i > 0) standCard.style.marginLeft = `-${24 - oppStep}px`;
+            spot.handEl.appendChild(standCard);
+          }
+        }
+      }
+    } else if (spot.box) {
       spot.box.style.display = 'none';
     }
   });
@@ -3264,6 +2872,7 @@ function renderGame() {
 
 function renderLeaderboard() {
   const lbList = document.getElementById('lb-list');
+  if (!lbList) return;
   lbList.innerHTML = '';
 
   const sorted = [...GameState.players].sort((a, b) => {
@@ -3290,7 +2899,7 @@ function renderLeaderboard() {
     row.innerHTML = `
       <div class="lb-left">
         <span class="lb-rank">${rankSymbol}</span>
-        <span style="font-size:0.9rem;">${p.avatar || '👤'}</span>
+        <span style="font-size:0.9rem;">${p.isPhoto ? '👤' : (p.avatar || '👤')}</span>
         <span class="lb-name" style="${p.id === GameState.myPlayerId ? 'color:#f7b300; font-weight:900;' : ''}">${p.name}</span>
       </div>
       <span class="lb-score ${p.hasWon ? 'won' : ''}">${scoreText}</span>
@@ -3299,11 +2908,30 @@ function renderLeaderboard() {
   });
 }
 
+// Auto Session Check
 window.addEventListener('load', () => {
-  checkSavedSession();
+  if (auth) {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        CurrentUser = {
+          uid: user.uid,
+          username: user.displayName || user.email.split('@')[0],
+          avatar: user.photoURL || '⚡',
+          isPhoto: !!user.photoURL,
+          wins: parseInt(localStorage.getItem(`uno_wins_${user.uid}`)) || 0,
+          friends: JSON.parse(localStorage.getItem(`uno_friends_${user.uid}`)) || []
+        };
+        loginSuccess();
+      } else {
+        showScreen('auth');
+      }
+    });
+  } else {
+    showScreen('auth');
+  }
 });
 
-window.addEventListener('resize', () => { if (GameState.players.length > 0) renderGame(); });
+window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) renderGame(); });
 </script>
 </body>
 </html>
