@@ -130,23 +130,27 @@
     pointer-events: none;
   }
 
-  /* Direction Ring on Table */
+  /* ENHANCED LARGE DIRECTION RING WITH INTEGRATED CHEVRON ARROWS */
   .direction-ring-3d {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 290px;
-    height: 290px;
-    border: 4px dashed rgba(255, 255, 255, 0.4);
-    border-radius: 50%;
+    width: min(54vw, 450px);
+    height: min(54vw, 450px);
+    max-height: 410px;
     pointer-events: none;
     animation: ringSpinCW 10s linear infinite;
-    box-shadow: 0 0 35px rgba(255, 255, 255, 0.15);
-    transition: border-color 0.4s ease;
+    transition: transform 0.4s ease;
+    z-index: 5;
   }
   .direction-ring-3d.reverse {
     animation: ringSpinCCW 10s linear infinite;
+  }
+  .ring-svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
   }
   @keyframes ringSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
   @keyframes ringSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
@@ -240,14 +244,12 @@
       -12px 14px 25px rgba(0,0,0,0.7);
   }
 
-  /* ========================================================
-     TOP-LEFT LEADERBOARD WIDGET
-     ======================================================== */
+  /* Top-Left Leaderboard Widget */
   #leaderboard-widget {
     position: absolute;
     top: 18px;
     left: 18px;
-    width: 185px;
+    width: 190px;
     background: rgba(10, 16, 26, 0.85);
     backdrop-filter: blur(14px);
     border: 1.5px solid rgba(255, 255, 255, 0.18);
@@ -295,7 +297,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 85px;
+    max-width: 90px;
   }
   .lb-score {
     font-size: 0.72rem;
@@ -309,9 +311,7 @@
     color: #000;
   }
 
-  /* ========================================================
-     VIBRANT ACTIVE TURN AURA AROUND PROFILE PIC
-     ======================================================== */
+  /* Player Avatars & Radiant Turn Aura */
   .player-spot {
     position: absolute;
     display: flex;
@@ -353,7 +353,6 @@
     transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
   }
   
-  /* Prominent Radiant Aura */
   .player-spot.active .player-portrait {
     border-color: #fff;
     transform: scale(1.16);
@@ -380,12 +379,8 @@
   }
 
   @keyframes activeAuraPulse {
-    0% {
-      box-shadow: 0 0 0 3px #fff, 0 0 20px #ffb700, 0 0 40px rgba(255, 183, 0, 0.8);
-    }
-    100% {
-      box-shadow: 0 0 0 4px #fff, 0 0 32px #ff4400, 0 0 65px rgba(255, 196, 0, 1), 0 0 90px rgba(255, 50, 0, 0.7);
-    }
+    0% { box-shadow: 0 0 0 3px #fff, 0 0 20px #ffb700, 0 0 40px rgba(255, 183, 0, 0.8); }
+    100% { box-shadow: 0 0 0 4px #fff, 0 0 32px #ff4400, 0 0 65px rgba(255, 196, 0, 1), 0 0 90px rgba(255, 50, 0, 0.7); }
   }
   @keyframes activeAuraRipple {
     0% { transform: scale(0.92); opacity: 0.95; }
@@ -503,7 +498,7 @@
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-style: italic;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #ffffff;
     text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.8);
     display: flex;
@@ -855,7 +850,31 @@
 
     <!-- Table Felt Stage -->
     <div class="table-stage" id="table-stage">
-      <div class="direction-ring-3d" id="dir-ring"></div>
+      <!-- High-Visibility Direction Ring with Neon Chevrons -->
+      <div class="direction-ring-3d" id="dir-ring">
+        <svg viewBox="0 0 400 400" class="ring-svg">
+          <defs>
+            <linearGradient id="ringNeon" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+              <stop offset="50%" stop-color="#ffea00" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#ff4400" stop-opacity="0.85"/>
+            </linearGradient>
+            <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle cx="200" cy="200" r="185" fill="none" stroke="url(#ringNeon)" stroke-width="5" stroke-dasharray="18 16" filter="url(#neonGlow)"/>
+          <!-- 4 Vivid Direction Arrows -->
+          <polygon points="200,6 218,22 196,18 202,12" fill="#fff" filter="url(#neonGlow)"/>
+          <polygon points="394,200 378,218 382,196 388,202" fill="#fff" filter="url(#neonGlow)"/>
+          <polygon points="200,394 182,378 204,382 198,388" fill="#fff" filter="url(#neonGlow)"/>
+          <polygon points="6,200 22,182 18,204 12,198" fill="#fff" filter="url(#neonGlow)"/>
+        </svg>
+      </div>
     </div>
 
     <!-- Center Discard Pile with Dynamic Recolor Aura -->
@@ -1065,7 +1084,7 @@ let GameState = {
   discardPile: [],
   discardRotations: [],
   players: [],
-  rankings: [], // Stores finish order: [{ id, name, rank, avatar }]
+  rankings: [],
   turnIndex: 0,
   direction: 1, // +1: Clockwise, -1: Counter-Clockwise
   stackedDrawCount: 0,
@@ -1088,9 +1107,6 @@ const COLOR_HEX = {
   orange: '#f25500'
 };
 
-/**
- * ACTIVE PLAYERS CHECK (Excludes Winners & Knockouts)
- */
 function getActivePlayers() {
   return GameState.players.filter(p => !p.hasWon && !p.eliminated);
 }
@@ -1198,7 +1214,7 @@ function getOppositeFace(card) {
 }
 
 /**
- * VECTOR CARD GRAPHICS
+ * FIXED VECTOR CARD ARTWORK (AUTHENTIC UBISOFT VECTOR ART)
  */
 function getVectorCardInner(face) {
   const val = face.value;
@@ -1221,17 +1237,50 @@ function getVectorCardInner(face) {
     `;
   }
 
-  if (val === '+4' || val === '+6' || val === '+10' || val === 'wild_rev_+4') {
+  // DISCARD ALL (No Mercy Edition)
+  if (val === 'discard_all') {
     return `
-      <svg viewBox="0 0 100 100" style="width:75%; height:75%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
-        <rect x="12" y="28" width="30" height="46" rx="4" fill="#37a324" stroke="#fff" stroke-width="2.5" transform="rotate(-18 27 51)"/>
-        <rect x="26" y="16" width="30" height="46" rx="4" fill="#0076e6" stroke="#fff" stroke-width="2.5" transform="rotate(-6 41 39)"/>
-        <rect x="42" y="22" width="30" height="46" rx="4" fill="#ea2323" stroke="#fff" stroke-width="2.5" transform="rotate(8 57 45)"/>
-        <rect x="54" y="12" width="30" height="46" rx="4" fill="#f7b300" stroke="#fff" stroke-width="2.5" transform="rotate(20 69 35)"/>
+      <svg viewBox="0 0 100 100" style="width:78%; height:78%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
+        <rect x="14" y="24" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(-22 29 47)"/>
+        <rect x="32" y="16" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(-4 47 39)"/>
+        <rect x="52" y="22" width="30" height="46" rx="4" fill="#ffffff" stroke="#111" stroke-width="2.5" transform="rotate(16 67 45)"/>
+        <!-- Downward motion arrows -->
+        <path d="M 50,56 L 50,84 M 40,74 L 50,84 L 60,74" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.8))"/>
       </svg>
     `;
   }
 
+  // WILD REVERSE +4
+  if (val === 'wild_rev_+4') {
+    return `
+      <svg viewBox="0 0 100 100" style="width:78%; height:78%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));">
+        <!-- 4 cards background -->
+        <rect x="18" y="24" width="28" height="42" rx="3" fill="#37a324" stroke="#fff" stroke-width="2" transform="rotate(-15 32 45)"/>
+        <rect x="34" y="15" width="28" height="42" rx="3" fill="#0076e6" stroke="#fff" stroke-width="2"/>
+        <rect x="52" y="20" width="28" height="42" rx="3" fill="#ea2323" stroke="#fff" stroke-width="2" transform="rotate(12 66 41)"/>
+        <!-- Reverse arrows overlay -->
+        <path d="M 26,62 L 15,48 L 28,48 C 38,48 48,53 48,62 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
+        <path d="M 74,38 L 85,52 L 72,52 C 62,52 52,47 52,38 Z" fill="#ffffff" stroke="#000" stroke-width="2"/>
+      </svg>
+    `;
+  }
+
+  // +4, +6, +10 Cards
+  if (val === '+4' || val === '+6' || val === '+10') {
+    return `
+      <div style="display:flex; flex-direction:column; align-items:center; transform: rotate(28deg);">
+        <svg viewBox="0 0 100 70" style="width:72px; height:50px; margin-bottom:-10px;">
+          <rect x="15" y="15" width="22" height="34" rx="3" fill="#37a324" stroke="#fff" stroke-width="2" transform="rotate(-18 26 32)"/>
+          <rect x="32" y="8" width="22" height="34" rx="3" fill="#0076e6" stroke="#fff" stroke-width="2"/>
+          <rect x="48" y="12" width="22" height="34" rx="3" fill="#ea2323" stroke="#fff" stroke-width="2" transform="rotate(14 59 29)"/>
+          <rect x="62" y="6" width="22" height="34" rx="3" fill="#f7b300" stroke="#fff" stroke-width="2" transform="rotate(24 73 23)"/>
+        </svg>
+        <span class="card-val-num" style="transform:none; font-size:2.4rem;">${val}</span>
+      </div>
+    `;
+  }
+
+  // REVERSE
   if (val === 'reverse') {
     return `
       <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));">
@@ -1241,7 +1290,8 @@ function getVectorCardInner(face) {
     `;
   }
 
-  if (val === 'skip' || val === 'skip_all') {
+  // SKIP
+  if (val === 'skip') {
     return `
       <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));">
         <circle cx="50" cy="50" r="32" fill="none" stroke="#ffffff" stroke-width="11"/>
@@ -1252,6 +1302,18 @@ function getVectorCardInner(face) {
     `;
   }
 
+  // SKIP ALL
+  if (val === 'skip_all') {
+    return `
+      <svg viewBox="0 0 100 100" style="width:75%; height:75%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));">
+        <circle cx="50" cy="50" r="35" fill="none" stroke="#ffffff" stroke-width="8"/>
+        <circle cx="50" cy="50" r="22" fill="none" stroke="#ffffff" stroke-width="6"/>
+        <line x1="25" y1="25" x2="75" y2="75" stroke="#ffffff" stroke-width="9"/>
+      </svg>
+    `;
+  }
+
+  // +1, +2, +5
   if (val === '+1' || val === '+2' || val === '+5') {
     return `
       <div style="display:flex; flex-direction:column; align-items:center; transform: rotate(28deg);">
@@ -1260,6 +1322,7 @@ function getVectorCardInner(face) {
     `;
   }
 
+  // FLIP
   if (val === 'FLIP') {
     return `
       <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));">
@@ -1283,6 +1346,8 @@ function createCardElement(card, overrideColor = null) {
   else if (cornerDisplay === 'reverse') cornerDisplay = '⇄';
   else if (cornerDisplay === 'skip_all') cornerDisplay = '⨂';
   else if (cornerDisplay === 'FLIP') cornerDisplay = '🗘';
+  else if (cornerDisplay === 'discard_all') cornerDisplay = 'ALL';
+  else if (cornerDisplay === 'wild_rev_+4') cornerDisplay = '⇄+4';
 
   cardDiv.innerHTML = `
     <div class="card-face">
@@ -1303,11 +1368,13 @@ function createMiniOpponentCard(face) {
   else if (disp === 'reverse') disp = '⇄';
   else if (disp === 'skip_all') disp = '⨂';
   else if (disp === 'FLIP') disp = '🗘';
+  else if (disp === 'discard_all') disp = 'ALL';
+  else if (disp === 'wild_rev_+4') disp = '⇄+4';
 
   cardDiv.innerHTML = `
     <div class="card-face" style="border-radius:6px;">
       <div class="card-oval" style="width:80%; height:86%;">
-        <span style="font-family:'Montserrat'; font-weight:900; font-size:1.1rem; color:#fff; transform:rotate(28deg); text-shadow:1px 1px 0 #000;">
+        <span style="font-family:'Montserrat'; font-weight:900; font-size:0.95rem; color:#fff; transform:rotate(28deg); text-shadow:1px 1px 0 #000;">
           ${disp === 'WILD' || disp === 'WILD_COLOR' ? 'W' : disp}
         </span>
       </div>
@@ -1437,6 +1504,16 @@ function triggerCenterSpecialVFX(type, text) {
       </svg>
     `;
     triggerFlip3DTransition();
+  } else if (type === 'discard_all') {
+    gfx.innerHTML = `
+      <svg class="vfx-icon-burst" viewBox="0 0 100 100">
+        <rect x="18" y="22" width="34" height="50" rx="4" fill="#37a324" stroke="#fff" stroke-width="3" transform="rotate(-18 35 47)"/>
+        <rect x="34" y="16" width="34" height="50" rx="4" fill="#0076e6" stroke="#fff" stroke-width="3"/>
+        <rect x="52" y="24" width="34" height="50" rx="4" fill="#ea2323" stroke="#fff" stroke-width="3" transform="rotate(16 69 49)"/>
+        <path d="M 22 84 L 78 84" stroke="#ffea00" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+    `;
+    AudioEngine.vfxBoom();
   } else if (type === 'penalty') {
     const streak = document.getElementById('penalty-streak-box');
     streak.textContent = `ATTACK! +${GameState.stackedDrawCount}`;
@@ -1562,7 +1639,7 @@ function broadcastState() {
 }
 
 /**
- * INITIALIZATION (SEATING: 0=Bottom, 1=Left, 2=Top, 3=Right)
+ * INITIALIZATION
  */
 function startSoloGame() {
   const name = document.getElementById('player-name').value || 'Shiny';
@@ -1691,11 +1768,10 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
     GameState.discardPile.push(card);
     GameState.discardRotations.push(rotation);
 
-    // Apply special card action
     handleCardAction(face, playerId);
 
-    // CHECK IF PLAYER WON (EMERGED AS 1st, 2nd, 3rd)
-    if (player.hand.length === 0) {
+    // CHECK IF PLAYER WON / EMPTIED HAND
+    if (player.hand.length === 0 && !player.hasWon) {
       player.hasWon = true;
       const rank = GameState.rankings.length + 1;
       player.rank = rank;
@@ -1705,7 +1781,6 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
       triggerCenterSpecialVFX('reverse', `${player.name} ${medalTxt}`);
       AudioEngine.uno();
 
-      // Check if match concludes (1 or 0 players left)
       const remaining = getActivePlayers();
       if (remaining.length <= 1) {
         if (remaining.length === 1) {
@@ -1729,7 +1804,9 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
 
 function handleCardAction(face, playerId) {
   const val = face.value;
+  const player = GameState.players[playerId];
 
+  // Attack Stacking Penalties
   if (val === '+1') { GameState.stackedDrawCount += 1; triggerCenterSpecialVFX('penalty'); }
   else if (val === '+2') { GameState.stackedDrawCount += 2; triggerCenterSpecialVFX('penalty'); }
   else if (val === '+4' || val === 'wild_rev_+4') { GameState.stackedDrawCount += 4; triggerCenterSpecialVFX('penalty'); }
@@ -1737,11 +1814,13 @@ function handleCardAction(face, playerId) {
   else if (val === '+6') { GameState.stackedDrawCount += 6; triggerCenterSpecialVFX('penalty'); }
   else if (val === '+10') { GameState.stackedDrawCount += 10; triggerCenterSpecialVFX('penalty'); }
 
+  // Reverse Rule
   if (val === 'reverse' || val === 'wild_rev_+4') {
     GameState.direction *= -1;
     triggerCenterSpecialVFX('reverse', 'REVERSE!');
   }
 
+  // Skip Rules
   if (val === 'skip') {
     triggerCenterSpecialVFX('skip', 'SKIP!');
     nextTurn();
@@ -1752,6 +1831,7 @@ function handleCardAction(face, playerId) {
     return;
   }
 
+  // FLIP CARD ACTION & CURRENT COLOR UPDATE
   if (val === 'FLIP') {
     GameState.flipSide = GameState.flipSide === 'light' ? 'dark' : 'light';
     const topCard = GameState.discardPile[GameState.discardPile.length - 1];
@@ -1765,6 +1845,31 @@ function handleCardAction(face, playerId) {
     delete topCard.chosenColor;
 
     triggerCenterSpecialVFX('flip', `FLIPPED TO ${GameState.flipSide.toUpperCase()}!`);
+  }
+
+  // FIXED: DISCARD ALL (No Mercy Edition)
+  if (val === 'discard_all') {
+    const targetColor = face.color;
+    const matching = [];
+    const kept = [];
+
+    player.hand.forEach(c => {
+      const cFace = getCardFace(c);
+      if (cFace.color === targetColor) {
+        matching.push(c);
+      } else {
+        kept.push(c);
+      }
+    });
+
+    player.hand = kept;
+    matching.forEach(c => {
+      GameState.discardPile.push(c);
+      GameState.discardRotations.push(Math.floor(Math.random() * 40) - 20);
+    });
+
+    triggerCenterSpecialVFX('discard_all', `DISCARDED ALL ${targetColor.toUpperCase()}! (-${matching.length + 1})`);
+    AudioEngine.vfxBoom();
   }
 }
 
@@ -1781,7 +1886,6 @@ function nextTurn() {
 
   const nextP = GameState.players[GameState.turnIndex];
 
-  // Stack penalty is absorbed ONLY by the active player
   if (GameState.stackedDrawCount > 0 && !nextP.hand.some(c => canPlayCard(c))) {
     animateCardPickup(GameState.turnIndex, GameState.stackedDrawCount, () => {
       for (let i = 0; i < GameState.stackedDrawCount; i++) {
@@ -1843,7 +1947,15 @@ function botTurn() {
   });
 
   if (valid.length > 0) {
-    const chosenIdx = valid[Math.floor(Math.random() * valid.length)];
+    // Prioritize discard_all if bot holds multiple matching cards
+    let chosenIdx = valid[0];
+    const discardAllIndex = valid.find(idx => getCardFace(bot.hand[idx]).value === 'discard_all');
+    if (discardAllIndex !== undefined) {
+      chosenIdx = discardAllIndex;
+    } else {
+      chosenIdx = valid[Math.floor(Math.random() * valid.length)];
+    }
+
     const card = bot.hand[chosenIdx];
     const face = getCardFace(card);
     let chosenCol = 'red';
@@ -1934,7 +2046,7 @@ function openColorPicker() {
 }
 
 /**
- * RENDERING: LEADERBOARD & RADIANT AURA
+ * RENDERING
  */
 function renderGame() {
   const dirEl = document.getElementById('dir-ring');
@@ -2063,21 +2175,13 @@ function renderGame() {
     }
   });
 
-  // RENDER LEADERBOARD
   renderLeaderboard();
 }
 
-/**
- * DYNAMIC LEADERBOARD RENDERING
- */
 function renderLeaderboard() {
   const lbList = document.getElementById('lb-list');
   lbList.innerHTML = '';
 
-  // Sort players for leaderboard:
-  // 1. Finished/won players first in rank order
-  // 2. Active players sorted by card count ascending
-  // 3. Eliminated players
   const sorted = [...GameState.players].sort((a, b) => {
     if (a.hasWon && b.hasWon) return (a.rank || 0) - (b.rank || 0);
     if (a.hasWon) return -1;
