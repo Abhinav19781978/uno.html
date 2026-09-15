@@ -130,24 +130,36 @@
     pointer-events: none;
   }
 
-  /* Large Direction Ring */
+  /* ========================================================
+     ENHANCED LARGE DIRECTION RING WITH FLIPPING CHEVRONS
+     ======================================================== */
   .direction-ring-3d {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: min(54vw, 450px);
-    height: min(54vw, 450px);
-    max-height: 410px;
+    width: min(60vw, 510px);
+    height: min(60vw, 510px);
+    max-height: 440px;
     pointer-events: none;
-    animation: ringSpinCW 10s linear infinite;
-    transition: transform 0.4s ease;
+    animation: ringSpinCW 9s linear infinite;
     z-index: 5;
   }
   .direction-ring-3d.reverse {
-    animation: ringSpinCCW 10s linear infinite;
+    animation: ringSpinCCW 9s linear infinite;
   }
   .ring-svg { width: 100%; height: 100%; overflow: visible; }
+
+  /* Animated Arrow Swivel */
+  .arrow-unit .arrow-shape {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .direction-ring-3d.reverse .arrow-unit .arrow-shape {
+    transform: rotate(180deg);
+  }
+
   @keyframes ringSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
   @keyframes ringSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
 
@@ -239,6 +251,36 @@
       -4px 4px 0 #aaa, -5px 5px 0 #999, -6px 6px 0 #888,
       -12px 14px 25px rgba(0,0,0,0.7);
   }
+
+  /* Top-Right Leave / Quit Game Button */
+  .leave-game-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 120;
+    background: linear-gradient(135deg, rgba(234, 35, 35, 0.9), rgba(168, 10, 28, 0.9));
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 8px 16px;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 18px rgba(234, 35, 35, 0.5), 0 2px 6px rgba(0,0,0,0.6);
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    outline: none;
+  }
+  .leave-game-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    filter: brightness(1.2);
+    box-shadow: 0 6px 24px rgba(255, 50, 50, 0.8);
+  }
+  .leave-game-btn:active { transform: translateY(1px) scale(0.96); }
 
   /* Top-Left Leaderboard Widget */
   #leaderboard-widget {
@@ -767,7 +809,6 @@
   }
   .color-segment:hover { transform: scale(1.08); filter: brightness(1.2); }
 
-  /* Stylized Close/Cancel Button on the Right Side */
   .close-picker-btn {
     position: absolute;
     right: -85px;
@@ -793,71 +834,148 @@
     transform: translateY(-50%) scale(1.15);
     filter: brightness(1.25) drop-shadow(0 0 15px #f7b300);
   }
-  .close-picker-btn:active {
-    transform: translateY(-50%) scale(0.95);
-  }
+  .close-picker-btn:active { transform: translateY(-50%) scale(0.95); }
 
-  /* Lobby Overlay */
+  /* ========================================================
+     ENHANCED UBISOFT-STYLE LOBBY / HOME SCREEN
+     ======================================================== */
   #lobby-screen {
     position: absolute;
     inset: 0;
-    background: rgba(4, 7, 13, 0.94);
-    backdrop-filter: blur(20px);
+    background: radial-gradient(circle at center, #1b263b 0%, #0d131f 60%, #05080e 100%);
     z-index: 600;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
+    overflow: hidden;
   }
-  .title-logo {
-    font-size: 4.5rem;
-    font-weight: 900;
-    font-style: italic;
-    letter-spacing: 2px;
-    text-shadow: 0 10px 30px rgba(234,35,35,0.7), 0 0 15px rgba(247,179,0,0.9);
-    background: linear-gradient(180deg, #fff720 0%, #ea2323 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transform: skew(-8deg);
+
+  /* Animated Floating Background Elements */
+  .lobby-bg-card {
+    position: absolute;
+    width: 130px;
+    height: 195px;
+    border-radius: 16px;
+    border: 3px solid rgba(255,255,255,0.3);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    opacity: 0.22;
+    filter: blur(1.5px);
+    pointer-events: none;
+    animation: cardFloat 8s infinite alternate ease-in-out;
   }
-  .lobby-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 24px;
-    padding: 30px 40px;
-    width: min(90vw, 440px);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+  .lbg-1 { top: 8%; left: 10%; background: var(--c-red); transform: rotate(-25deg); animation-duration: 9s; }
+  .lbg-2 { bottom: 10%; left: 8%; background: var(--c-blue); transform: rotate(18deg); animation-duration: 11s; }
+  .lbg-3 { top: 12%; right: 12%; background: var(--c-yellow); transform: rotate(20deg); animation-duration: 10s; }
+  .lbg-4 { bottom: 12%; right: 10%; background: var(--c-green); transform: rotate(-15deg); animation-duration: 8.5s; }
+
+  @keyframes cardFloat {
+    0% { transform: translateY(0px) rotate(-15deg) scale(1); }
+    100% { transform: translateY(-28px) rotate(-8deg) scale(1.05); }
+  }
+
+  .title-logo-container {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    align-items: center;
   }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  label { font-size: 0.8rem; text-transform: uppercase; color: #8fa0b5; font-weight: 800; }
+  .title-logo {
+    font-size: 5.2rem;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 4px;
+    text-shadow: 0 12px 35px rgba(234,35,35,0.8), 0 0 20px rgba(247,179,0,0.9);
+    background: linear-gradient(180deg, #fffb52 0%, #ff8c00 45%, #ea2323 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transform: skew(-10deg);
+    filter: drop-shadow(0 6px 0px rgba(0,0,0,0.9));
+  }
+  .title-sub {
+    font-size: 0.9rem;
+    font-weight: 900;
+    letter-spacing: 6px;
+    color: #f7b300;
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    margin-top: -8px;
+  }
+
+  .lobby-card {
+    background: rgba(20, 29, 46, 0.75);
+    backdrop-filter: blur(25px);
+    border: 2px solid rgba(255, 255, 255, 0.16);
+    border-radius: 26px;
+    padding: 32px 42px;
+    width: min(92vw, 450px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: relative;
+    z-index: 10;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 7px; }
+  label { font-size: 0.78rem; text-transform: uppercase; color: #a0aec0; font-weight: 800; letter-spacing: 1.5px; }
   input, select {
-    background: rgba(0,0,0,0.5);
-    border: 1.5px solid rgba(255,255,255,0.2);
-    border-radius: 12px;
-    padding: 12px 16px;
+    background: rgba(6, 11, 20, 0.65);
+    border: 1.5px solid rgba(255,255,255,0.22);
+    border-radius: 14px;
+    padding: 13px 16px;
     color: #fff;
     font-size: 1rem;
+    font-weight: 700;
     outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
+  input:focus, select:focus {
+    border-color: #f7b300;
+    box-shadow: 0 0 15px rgba(247, 179, 0, 0.4);
+  }
+
+  /* Sleek Console Buttons */
   .btn-group { display: flex; gap: 12px; }
   .btn {
     flex: 1;
-    background: linear-gradient(135deg, #ffc400, #ea2323);
+    background: linear-gradient(135deg, #ffc400 0%, #f77000 50%, #ea2323 100%);
     border: none;
     color: white;
     font-weight: 900;
     font-size: 0.95rem;
-    padding: 14px;
+    padding: 15px;
     border-radius: 14px;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(234,35,35,0.4);
+    box-shadow: 0 6px 20px rgba(234,35,35,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
     text-transform: uppercase;
+    letter-spacing: 0.8px;
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    outline: none;
   }
-  .btn.secondary { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid rgba(255,255,255,0.2); }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(247, 179, 0, 0.6);
+    filter: brightness(1.15);
+  }
+  .btn:active { transform: translateY(1px) scale(0.98); }
+
+  .btn.secondary {
+    background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%);
+    box-shadow: 0 6px 20px rgba(0, 118, 230, 0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .btn.secondary:hover {
+    box-shadow: 0 10px 28px rgba(0, 153, 255, 0.7);
+  }
+  .btn.join-btn {
+    flex: 0 0 95px;
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    box-shadow: 0 6px 18px rgba(46, 204, 113, 0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+    padding: 13px;
+  }
+  .btn.join-btn:hover {
+    box-shadow: 0 10px 24px rgba(46, 204, 113, 0.7);
+  }
 </style>
 </head>
 <body>
@@ -867,6 +985,11 @@
 
   <div id="viewport-3d">
     <div id="arena-bg"></div>
+
+    <!-- Top-Right Leave / Quit Game Button -->
+    <button class="leave-game-btn" onclick="confirmQuitGame()">
+      <span>✕</span><span>LEAVE GAME</span>
+    </button>
 
     <!-- Top-Left Leaderboard Widget -->
     <div id="leaderboard-widget">
@@ -879,27 +1002,47 @@
 
     <!-- Table Felt Stage -->
     <div class="table-stage" id="table-stage">
+      <!-- High-Visibility 510px Direction Ring with Dynamically Flipping Chevrons -->
       <div class="direction-ring-3d" id="dir-ring">
-        <svg viewBox="0 0 400 400" class="ring-svg">
+        <svg viewBox="0 0 500 500" class="ring-svg">
           <defs>
             <linearGradient id="ringNeon" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
               <stop offset="50%" stop-color="#ffea00" stop-opacity="1"/>
-              <stop offset="100%" stop-color="#ff4400" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="#ff4400" stop-opacity="0.9"/>
             </linearGradient>
             <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feGaussianBlur stdDeviation="6" result="blur" />
               <feMerge>
                 <feMergeNode in="blur"/>
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
           </defs>
-          <circle cx="200" cy="200" r="185" fill="none" stroke="url(#ringNeon)" stroke-width="5" stroke-dasharray="18 16" filter="url(#neonGlow)"/>
-          <polygon points="200,6 218,22 196,18 202,12" fill="#fff" filter="url(#neonGlow)"/>
-          <polygon points="394,200 378,218 382,196 388,202" fill="#fff" filter="url(#neonGlow)"/>
-          <polygon points="200,394 182,378 204,382 198,388" fill="#fff" filter="url(#neonGlow)"/>
-          <polygon points="6,200 22,182 18,204 12,198" fill="#fff" filter="url(#neonGlow)"/>
+
+          <!-- Outer glowing circle (Radius = 215) -->
+          <circle cx="250" cy="250" r="215" fill="none" stroke="url(#ringNeon)" stroke-width="6" stroke-dasharray="24 18" filter="url(#neonGlow)"/>
+
+          <!-- 4 Tangentially Aligned Flipping Arrow Chevrons -->
+          <!-- 1. Top (x:250, y:35) -> tangent points Right (+x) -->
+          <g class="arrow-unit" transform="translate(250, 35) rotate(0)">
+            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
+          </g>
+
+          <!-- 2. Right (x:465, y:250) -> tangent points Down (+y) -->
+          <g class="arrow-unit" transform="translate(465, 250) rotate(90)">
+            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
+          </g>
+
+          <!-- 3. Bottom (x:250, y:465) -> tangent points Left (-x) -->
+          <g class="arrow-unit" transform="translate(250, 465) rotate(180)">
+            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
+          </g>
+
+          <!-- 4. Left (x:35, y:250) -> tangent points Up (-y) -->
+          <g class="arrow-unit" transform="translate(35, 250) rotate(270)">
+            <path class="arrow-shape" d="M -16,-13 L 14,0 L -16,13 L -7,0 Z" fill="#ffffff" filter="url(#neonGlow)"/>
+          </g>
         </svg>
       </div>
     </div>
@@ -920,7 +1063,6 @@
       </div>
     </div>
 
-    <!-- Seating Order: 0 (Bottom) -> 1 (Left) -> 2 (Top) -> 3 (Right) -->
     <!-- Left Opponent (ID 1) -->
     <div class="player-spot" id="player-left">
       <div class="player-box">
@@ -975,19 +1117,29 @@
     <div id="fly-animation-layer"></div>
   </div>
 
-  <!-- Lobby Screen -->
+  <!-- Enhanced Vibrant Home Screen (Lobby) -->
   <div id="lobby-screen">
-    <div class="title-logo">UNO</div>
+    <!-- Floating Background Cards -->
+    <div class="lobby-bg-card lbg-1"></div>
+    <div class="lobby-bg-card lbg-2"></div>
+    <div class="lobby-bg-card lbg-3"></div>
+    <div class="lobby-bg-card lbg-4"></div>
+
+    <div class="title-logo-container">
+      <div class="title-logo">UNO</div>
+      <div class="title-sub">Ultimate 3D Edition</div>
+    </div>
+
     <div class="lobby-card">
       <div class="form-group">
         <label>Your Nickname</label>
         <input type="text" id="player-name" value="Shiny" maxlength="12">
       </div>
       <div class="form-group">
-        <label>Edition</label>
+        <label>Game Edition</label>
         <select id="game-edition">
           <option value="flip">UNO FLIP! (Light & Dark Sides)</option>
-          <option value="classic">Standard UNO (Classic)</option>
+          <option value="classic">Standard UNO (Classic Rules)</option>
           <option value="nomercy">UNO Show 'Em NO MERCY!</option>
         </select>
       </div>
@@ -998,10 +1150,10 @@
       </div>
 
       <div class="form-group" style="margin-top: 5px;">
-        <label>Join Room Code</label>
+        <label>Join Friend's Room</label>
         <div style="display:flex; gap:8px;">
-          <input type="text" id="join-room-id" placeholder="Paste Room Code">
-          <button class="btn" style="flex:0 0 85px;" onclick="joinRoom()">Join</button>
+          <input type="text" id="join-room-id" placeholder="Paste Code Here">
+          <button class="btn join-btn" onclick="joinRoom()">Join</button>
         </div>
       </div>
       <div id="room-info" style="font-size: 0.85rem; color: #f7b300; text-align: center; display:none;"></div>
@@ -1009,7 +1161,7 @@
     </div>
   </div>
 
-  <!-- Color Selector Modal with Cancel / Close Option -->
+  <!-- Color Selector Modal with Cancel Option -->
   <div id="color-picker-modal">
     <div class="picker-modal-content">
       <div class="color-wheel" id="color-picker-wheel"></div>
@@ -1116,7 +1268,7 @@ let GameState = {
   players: [],
   rankings: [],
   turnIndex: 0,
-  direction: 1,
+  direction: 1, // +1: Clockwise, -1: Counter-Clockwise
   stackedDrawCount: 0,
   currentColor: 'red',
   unoCalledPlayers: new Set(),
@@ -1124,7 +1276,8 @@ let GameState = {
   myPlayerId: 0,
   peer: null,
   pendingWildCard: null,
-  isDealing: false
+  isDealing: false,
+  inGame: false
 };
 
 const COLOR_HEX = {
@@ -1140,6 +1293,26 @@ const COLOR_HEX = {
 
 function getActivePlayers() {
   return GameState.players.filter(p => !p.hasWon && !p.eliminated);
+}
+
+/**
+ * QUIT TO HOME
+ */
+function confirmQuitGame() {
+  if (!confirm("Are you sure you want to quit this match and return to the main menu?")) return;
+
+  GameState.inGame = false;
+  GameState.isDealing = false;
+
+  if (GameState.peer) {
+    try { GameState.peer.destroy(); } catch (e) {}
+    GameState.peer = null;
+  }
+
+  document.getElementById('color-picker-modal').style.display = 'none';
+  document.getElementById('lobby-screen').style.display = 'flex';
+  document.getElementById('room-info').style.display = 'none';
+  document.getElementById('start-hosted-btn').style.display = 'none';
 }
 
 /**
@@ -1245,7 +1418,7 @@ function getOppositeFace(card) {
 }
 
 /**
- * VECTOR CARD ARTWORK
+ * FIXED VECTOR CARD ARTWORK
  */
 function getVectorCardInner(face) {
   const val = face.value;
@@ -1404,7 +1577,7 @@ function createMiniOpponentCard(face) {
 }
 
 /**
- * 3D ANIMATION ENGINE (Card Throw, Initial Deal, Pickup, Flip)
+ * 3D ANIMATION ENGINE
  */
 function animateCardThrow(fromEl, cardData, chosenColor, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
@@ -1450,6 +1623,7 @@ function animateCardPickup(targetSpotIndex, count, callback) {
 
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
+      if (!GameState.inGame) return;
       const flyer = document.createElement('div');
       flyer.className = 'card flying-card-obj';
       flyer.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo">UNO</div></div></div>`;
@@ -1473,7 +1647,7 @@ function animateCardPickup(targetSpotIndex, count, callback) {
 }
 
 /**
- * SMOOTH UBISOFT-STYLE OPENING DEAL ANIMATION
+ * ROUND-ROBIN OPENING DEAL ANIMATION
  */
 function runInitialDealAnimation(onComplete) {
   GameState.isDealing = true;
@@ -1490,9 +1664,13 @@ function runInitialDealAnimation(onComplete) {
 
   let cardCount = 0;
   const totalCards = 7 * GameState.players.length;
-  const dealInterval = 65; // rapid, fluid deal pacing
+  const dealInterval = 65;
 
   const dealTimer = setInterval(() => {
+    if (!GameState.inGame) {
+      clearInterval(dealTimer);
+      return;
+    }
     const playerIdx = cardCount % GameState.players.length;
     const p = GameState.players[playerIdx];
     const card = GameState.drawPile.pop();
@@ -1524,7 +1702,7 @@ function runInitialDealAnimation(onComplete) {
     if (cardCount >= totalCards) {
       clearInterval(dealTimer);
       setTimeout(() => {
-        dealFirstDiscardCard(onComplete);
+        if (GameState.inGame) dealFirstDiscardCard(onComplete);
       }, 400);
     }
   }, dealInterval);
@@ -1664,6 +1842,7 @@ function joinRoom() {
     conn.on('data', (data) => {
       if (data.type === 'SYNC_STATE') {
         const sideChanged = GameState.flipSide !== data.state.flipSide;
+        GameState.inGame = true;
         GameState.edition = data.state.edition;
         GameState.flipSide = data.state.flipSide;
         GameState.discardPile = data.state.discardPile;
@@ -1703,7 +1882,7 @@ function handleHostData(conn, data) {
 }
 
 function broadcastState() {
-  if (!GameState.isHost) return;
+  if (!GameState.isHost || !GameState.inGame) return;
   GameState.players.forEach(p => {
     if (p.conn && p.conn.open) {
       p.conn.send({
@@ -1762,6 +1941,7 @@ function startHostedGame() {
 }
 
 function initGameEngine() {
+  GameState.inGame = true;
   GameState.drawPile = buildDeck(GameState.edition);
   GameState.discardPile = [];
   GameState.discardRotations = [];
@@ -1771,16 +1951,13 @@ function initGameEngine() {
   GameState.direction = 1;
   GameState.turnIndex = 0;
 
-  // Clear hands for deal animation
   GameState.players.forEach(p => p.hand = []);
 
   updateTheme();
   renderGame();
 
-  // Run Smooth Opening Deal Animation
   runInitialDealAnimation(() => {
-    // If first player is Bot, trigger turn
-    if (GameState.players[GameState.turnIndex].isBot) {
+    if (GameState.inGame && GameState.players[GameState.turnIndex].isBot) {
       setTimeout(botTurn, 1000);
     }
   });
@@ -1836,7 +2013,7 @@ function canPlayCard(card) {
 
 function executePlayCard(playerId, cardIdx, chosenColor = null) {
   const player = GameState.players[playerId];
-  if (player.hasWon || player.eliminated) return;
+  if (player.hasWon || player.eliminated || !GameState.inGame) return;
 
   const card = player.hand[cardIdx];
   const face = getCardFace(card);
@@ -1849,7 +2026,6 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
   else if (playerId === 2) sourceEl = document.getElementById('player-top');
   else sourceEl = document.getElementById('player-right');
 
-  // Handle Wild Color Assignment
   let effectiveColor = face.color;
   if (face.color.startsWith('wild')) {
     effectiveColor = chosenColor || (GameState.flipSide === 'light' ? 'red' : 'pink');
@@ -1861,13 +2037,13 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
   }
 
   animateCardThrow(sourceEl, card, card.chosenColor, (rotation) => {
+    if (!GameState.inGame) return;
     player.hand.splice(cardIdx, 1);
     GameState.discardPile.push(card);
     GameState.discardRotations.push(rotation);
 
     handleCardAction(face, playerId);
 
-    // CHECK IF PLAYER WON
     if (player.hand.length === 0 && !player.hasWon) {
       player.hasWon = true;
       const rank = GameState.rankings.length + 1;
@@ -1910,6 +2086,7 @@ function handleCardAction(face, playerId) {
   else if (val === '+6') { GameState.stackedDrawCount += 6; triggerCenterSpecialVFX('penalty'); }
   else if (val === '+10') { GameState.stackedDrawCount += 10; triggerCenterSpecialVFX('penalty'); }
 
+  // REVERSE FLIPS TURN ORDER & ROTATION RING
   if (val === 'reverse' || val === 'wild_rev_+4') {
     GameState.direction *= -1;
     triggerCenterSpecialVFX('reverse', 'REVERSE!');
@@ -1940,7 +2117,6 @@ function handleCardAction(face, playerId) {
     triggerCenterSpecialVFX('flip', `FLIPPED TO ${GameState.flipSide.toUpperCase()}!`);
   }
 
-  // DISCARD ALL (No Mercy)
   if (val === 'discard_all') {
     const targetColor = face.color;
     const matching = [];
@@ -1967,9 +2143,10 @@ function handleCardAction(face, playerId) {
 }
 
 /**
- * CIRCULAR TURN ROTATION (SKIPS FINISHED PLAYERS)
+ * CIRCULAR TURN ROTATION (0 -> 1 -> 2 -> 3 -> 0)
  */
 function nextTurn() {
+  if (!GameState.inGame) return;
   const active = getActivePlayers();
   if (active.length <= 1) return;
 
@@ -1981,6 +2158,7 @@ function nextTurn() {
 
   if (GameState.stackedDrawCount > 0 && !nextP.hand.some(c => canPlayCard(c))) {
     animateCardPickup(GameState.turnIndex, GameState.stackedDrawCount, () => {
+      if (!GameState.inGame) return;
       for (let i = 0; i < GameState.stackedDrawCount; i++) {
         if (GameState.drawPile.length === 0) {
           const top = GameState.discardPile.pop();
@@ -2004,11 +2182,12 @@ function nextTurn() {
 
 function handlePlayerDraw(playerId) {
   const p = GameState.players[playerId];
-  if (p.hasWon || p.eliminated) return;
+  if (p.hasWon || p.eliminated || !GameState.inGame) return;
 
   const count = GameState.stackedDrawCount > 0 ? GameState.stackedDrawCount : 1;
 
   animateCardPickup(playerId, count, () => {
+    if (!GameState.inGame) return;
     for (let i = 0; i < count; i++) {
       if (GameState.drawPile.length === 0) {
         const top = GameState.discardPile.pop();
@@ -2025,6 +2204,7 @@ function handlePlayerDraw(playerId) {
 }
 
 function botTurn() {
+  if (!GameState.inGame) return;
   const bot = GameState.players[GameState.turnIndex];
   if (!bot || !bot.isBot || bot.hasWon || bot.eliminated || GameState.isDealing) return;
 
@@ -2065,7 +2245,7 @@ function botTurn() {
  * HUMAN INPUTS
  */
 function onHumanCardClick(idx) {
-  if (GameState.isDealing) return;
+  if (GameState.isDealing || !GameState.inGame) return;
   if (GameState.turnIndex !== GameState.myPlayerId) return;
   if (GameState.players[GameState.myPlayerId].hasWon) return;
 
@@ -2086,7 +2266,7 @@ function onHumanCardClick(idx) {
 }
 
 function onDrawDeckClick() {
-  if (GameState.isDealing) return;
+  if (GameState.isDealing || !GameState.inGame) return;
   if (GameState.turnIndex !== GameState.myPlayerId) return;
   if (GameState.players[GameState.myPlayerId].hasWon) return;
 
@@ -2098,6 +2278,7 @@ function onDrawDeckClick() {
 }
 
 function callUno() {
+  if (!GameState.inGame) return;
   if (GameState.isHost) {
     GameState.unoCalledPlayers.add(GameState.myPlayerId);
     triggerCenterSpecialVFX('reverse', 'YOU CALLED UNO!');
@@ -2146,7 +2327,6 @@ function cancelColorPicker() {
   GameState.pendingWildCard = null;
 }
 
-// Optional: Press Escape to cancel color pick
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && document.getElementById('color-picker-modal').style.display === 'flex') {
     cancelColorPicker();
