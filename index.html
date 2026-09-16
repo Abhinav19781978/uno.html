@@ -753,6 +753,8 @@
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
     outline: none;
+    display: inline-flex;
+    align-items: center;
   }
   .pill-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
   .pill-btn.danger { background: rgba(234, 35, 35, 0.25); border-color: rgba(234, 35, 35, 0.5); }
@@ -801,7 +803,7 @@
     outline: none;
   }
 
-  /* BOT SELECTION & SLIDER ENHANCEMENTS */
+  /* BOT SELECTION & SLIDER */
   .bot-count-grid {
     display: flex;
     gap: 8px;
@@ -859,7 +861,6 @@
     transition: background 0.45s ease, box-shadow 0.45s ease;
   }
 
-  /* Fully draggable range track and thumb */
   input[type="range"].diff-range {
     -webkit-appearance: none;
     appearance: none;
@@ -874,6 +875,8 @@
     padding: 0;
     border: none;
     pointer-events: auto;
+    user-select: auto;
+    touch-action: pan-y;
   }
   input[type="range"].diff-range::-webkit-slider-runnable-track {
     width: 100%;
@@ -885,13 +888,13 @@
   input[type="range"].diff-range::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 26px;
-    height: 26px;
-    margin-top: -8px;
+    width: 28px;
+    height: 28px;
+    margin-top: -9px;
     border-radius: 50%;
     background: #ffffff;
-    border: 3.5px solid var(--diff-color);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 14px var(--diff-color);
+    border: 4px solid var(--diff-color);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 14px var(--diff-color);
     cursor: grab;
     transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
   }
@@ -907,12 +910,12 @@
     border-radius: 6px;
   }
   input[type="range"].diff-range::-moz-range-thumb {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: #ffffff;
-    border: 3.5px solid var(--diff-color);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 14px var(--diff-color);
+    border: 4px solid var(--diff-color);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 14px var(--diff-color);
     cursor: grab;
     transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
   }
@@ -1130,16 +1133,16 @@
     border: 2px solid rgba(255, 215, 0, 0.4);
     border-radius: 28px;
     width: min(92vw, 460px);
-    padding: 30px 26px;
+    padding: 28px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
     box-shadow: 0 30px 100px rgba(0,0,0,0.9), 0 0 60px rgba(255, 200, 0, 0.2);
     text-align: center;
   }
   .end-trophy {
-    font-size: 3.5rem;
+    font-size: 3.2rem;
     filter: drop-shadow(0 0 20px #f7b300);
     animation: trophyBounce 1.5s infinite alternate ease-in-out;
   }
@@ -1159,7 +1162,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin: 6px 0;
+    margin: 4px 0;
   }
   .end-rank-row {
     display: flex;
@@ -1282,9 +1285,15 @@
 
       <div class="end-ranks-container" id="end-ranks-list"></div>
 
-      <button class="btn" style="width:100%; padding:14px; font-size:1.05rem;" onclick="closeMatchEndAndReturnToLobby()">
-        RETURN TO LOBBY
-      </button>
+      <!-- Action Buttons -->
+      <div style="width:100%; display:flex; flex-direction:column; gap:8px;">
+        <button class="btn" id="end-return-room-btn" style="width:100%; padding:13px; font-size:1rem;" onclick="returnToRoomLobbyAfterMatch()">
+          RETURN TO ROOM
+        </button>
+        <button class="pill-btn danger" style="width:100%; padding:11px; font-size:0.82rem; justify-content:center;" onclick="closeMatchEndAndReturnToLobby()">
+          EXIT TO MAIN MENU
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2084,8 +2093,8 @@ function getActivePlayers() {
 function getHandCount(pl) {
   if (!pl) return 0;
   if (pl.id === GameState.myPlayerId && pl.hand && Array.isArray(pl.hand)) return pl.hand.length;
+  if (pl.hand && Array.isArray(pl.hand) && pl.hand.length > 0) return pl.hand.length;
   if (pl.handCount !== undefined && pl.handCount !== null) return pl.handCount;
-  if (pl.hand && Array.isArray(pl.hand)) return pl.hand.length;
   return 0;
 }
 
@@ -2290,6 +2299,9 @@ function handleHostData(conn, data) {
     AudioEngine.uno();
     broadcastState();
   }
+  else if (data.type === 'GUEST_RETURNED_TO_LOBBY') {
+    updateLobbyPlayerListUI();
+  }
 }
 
 /**
@@ -2330,6 +2342,14 @@ function handleGuestData(conn, data) {
   else if (data.type === 'MATCH_OVER') {
     GameState.rankings = data.rankings || [];
     showMatchOverScreen(GameState.rankings);
+  }
+  else if (data.type === 'RETURN_TO_ROOM_LOBBY') {
+    const modal = document.getElementById('match-end-modal');
+    if (modal) modal.style.display = 'none';
+    document.getElementById('viewport-3d').style.display = 'none';
+    GameState.inGame = false;
+    GameState.isDealing = false;
+    openRoomLobbyModal(GameState.hostingRoomCode, false);
   }
   else if (data.type === 'SYNC_STATE') {
     const sideChanged = GameState.flipSide !== data.state.flipSide;
@@ -2393,7 +2413,7 @@ function broadcastState() {
             avatar: pl.avatar,
             handCount: pl.hand ? pl.hand.length : 0,
             hand: pl.id === p.id ? pl.hand : null,
-            oppositeFaces: GameState.edition === 'flip' ? pl.hand.map(c => getOppositeFace(c)) : [],
+            oppositeFaces: (GameState.edition === 'flip' && pl.hand) ? pl.hand.map(c => getOppositeFace(c)) : (pl.oppositeFaces || []),
             isBot: pl.isBot,
             hasWon: pl.hasWon,
             rank: pl.rank,
@@ -2631,6 +2651,74 @@ function closeMatchEndAndReturnToLobby() {
 }
 
 /**
+ * RETURN TO ROOM LOBBY (PLAY AGAIN IN SAME ROOM)
+ */
+function returnToRoomLobbyAfterMatch() {
+  const modal = document.getElementById('match-end-modal');
+  if (modal) modal.style.display = 'none';
+
+  // Solo mode: return to the setup menu
+  if (!GameState.hostingRoomCode && GameState.isHost) {
+    openSoloSetupModal();
+    return;
+  }
+
+  // Multiplayer mode: clean up table and return to lobby
+  GameState.inGame = false;
+  GameState.isDealing = false;
+
+  if (activeDealIntervalTimer) {
+    clearInterval(activeDealIntervalTimer);
+    activeDealIntervalTimer = null;
+  }
+  if (activeBotTurnTimeout) {
+    clearTimeout(activeBotTurnTimeout);
+    activeBotTurnTimeout = null;
+  }
+
+  const flyLayer = document.getElementById('fly-animation-layer');
+  if (flyLayer) flyLayer.innerHTML = '';
+
+  const handBox = document.getElementById('player-hand');
+  if (handBox) handBox.innerHTML = '';
+
+  ['left', 'top', 'right'].forEach(s => {
+    const oppHand = document.getElementById(`opp-hand-${s}`);
+    if (oppHand) oppHand.innerHTML = '';
+  });
+
+  const discardBox = document.getElementById('discard-pile-3d');
+  if (discardBox) {
+    const cards = discardBox.querySelectorAll('.card');
+    cards.forEach(c => c.remove());
+  }
+
+  document.getElementById('color-picker-modal').style.display = 'none';
+  document.getElementById('viewport-3d').style.display = 'none';
+
+  if (GameState.isHost) {
+    // Keep human players connected in the room
+    GameState.players = GameState.players.filter(p => !p.isBot || p.id === 0);
+    GameState.players.forEach(p => {
+      p.hand = [];
+      p.hasWon = false;
+      p.rank = null;
+      p.eliminated = false;
+    });
+
+    broadcastAnimation({ type: 'RETURN_TO_ROOM_LOBBY' });
+    openRoomLobbyModal(GameState.hostingRoomCode, true);
+    broadcastLobbyUpdate();
+    updateLobbyPlayerListUI();
+  } else {
+    openRoomLobbyModal(GameState.hostingRoomCode, false);
+    if (GameState.guestHostConn && GameState.guestHostConn.open) {
+      GameState.guestHostConn.send({ type: 'GUEST_RETURNED_TO_LOBBY', playerId: GameState.myPlayerId });
+    }
+  }
+}
+
+/**
  * MATCH END SCREEN DISPLAY
  */
 function showMatchOverScreen(rankings) {
@@ -2647,6 +2735,11 @@ function showMatchOverScreen(rankings) {
   const trophy = document.getElementById('end-trophy-icon');
   const title = document.getElementById('end-title-txt');
   const subtitle = document.getElementById('end-subtitle-txt');
+  const returnRoomBtn = document.getElementById('end-return-room-btn');
+
+  if (returnRoomBtn) {
+    returnRoomBtn.textContent = GameState.hostingRoomCode ? 'RETURN TO ROOM' : 'PLAY AGAIN';
+  }
 
   ranksList.innerHTML = '';
 
@@ -3459,11 +3552,11 @@ function onDrawDeckClick() {
 
 function callUno() {
   if (!GameState.inGame) return;
+  document.getElementById('uno-btn').classList.remove('alert');
   if (GameState.isHost) {
     GameState.unoCalledPlayers.add(GameState.myPlayerId);
     triggerCenterSpecialVFX('reverse', 'YOU CALLED UNO!');
     AudioEngine.uno();
-    document.getElementById('uno-btn').classList.remove('alert');
   } else if (GameState.guestHostConn) {
     GameState.guestHostConn.send({ type: 'CALL_UNO', playerId: GameState.myPlayerId });
   }
@@ -3517,22 +3610,48 @@ function updateTheme() {
   const stage = document.getElementById('table-stage');
   const arena = document.getElementById('arena-bg');
   const deckLogo = document.getElementById('draw-pile-logo');
+  const deckBack = document.getElementById('pickup-deck-back');
+  const deckBackOval = deckBack ? deckBack.querySelector('.card-back-oval') : null;
 
   stage.className = 'table-stage';
   arena.className = '';
 
   if (GameState.edition === 'flip') {
-    deckLogo.textContent = 'UNO FLIP!';
     if (GameState.flipSide === 'dark') {
       stage.classList.add('dark-stage');
       arena.classList.add('dark-theme');
+      // When dark side is up, draw deck back shows light side
+      if (deckBack) deckBack.style.background = '#111';
+      if (deckBackOval) deckBackOval.style.background = 'var(--c-red)';
+      if (deckLogo) {
+        deckLogo.textContent = 'UNO';
+        deckLogo.style.color = '#f7b300';
+      }
+    } else {
+      // When light side is up, draw deck back shows dark side
+      if (deckBack) deckBack.style.background = '#180024';
+      if (deckBackOval) deckBackOval.style.background = 'var(--c-purple)';
+      if (deckLogo) {
+        deckLogo.textContent = 'FLIP';
+        deckLogo.style.color = 'var(--c-teal)';
+      }
     }
   } else if (GameState.edition === 'classic') {
     stage.classList.add('blue-stage');
     arena.classList.add('blue-theme');
-    deckLogo.textContent = 'UNO';
+    if (deckBack) deckBack.style.background = '#111';
+    if (deckBackOval) deckBackOval.style.background = 'var(--c-red)';
+    if (deckLogo) {
+      deckLogo.textContent = 'UNO';
+      deckLogo.style.color = '#f7b300';
+    }
   } else {
-    deckLogo.textContent = 'NO MERCY';
+    if (deckBack) deckBack.style.background = '#111';
+    if (deckBackOval) deckBackOval.style.background = '#ea2323';
+    if (deckLogo) {
+      deckLogo.textContent = 'NO MERCY';
+      deckLogo.style.color = '#fff';
+    }
   }
 }
 
@@ -3577,10 +3696,11 @@ function renderGame() {
     });
   }
 
-  // Render Human Player (Always Bottom)
+  // Render Human Player (Bottom)
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
   const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing);
 
+  // Auto Pickup Deck Glow when player has no valid moves
   const drawDeck = document.getElementById('draw-deck-3d');
   if (drawDeck) {
     const hasPlayableCards = myPlayer.hand && myPlayer.hand.some(c => canPlayCard(c));
@@ -3697,15 +3817,22 @@ function renderGame() {
         handEl.innerHTML = '';
         if (!p.hasWon) {
           const displayCards = Math.min(count, 8);
-          const oppHand = (p.id === GameState.myPlayerId && p.hand) ? p.hand : [];
+          const oppHand = (p.hand && Array.isArray(p.hand) && p.hand.length > 0) ? p.hand : [];
           const oppOppositeFaces = p.oppositeFaces || [];
           const oppStep = displayCards > 1 ? Math.min(22, 160 / (displayCards - 1)) : 0;
 
           for (let i = 0; i < displayCards; i++) {
             let standCard;
             if (GameState.edition === 'flip') {
-              const cardData = oppHand[i];
-              const face = cardData ? getOppositeFace(cardData) : (oppOppositeFaces[i] || { color: 'pink', value: '0' });
+              let face = null;
+              if (oppHand[i]) {
+                face = getOppositeFace(oppHand[i]);
+              } else if (oppOppositeFaces[i]) {
+                face = oppOppositeFaces[i];
+              }
+              if (!face) {
+                face = { color: GameState.flipSide === 'light' ? 'purple' : 'teal', value: 'FLIP' };
+              }
               standCard = createMiniOpponentCard(face);
             } else {
               standCard = document.createElement('div');
@@ -3759,7 +3886,7 @@ function renderLeaderboard() {
   });
 }
 
-// Global Slider Event Listeners for smooth mouse and touch dragging
+// Global Startup & Slider Listeners
 window.addEventListener('load', () => {
   const activeUser = localStorage.getItem('uno_active_user');
   if (activeUser) {
