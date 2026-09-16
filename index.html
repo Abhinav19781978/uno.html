@@ -801,7 +801,7 @@
     outline: none;
   }
 
-  /* BOT DIFFICULTY SLIDER STYLING */
+  /* BOT DIFFICULTY SLIDER */
   .diff-slider-wrapper {
     position: relative;
     background: var(--diff-bg);
@@ -857,9 +857,7 @@
     cursor: pointer;
     transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
   }
-  input[type="range"].diff-range::-webkit-slider-thumb:hover {
-    transform: scale(1.18);
-  }
+  input[type="range"].diff-range::-webkit-slider-thumb:hover { transform: scale(1.18); }
   input[type="range"].diff-range::-moz-range-thumb {
     width: 26px;
     height: 26px;
@@ -878,15 +876,9 @@
     letter-spacing: 1px;
     color: #8fa0b5;
   }
-  .tick-label {
-    cursor: pointer;
-    transition: color 0.3s ease, transform 0.2s ease;
-  }
+  .tick-label { cursor: pointer; transition: color 0.3s ease, transform 0.2s ease; }
   .tick-label:hover { color: #fff; transform: translateY(-1px); }
-  .tick-label.active {
-    color: #fff;
-    text-shadow: 0 0 10px var(--diff-color);
-  }
+  .tick-label.active { color: #fff; text-shadow: 0 0 10px var(--diff-color); }
 
   .btn-group { display: flex; gap: 10px; }
   .btn {
@@ -1962,6 +1954,14 @@ function getActivePlayers() {
   return GameState.players.filter(p => !p.hasWon && !p.eliminated);
 }
 
+function getHandCount(pl) {
+  if (!pl) return 0;
+  if (pl.id === GameState.myPlayerId && pl.hand && Array.isArray(pl.hand)) return pl.hand.length;
+  if (pl.handCount !== undefined && pl.handCount !== null) return pl.handCount;
+  if (pl.hand && Array.isArray(pl.hand)) return pl.hand.length;
+  return 0;
+}
+
 function generateReadableRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -2042,9 +2042,22 @@ function createRoom() {
     conn.on('data', (data) => handleHostData(conn, data));
 
     conn.on('close', () => {
-      GameState.players = GameState.players.filter(p => p.conn !== conn);
-      broadcastLobbyUpdate();
-      updateLobbyPlayerListUI();
+      if (!GameState.inGame) {
+        GameState.players = GameState.players.filter(p => p.conn !== conn);
+        broadcastLobbyUpdate();
+        updateLobbyPlayerListUI();
+      } else {
+        const dc = GameState.players.find(p => p.conn === conn);
+        if (dc) {
+          dc.isBot = true;
+          dc.name += ' (AI)';
+          dc.conn = null;
+          broadcastState();
+          if (GameState.turnIndex === dc.id) {
+            activeBotTurnTimeout = setTimeout(botTurn, 1000);
+          }
+        }
+      }
     });
   });
 
@@ -2169,8 +2182,19 @@ function handleGuestData(conn, data) {
     document.getElementById('room-lobby-modal').style.display = 'none';
     showScreen('game');
   }
+  else if (data.type === 'RUN_DEAL_ANIM') {
+    runDealVisualAnimation(() => {});
+  }
   else if (data.type === 'ANIM_CARD_THROW') {
-    const sourceEl = getSpotElementForPlayer(data.playerId);
+    let sourceEl;
+    if (data.playerId === -1) {
+      sourceEl = document.getElementById('draw-deck-3d');
+    } else if (data.playerId === GameState.myPlayerId) {
+      const slots = document.querySelectorAll('.human-hand-container .card-slot');
+      sourceEl = (data.cardIndex !== undefined && slots[data.cardIndex]) ? slots[data.cardIndex] : document.getElementById('player-hand');
+    } else {
+      sourceEl = getSpotElementForPlayer(data.playerId);
+    }
     animateCardThrow(sourceEl, data.card, data.chosenColor, () => {});
   }
   else if (data.type === 'ANIM_CARD_PICKUP') {
@@ -2186,6 +2210,7 @@ function handleGuestData(conn, data) {
     GameState.edition = data.state.edition;
     GameState.flipSide = data.state.flipSide;
     GameState.discardPile = data.state.discardPile;
+    GameState.discardRotations = data.state.discardRotations || [];
     GameState.players = data.state.players;
     GameState.rankings = data.state.rankings || [];
     GameState.turnIndex = data.state.turnIndex;
@@ -2233,13 +2258,14 @@ function broadcastState() {
           edition: GameState.edition,
           flipSide: GameState.flipSide,
           discardPile: GameState.discardPile,
+          discardRotations: GameState.discardRotations,
           rankings: GameState.rankings,
           players: GameState.players.map(pl => ({
             id: pl.id,
             name: pl.name,
             avatar: pl.avatar,
-            handCount: pl.hand.length,
-            hand: pl.id === p.id ? pl.hand : [],
+            handCount: pl.hand ? pl.hand.length : 0,
+            hand: pl.id === p.id ? pl.hand : null,
             oppositeFaces: GameState.edition === 'flip' ? pl.hand.map(c => getOppositeFace(c)) : [],
             isBot: pl.isBot,
             hasWon: pl.hasWon,
@@ -2388,14 +2414,27 @@ function initGameEngine() {
     p.hasWon = false;
   });
 
+  // Pre-deal 7 cards to each player's state
+  for (let round = 0; round < 7; round++) {
+    GameState.players.forEach(p => {
+      p.hand.push(GameState.drawPile.pop());
+    });
+  }
+
   document.getElementById('match-end-modal').style.display = 'none';
   updateTheme();
   renderGame();
 
-  runInitialDealAnimation(() => {
-    if (GameState.inGame && GameState.players[GameState.turnIndex] && GameState.players[GameState.turnIndex].isBot) {
-      activeBotTurnTimeout = setTimeout(botTurn, 1000);
-    }
+  // Instantly broadcast state so all guests mount opponent hands and slots
+  broadcastState();
+  broadcastAnimation({ type: 'RUN_DEAL_ANIM' });
+
+  runDealVisualAnimation(() => {
+    dealFirstDiscardCard(() => {
+      if (GameState.inGame && GameState.players[GameState.turnIndex] && GameState.players[GameState.turnIndex].isBot) {
+        activeBotTurnTimeout = setTimeout(botTurn, 1000);
+      }
+    });
   });
 }
 
@@ -2690,13 +2729,21 @@ function animateCardThrow(fromEl, cardData, chosenColor, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
   const discardBox = document.getElementById('discard-pile-3d');
   
-  const fromRect = fromEl ? fromEl.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight - 100 };
+  let fromRect = (fromEl && fromEl.getBoundingClientRect) ? fromEl.getBoundingClientRect() : null;
   const toRect = discardBox.getBoundingClientRect();
+
+  let startLeft = fromRect ? fromRect.left + (fromRect.width ? fromRect.width / 2 - 45 : 0) : window.innerWidth / 2 - 45;
+  let startTop = fromRect ? fromRect.top + (fromRect.height ? fromRect.height / 2 - 70 : 0) : window.innerHeight - 150;
+
+  if (startLeft <= 5 && startTop <= 5) {
+    startLeft = window.innerWidth / 2 - 45;
+    startTop = 60;
+  }
 
   const flyer = createCardElement(cardData, chosenColor);
   flyer.className += ' flying-card-obj';
-  flyer.style.left = `${fromRect.left}px`;
-  flyer.style.top = `${fromRect.top}px`;
+  flyer.style.left = `${startLeft}px`;
+  flyer.style.top = `${startTop}px`;
   flyer.style.transform = `scale(1) rotate(0deg)`;
 
   flyLayer.appendChild(flyer);
@@ -2718,10 +2765,10 @@ function animateCardThrow(fromEl, cardData, chosenColor, callback) {
 function animateCardPickup(targetPlayerId, count, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
   const drawDeck = document.getElementById('draw-deck-3d');
-  const fromRect = drawDeck.getBoundingClientRect();
+  const fromRect = drawDeck ? drawDeck.getBoundingClientRect() : { left: window.innerWidth * 0.24, top: window.innerHeight * 0.28 };
 
   const targetBox = getSpotElementForPlayer(targetPlayerId) || document.getElementById('player-bottom');
-  const toRect = targetBox.getBoundingClientRect();
+  const toRect = targetBox ? targetBox.getBoundingClientRect() : { left: window.innerWidth / 2 - 45, top: window.innerHeight - 120, width: 90, height: 90 };
 
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
@@ -2735,8 +2782,15 @@ function animateCardPickup(targetPlayerId, count, callback) {
       AudioEngine.cardPickup();
 
       requestAnimationFrame(() => {
-        flyer.style.left = `${toRect.left + (toRect.width / 2) - 45}px`;
-        flyer.style.top = `${toRect.top + (toRect.height / 2) - 65}px`;
+        let destLeft = toRect.left + (toRect.width ? toRect.width / 2 - 45 : 0);
+        let destTop = toRect.top + (toRect.height ? toRect.height / 2 - 65 : 0);
+        if (destLeft <= 5 && destTop <= 5) {
+          destLeft = window.innerWidth / 2 - 45;
+          destTop = 60;
+        }
+
+        flyer.style.left = `${destLeft}px`;
+        flyer.style.top = `${destTop}px`;
         flyer.style.transform = `scale(0.8) rotate(${Math.random() * 30 - 15}deg)`;
 
         setTimeout(() => {
@@ -2748,15 +2802,19 @@ function animateCardPickup(targetPlayerId, count, callback) {
   }
 }
 
-function runInitialDealAnimation(onComplete) {
+function runDealVisualAnimation(onComplete) {
   GameState.isDealing = true;
   const flyLayer = document.getElementById('fly-animation-layer');
   const drawDeck = document.getElementById('draw-deck-3d');
+  if (!drawDeck) {
+    GameState.isDealing = false;
+    if (onComplete) onComplete();
+    return;
+  }
   const fromRect = drawDeck.getBoundingClientRect();
-
-  let cardCount = 0;
   const totalCards = 7 * GameState.players.length;
-  const dealInterval = 65;
+  let cardCount = 0;
+  const dealInterval = 55;
 
   activeDealIntervalTimer = setInterval(() => {
     if (!GameState.inGame) {
@@ -2766,11 +2824,8 @@ function runInitialDealAnimation(onComplete) {
     }
     const playerIdx = cardCount % GameState.players.length;
     const p = GameState.players[playerIdx];
-    const card = GameState.drawPile.pop();
-    p.hand.push(card);
-
     const targetBox = getSpotElementForPlayer(p.id) || document.getElementById('player-bottom');
-    const toRect = targetBox.getBoundingClientRect();
+    const toRect = targetBox ? targetBox.getBoundingClientRect() : { left: window.innerWidth / 2, top: window.innerHeight - 100, width: 80, height: 80 };
 
     const flyer = document.createElement('div');
     flyer.className = 'card flying-card-obj';
@@ -2778,28 +2833,33 @@ function runInitialDealAnimation(onComplete) {
     flyer.style.left = `${fromRect.left}px`;
     flyer.style.top = `${fromRect.top}px`;
     flyer.style.transform = `scale(0.8) rotate(0deg)`;
-
     flyLayer.appendChild(flyer);
     AudioEngine.cardPickup();
 
     requestAnimationFrame(() => {
-      flyer.style.left = `${toRect.left + (toRect.width / 2) - 45}px`;
-      flyer.style.top = `${toRect.top + (toRect.height / 2) - 65}px`;
+      let destLeft = toRect.left + (toRect.width ? toRect.width / 2 - 45 : 0);
+      let destTop = toRect.top + (toRect.height ? toRect.height / 2 - 65 : 0);
+      if (destLeft <= 5 && destTop <= 5) {
+        destLeft = window.innerWidth / 2 - 45;
+        destTop = 60;
+      }
+
+      flyer.style.left = `${destLeft}px`;
+      flyer.style.top = `${destTop}px`;
       flyer.style.transform = `scale(0.7) rotate(${Math.random() * 24 - 12}deg)`;
 
       setTimeout(() => {
         flyer.remove();
-        renderGame();
-      }, 320);
+      }, 300);
     });
 
     cardCount++;
     if (cardCount >= totalCards) {
       clearInterval(activeDealIntervalTimer);
       activeDealIntervalTimer = null;
-      setTimeout(() => {
-        if (GameState.inGame) dealFirstDiscardCard(onComplete);
-      }, 400);
+      GameState.isDealing = false;
+      renderGame();
+      if (onComplete) onComplete();
     }
   }, dealInterval);
 }
@@ -2812,6 +2872,14 @@ function dealFirstDiscardCard(onComplete) {
   }
 
   const drawDeck = document.getElementById('draw-deck-3d');
+
+  broadcastAnimation({
+    type: 'ANIM_CARD_THROW',
+    playerId: -1,
+    card: firstCard,
+    chosenColor: null
+  });
+
   animateCardThrow(drawDeck, firstCard, null, (rot) => {
     GameState.discardPile.push(firstCard);
     GameState.discardRotations.push(rot);
@@ -2844,6 +2912,10 @@ function triggerFlip3DTransition() {
 }
 
 function triggerCenterSpecialVFX(type, text) {
+  if (GameState.isHost) {
+    broadcastAnimation({ type: 'VFX', vfxType: type, text: text });
+  }
+
   const overlay = document.getElementById('center-vfx-overlay');
   const gfx = document.getElementById('vfx-graphic-container');
   const txt = document.getElementById('vfx-text');
@@ -2910,7 +2982,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
   let sourceEl;
   if (playerId === GameState.myPlayerId) {
     const handSlots = document.querySelectorAll('.human-hand-container .card-slot');
-    sourceEl = handSlots[cardIdx] || document.getElementById('player-bottom');
+    sourceEl = handSlots[cardIdx] || document.getElementById('player-hand');
   } else {
     sourceEl = getSpotElementForPlayer(playerId);
   }
@@ -2925,10 +2997,11 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
     delete card.chosenColor;
   }
 
-  // Broadcast card play animation to guests
+  // Broadcast card play animation with exact card index to guests
   broadcastAnimation({
     type: 'ANIM_CARD_THROW',
     playerId: playerId,
+    cardIndex: cardIdx,
     card: card,
     chosenColor: card.chosenColor
   });
@@ -3123,8 +3196,7 @@ function botTurn() {
 
   const diff = GameState.botDifficulty || 'standard';
 
-  // 1. UNO Call Accuracy by Tier
-  let unoCallChance = 0.95; // Hard
+  let unoCallChance = 0.95;
   if (diff === 'standard') unoCallChance = 0.65;
   else if (diff === 'easy') unoCallChance = 0.35;
 
@@ -3134,7 +3206,6 @@ function botTurn() {
     AudioEngine.uno();
   }
 
-  // 2. Unforced Errors on Easy
   if (diff === 'easy' && Math.random() < 0.16 && GameState.stackedDrawCount === 0) {
     handlePlayerDraw(bot.id);
     return;
@@ -3147,7 +3218,6 @@ function botTurn() {
     let chosenIdx = valid[0];
 
     if (diff === 'hard') {
-      // Tactical Evaluation (Targeting leaders, attacks, discard-all)
       const isOpponentOnUno = GameState.players.some(p => p.id !== bot.id && !p.hasWon && p.hand.length === 1);
       
       const attackIdx = valid.find(idx => {
@@ -3162,7 +3232,6 @@ function botTurn() {
       } else if (discardAllIdx !== undefined) {
         chosenIdx = discardAllIdx;
       } else {
-        // Play action or highest number
         const numberIdx = valid.filter(idx => !isNaN(parseInt(getCardFace(bot.hand[idx]).value)));
         if (numberIdx.length > 0) {
           chosenIdx = numberIdx.reduce((maxIdx, currIdx) => {
@@ -3175,12 +3244,10 @@ function botTurn() {
         }
       }
     } else if (diff === 'standard') {
-      // Balanced Standard Play
       const discardAllIndex = valid.find(idx => getCardFace(bot.hand[idx]).value === 'discard_all');
       if (discardAllIndex !== undefined && Math.random() < 0.7) chosenIdx = discardAllIndex;
       else chosenIdx = valid[Math.floor(Math.random() * valid.length)];
     } else {
-      // Easy Mode: Holds attacks, plays basic cards first
       const simpleNumber = valid.find(idx => !isNaN(parseInt(getCardFace(bot.hand[idx]).value)));
       if (simpleNumber !== undefined) chosenIdx = simpleNumber;
       else chosenIdx = valid[Math.floor(Math.random() * valid.length)];
@@ -3194,7 +3261,6 @@ function botTurn() {
       const pool = GameState.flipSide === 'light' ? ['red', 'blue', 'green', 'yellow'] : ['pink', 'teal', 'purple', 'orange'];
       
       if (diff === 'hard') {
-        // Pick dominant hand color
         const colorCounts = {};
         pool.forEach(c => colorCounts[c] = 0);
         bot.hand.forEach(c => {
@@ -3210,7 +3276,6 @@ function botTurn() {
           chosenCol = pool[Math.floor(Math.random() * pool.length)];
         }
       } else {
-        // Easy: Completely random color choice
         chosenCol = pool[Math.floor(Math.random() * pool.length)];
       }
     }
@@ -3377,7 +3442,7 @@ function renderGame() {
   // Auto Pickup Deck Glow when player has no valid card to play
   const drawDeck = document.getElementById('draw-deck-3d');
   if (drawDeck) {
-    const hasPlayableCards = myPlayer.hand.some(c => canPlayCard(c));
+    const hasPlayableCards = myPlayer.hand && myPlayer.hand.some(c => canPlayCard(c));
     if (isMyTurn && !hasPlayableCards) {
       drawDeck.classList.add('deck-must-draw');
     } else {
@@ -3388,7 +3453,8 @@ function renderGame() {
   const handBox = document.getElementById('player-hand');
   if (handBox) {
     handBox.innerHTML = '';
-    const total = myPlayer.hand.length;
+    const myHand = myPlayer.hand || [];
+    const total = myHand.length;
 
     const maxAllowedWidth = Math.min(window.innerWidth - 70, 960);
     const cardWidth = 92;
@@ -3398,7 +3464,7 @@ function renderGame() {
     const maxAngle = Math.min(18, total * 2.2) * angleDampener;
     const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
 
-    myPlayer.hand.forEach((card, idx) => {
+    myHand.forEach((card, idx) => {
       const slotEl = document.createElement('div');
       slotEl.className = 'card-slot';
 
@@ -3427,7 +3493,7 @@ function renderGame() {
       pCount0.textContent = `Won #${myPlayer.rank}`;
       pCount0.classList.add('won-badge');
     } else {
-      pCount0.textContent = myPlayer.hand.length;
+      pCount0.textContent = getHandCount(myPlayer);
       pCount0.classList.remove('won-badge');
     }
   }
@@ -3442,7 +3508,8 @@ function renderGame() {
 
   const unoBtn = document.getElementById('uno-btn');
   if (unoBtn) {
-    if (myPlayer.hand.length === 2 && !GameState.unoCalledPlayers.has(GameState.myPlayerId) && !myPlayer.hasWon && !GameState.isDealing) {
+    const currentHandCount = getHandCount(myPlayer);
+    if (currentHandCount === 2 && !GameState.unoCalledPlayers.has(GameState.myPlayerId) && !myPlayer.hasWon && !GameState.isDealing) {
       unoBtn.classList.add('alert');
     } else {
       unoBtn.classList.remove('alert');
@@ -3455,7 +3522,7 @@ function renderGame() {
     if (box) box.style.display = 'none';
   });
 
-  // Dynamically map other players to surrounding table spots
+  // Dynamically map opponents to relative table seats
   GameState.players.forEach(p => {
     if (p.id === GameState.myPlayerId) return;
 
@@ -3473,12 +3540,13 @@ function renderGame() {
 
       if (portrait) portrait.innerHTML = `<div class="player-nameplate" id="p-name-${spotName}">${p.name}</div>${p.avatar || '🤖'}`;
 
+      const count = getHandCount(p);
+
       if (countEl) {
         if (p.hasWon) {
           countEl.textContent = `Won #${p.rank}`;
           countEl.classList.add('won-badge');
         } else {
-          const count = p.hand ? p.hand.length : (p.handCount || 0);
           countEl.textContent = count;
           countEl.classList.remove('won-badge');
         }
@@ -3487,9 +3555,8 @@ function renderGame() {
       if (handEl) {
         handEl.innerHTML = '';
         if (!p.hasWon) {
-          const count = p.hand ? p.hand.length : (p.handCount || 0);
           const displayCards = Math.min(count, 8);
-          const oppHand = p.hand || [];
+          const oppHand = (p.id === GameState.myPlayerId && p.hand) ? p.hand : [];
           const oppOppositeFaces = p.oppositeFaces || [];
           const oppStep = displayCards > 1 ? Math.min(22, 160 / (displayCards - 1)) : 0;
 
@@ -3526,9 +3593,7 @@ function renderLeaderboard() {
     if (b.hasWon) return 1;
     if (a.eliminated) return 1;
     if (b.eliminated) return -1;
-    const aCount = a.hand ? a.hand.length : (a.handCount || 0);
-    const bCount = b.hand ? b.hand.length : (b.handCount || 0);
-    return aCount - bCount;
+    return getHandCount(a) - getHandCount(b);
   });
 
   const medals = ['🥇', '🥈', '🥉', '4th'];
@@ -3538,7 +3603,7 @@ function renderLeaderboard() {
     row.className = 'lb-row';
 
     const rankSymbol = p.hasWon ? medals[p.rank - 1] : `${idx + 1}.`;
-    const count = p.hand ? p.hand.length : (p.handCount || 0);
+    const count = getHandCount(p);
     const scoreText = p.hasWon ? 'WON' : p.eliminated ? 'OUT' : `${count} cards`;
 
     row.innerHTML = `
