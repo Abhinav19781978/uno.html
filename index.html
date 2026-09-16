@@ -253,6 +253,12 @@
     justify-content: center;
     border: 2px solid #f7b300;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .user-avatar-tag:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 15px rgba(247, 179, 0, 0.8);
   }
   .user-text-info { display: flex; flex-direction: column; }
   .user-username { font-weight: 900; font-size: 1rem; color: #fff; }
@@ -478,7 +484,7 @@
   .tick-label.active { color: #fff; text-shadow: 0 0 10px var(--diff-color); }
 
   /* Modals */
-  #room-lobby-modal, #solo-setup-modal, #friends-modal {
+  #room-lobby-modal, #solo-setup-modal, #friends-modal, #emoji-picker-modal {
     position: fixed;
     inset: 0;
     background: rgba(6, 9, 18, 0.94);
@@ -488,7 +494,7 @@
     justify-content: center;
     align-items: center;
   }
-  .room-lobby-card, .solo-setup-card, .friends-card {
+  .room-lobby-card, .solo-setup-card, .friends-card, .emoji-picker-card {
     background: #0f182b;
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 26px;
@@ -1347,6 +1353,31 @@
     background: rgba(247, 179, 0, 0.15);
   }
 
+  /* POPUP EMOJI SELECTOR GRID */
+  .emoji-scroll-catalog {
+    max-height: 180px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    background: rgba(4, 9, 18, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 10px;
+  }
+  .catalog-emoji-item {
+    font-size: 1.5rem;
+    padding: 6px 4px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .catalog-emoji-item:hover {
+    transform: scale(1.2);
+    background: rgba(247, 179, 0, 0.2);
+  }
+
   #color-picker-modal {
     position: absolute;
     inset: 0;
@@ -1459,6 +1490,33 @@
 
       <button class="btn" onclick="submitAuthLogin()">ENTER GAME</button>
       <div id="auth-msg-text" style="font-size: 0.8rem; color: #ff5252; min-height: 18px; font-weight: 800;"></div>
+    </div>
+  </div>
+
+  <!-- CHOOSE ANY GOOGLE EMOJI MODAL (MAIN MENU PROFILE) -->
+  <div id="emoji-picker-modal">
+    <div class="emoji-picker-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size: 1.25rem; font-weight: 900; color: #f7b300; display:flex; align-items:center; gap:8px;">
+          <span>🎨</span><span>CHOOSE ANY EMOJI</span>
+        </div>
+        <button class="del-friend-btn" onclick="closeEmojiPickerModal()" style="font-size:1.4rem;">✕</button>
+      </div>
+      <p style="font-size: 0.8rem; color: #8fa0b5; margin-top:-6px;">Type or paste any Google emoji, or pick from popular favorites:</p>
+
+      <!-- Custom Input & Live Preview -->
+      <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.18); border-radius:16px; padding:8px 14px;">
+        <div id="modal-emoji-preview" style="font-size:2.2rem; width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.08); border-radius:50%; border:2px solid #f7b300;">⚡</div>
+        <input type="text" id="custom-emoji-input" placeholder="Paste or type any emoji..." maxlength="10" style="flex:1; font-size:1.05rem;" oninput="onCustomEmojiTyped(this.value)">
+      </div>
+
+      <!-- Quick Emoji Catalog -->
+      <div class="emoji-scroll-catalog" id="emoji-catalog-grid"></div>
+
+      <div style="display:flex; gap:10px; margin-top:4px;">
+        <button class="btn" onclick="saveChosenProfileEmoji()">SAVE AVATAR</button>
+        <button class="pill-btn danger" style="padding:10px 18px;" onclick="closeEmojiPickerModal()">CANCEL</button>
+      </div>
     </div>
   </div>
 
@@ -1643,13 +1701,14 @@
     <!-- Active Restored Menu UI -->
     <div class="home-profile-banner">
       <div class="user-badge-left">
-        <div class="user-avatar-tag" id="bar-user-avatar">⚡</div>
+        <div class="user-avatar-tag" id="bar-user-avatar" onclick="openEmojiPickerModal()" title="Click to choose profile emoji">⚡</div>
         <div class="user-text-info">
           <span class="user-username" id="bar-user-name">Player</span>
           <span class="user-wins-stat" id="bar-user-wins">Wins: 0</span>
         </div>
       </div>
-      <div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="pill-btn" onclick="openEmojiPickerModal()" style="background:rgba(247,179,0,0.18); border-color:#f7b300; color:#ffd700;">CHANGE EMOJI</button>
         <button class="pill-btn danger" onclick="logoutUser()">LOGOUT</button>
       </div>
     </div>
@@ -1930,6 +1989,66 @@ function selectAvatar(emoji, el) {
   selectedAvatarChoice = emoji;
   document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
   if (el) el.classList.add('selected');
+}
+
+/**
+ * CHOOSE ANY GOOGLE EMOJI (MAIN MENU PROFILE)
+ */
+const POPULAR_GOOGLE_EMOJIS = [
+  '⚡','😎','🔥','👑','🦊','🚀','🤖','🐱','🐶','🦁',
+  '🐯','🐼','🦄','🐉','👾','🎮','🏆','💎','🍕','🍿',
+  '😀','🤣','😍','🤩','🥳','🧐','🤠','🥸','😈','🥶',
+  '🥵','🤯','👻','💀','👽','🎲','🃏','🪄','🔮','🌟'
+];
+
+let pendingModalEmoji = '⚡';
+
+function openEmojiPickerModal() {
+  const modal = document.getElementById('emoji-picker-modal');
+  pendingModalEmoji = CurrentUser.avatar || '⚡';
+  document.getElementById('modal-emoji-preview').textContent = pendingModalEmoji;
+  document.getElementById('custom-emoji-input').value = pendingModalEmoji;
+
+  const catalog = document.getElementById('emoji-catalog-grid');
+  catalog.innerHTML = '';
+  POPULAR_GOOGLE_EMOJIS.forEach(emoji => {
+    const item = document.createElement('div');
+    item.className = 'catalog-emoji-item';
+    item.textContent = emoji;
+    item.onclick = () => {
+      pendingModalEmoji = emoji;
+      document.getElementById('modal-emoji-preview').textContent = emoji;
+      document.getElementById('custom-emoji-input').value = emoji;
+    };
+    catalog.appendChild(item);
+  });
+
+  modal.style.display = 'flex';
+}
+
+function closeEmojiPickerModal() {
+  document.getElementById('emoji-picker-modal').style.display = 'none';
+}
+
+function onCustomEmojiTyped(val) {
+  const trimmed = val.trim();
+  if (trimmed) {
+    pendingModalEmoji = trimmed;
+    document.getElementById('modal-emoji-preview').textContent = trimmed;
+  }
+}
+
+function saveChosenProfileEmoji() {
+  if (pendingModalEmoji) {
+    CurrentUser.avatar = pendingModalEmoji;
+    selectedAvatarChoice = pendingModalEmoji;
+    syncAccountStorage();
+    updateUserUI();
+    if (GameState.presencePeer && GameState.presencePeer.open) {
+      initUserPeerNetwork();
+    }
+  }
+  closeEmojiPickerModal();
 }
 
 function submitAuthLogin() {
@@ -2299,11 +2418,65 @@ let guestActionTimeout = null;
 /* CARD SORTING TOGGLE STATE */
 let isHandSortActive = localStorage.getItem('uno_hand_sort') === 'true';
 
+/**
+ * SMOOTH SORTING ANIMATION (FLIP TRANSITION)
+ */
 function toggleHandSort() {
   isHandSortActive = !isHandSortActive;
   localStorage.setItem('uno_hand_sort', isHandSortActive);
   updateSortButtonUI();
+
+  const handBox = document.getElementById('player-hand');
+  if (!handBox || !GameState.inGame) {
+    renderGame();
+    return;
+  }
+
+  // 1. FIRST: Capture screen coordinates of each card slot by originalIndex
+  const firstRects = new Map();
+  const oldSlots = handBox.querySelectorAll('.card-slot');
+  oldSlots.forEach(slot => {
+    if (slot.dataset.originalIndex !== undefined) {
+      firstRects.set(slot.dataset.originalIndex, slot.getBoundingClientRect());
+    }
+  });
+
+  // Play card sound for shuffle effect
+  AudioEngine.cardThrow();
+
+  // 2. LAST: Render hand in new sorted/unsorted order
   renderGame();
+
+  // 3. INVERT & PLAY: Animate smoothly from old positions to new positions
+  const newSlots = handBox.querySelectorAll('.card-slot');
+  newSlots.forEach(slot => {
+    const origIdx = slot.dataset.originalIndex;
+    const firstRect = firstRects.get(origIdx);
+    if (firstRect) {
+      const lastRect = slot.getBoundingClientRect();
+      const dx = firstRect.left - lastRect.left;
+      const dy = firstRect.top - lastRect.top;
+
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+        const targetTransform = slot.dataset.targetTransform || slot.style.transform;
+        // Invert transform immediately without transition
+        slot.style.transition = 'none';
+        slot.style.transform = `translate3d(${dx}px, ${dy}px, 0px) ${targetTransform} scale(1.08)`;
+        slot.style.zIndex = '300';
+
+        // Play smooth spring glide to target position
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            slot.style.transition = 'transform 0.45s cubic-bezier(0.2, 0.85, 0.35, 1.2)';
+            slot.style.transform = targetTransform;
+            setTimeout(() => {
+              slot.style.zIndex = slot.dataset.baseZIndex || '';
+            }, 460);
+          });
+        });
+      }
+    }
+  });
 }
 
 function updateSortButtonUI() {
@@ -3537,8 +3710,12 @@ function renderGame() {
       const translateY = Math.abs(offset) * yDampener;
       const translateX = offset * step;
 
-      slotEl.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
+      const targetTransform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
+      slotEl.style.transform = targetTransform;
+      slotEl.dataset.targetTransform = targetTransform;
       slotEl.style.zIndex = displayIdx + 1;
+      slotEl.dataset.baseZIndex = displayIdx + 1;
+
       slotEl.onclick = () => onHumanCardClick(originalIndex);
       handBox.appendChild(slotEl);
     });
@@ -4364,6 +4541,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (document.getElementById('color-picker-modal').style.display === 'flex') cancelColorPicker();
     if (document.getElementById('solo-setup-modal').style.display === 'flex') closeSoloSetupModal();
+    if (document.getElementById('emoji-picker-modal').style.display === 'flex') closeEmojiPickerModal();
   }
 });
 
