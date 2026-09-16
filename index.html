@@ -49,12 +49,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transform: translateZ(0);
   }
 
-  /* Input Lock Guard to Prevent Spamming */
-  body.action-locked #player-hand,
-  body.action-locked #draw-deck-3d {
+  /* HARDWARE INPUT SPAM SHIELD */
+  body.turn-locked #player-hand,
+  body.turn-locked #draw-deck-3d {
     pointer-events: none !important;
     cursor: default !important;
   }
@@ -79,12 +78,12 @@
   }
   #lobby-screen {
     justify-content: flex-start;
-    background: #0b0403;
-    padding: 24px 14px 40px;
+    background: #0a0403;
+    padding: 20px 14px 50px;
   }
 
   /* ------------------------------------------------------------- */
-  /* LUXURY PARLOR HOME BACKGROUND                                 */
+  /* LUXURY PARLOR HOME BACKGROUND SCENE                           */
   /* ------------------------------------------------------------- */
   .home-parlor-bg {
     position: fixed;
@@ -224,15 +223,16 @@
   }
 
   /* ------------------------------------------------------------- */
-  /* HOME & LOBBY UI COMPONENTS (ORIGINAL VIBRANT DESIGN)          */
+  /* RESTORED VIBRANT UI & LOBBY CONTROLS                          */
   /* ------------------------------------------------------------- */
   .home-profile-banner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: min(92vw, 470px);
-    background: rgba(14, 21, 37, 0.88);
+    background: rgba(14, 21, 37, 0.92) !important;
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1.5px solid rgba(255, 255, 255, 0.18);
     border-radius: 20px;
     padding: 10px 18px;
@@ -272,8 +272,8 @@
     align-items: center;
   }
   .pill-btn:hover { background: rgba(255,255,255,0.22); transform: scale(1.04); }
-  .pill-btn.danger { background: rgba(234, 35, 35, 0.25); border-color: rgba(234, 35, 35, 0.5); }
-  .pill-btn.danger:hover { background: rgba(234, 35, 35, 0.5); }
+  .pill-btn.danger { background: rgba(234, 35, 35, 0.35) !important; border-color: rgba(234, 35, 35, 0.6) !important; }
+  .pill-btn.danger:hover { background: rgba(234, 35, 35, 0.6) !important; }
 
   .title-logo-container {
     position: relative;
@@ -281,7 +281,7 @@
     flex-direction: column;
     align-items: center;
     z-index: 20;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
   .title-logo {
     font-family: 'Montserrat', sans-serif;
@@ -308,9 +308,10 @@
   }
 
   .lobby-card {
-    background: rgba(14, 21, 37, 0.86);
+    background: rgba(14, 21, 37, 0.9) !important;
     backdrop-filter: blur(25px);
-    border: 2px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(25px);
+    border: 2px solid rgba(255, 255, 255, 0.18) !important;
     border-radius: 26px;
     padding: 24px 30px;
     width: min(92vw, 470px);
@@ -323,26 +324,27 @@
   }
   .form-group { display: flex; flex-direction: column; gap: 6px; }
   label { font-size: 0.74rem; text-transform: uppercase; color: #94a3b8; font-weight: 800; letter-spacing: 1.5px; }
+  
   input, select {
-    background: rgba(4, 9, 18, 0.85);
-    border: 1.5px solid rgba(255,255,255,0.22);
+    background: rgba(4, 9, 18, 0.85) !important;
+    border: 1.5px solid rgba(255,255,255,0.22) !important;
     border-radius: 12px;
     padding: 12px 14px;
-    color: #fff;
+    color: #fff !important;
     font-size: 0.95rem;
     font-weight: 700;
     outline: none;
     font-family: inherit;
   }
-  input:focus, select:focus { border-color: #f7b300; }
+  input:focus, select:focus { border-color: #f7b300 !important; }
 
   .btn-group { display: flex; gap: 10px; }
   .btn {
     flex: 1;
     position: relative;
-    background: linear-gradient(135deg, #ffc400 0%, #f77000 50%, #ea2323 100%);
+    background: linear-gradient(135deg, #ffc400 0%, #f77000 50%, #ea2323 100%) !important;
     border: none;
-    color: white;
+    color: white !important;
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-size: 0.95rem;
@@ -357,16 +359,22 @@
     text-align: center;
   }
   .btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
-  .btn.secondary { background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%); box-shadow: 0 6px 20px rgba(0,153,255,0.5); }
-  .btn.friends-btn { background: linear-gradient(135deg, #8a2be2 0%, #4a00e0 100%); box-shadow: 0 6px 20px rgba(138,43,226,0.5); }
-  .btn.join-btn { flex: 0 0 95px; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); box-shadow: 0 6px 20px rgba(46,204,113,0.5); }
+  .btn.secondary { 
+    background: linear-gradient(135deg, #0099ff 0%, #005bb5 100%) !important; 
+    box-shadow: 0 6px 20px rgba(0,153,255,0.5); 
+  }
+  .btn.friends-btn { 
+    background: linear-gradient(135deg, #8a2be2 0%, #4a00e0 100%) !important; 
+    box-shadow: 0 6px 20px rgba(138,43,226,0.5); 
+  }
+  .btn.join-btn { 
+    flex: 0 0 95px; 
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important; 
+    box-shadow: 0 6px 20px rgba(46,204,113,0.5); 
+  }
 
   /* BOT SELECTION & SLIDER */
-  .bot-count-grid {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-  }
+  .bot-count-grid { display: flex; gap: 8px; width: 100%; }
   .bot-count-btn {
     flex: 1;
     padding: 11px 6px;
@@ -402,11 +410,7 @@
     gap: 10px;
     transition: background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
   }
-  .diff-top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .diff-top-header { display: flex; justify-content: space-between; align-items: center; }
   .diff-badge {
     font-size: 0.74rem;
     font-weight: 900;
@@ -447,10 +451,7 @@
     cursor: grab;
     transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
   }
-  input[type="range"].diff-range:active::-webkit-slider-thumb {
-    cursor: grabbing;
-    transform: scale(1.2);
-  }
+  input[type="range"].diff-range:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.2); }
   input[type="range"].diff-range::-moz-range-thumb {
     width: 28px;
     height: 28px;
@@ -642,7 +643,631 @@
   }
   .end-rank-status.winner { background: #ffd700; color: #000; box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
 
-  /* Avatar Picker */
+  /* ------------------------------------------------------------- */
+  /* 3D ARENA ELEMENTS                                             */
+  /* ------------------------------------------------------------- */
+  #viewport-3d {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    inset: 0;
+    perspective: 1100px;
+    overflow: hidden;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+  }
+  #viewport-3d.flip-tumble { animation: viewportFlip 0.85s cubic-bezier(0.4, 0, 0.2, 1); }
+  @keyframes viewportFlip {
+    0% { transform: scale(1) rotateY(0deg); }
+    50% { transform: scale(0.85) rotateY(180deg) rotateZ(5deg); }
+    100% { transform: scale(1) rotateY(360deg); }
+  }
+
+  #flash-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, #fff 10%, rgba(255,255,255,0.4) 60%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 500;
+    transition: opacity 0.1s ease;
+  }
+  #flash-overlay.flash { opacity: 0.85; animation: flashFade 0.6s ease-out forwards; }
+  @keyframes flashFade { 0% { opacity: 0.85; } 100% { opacity: 0; } }
+
+  #arena-bg {
+    position: absolute;
+    inset: -50px;
+    background: radial-gradient(circle at 50% 45%, #2a0808 0%, #120303 55%, #050101 100%);
+    transition: background 0.8s ease;
+    z-index: 0;
+  }
+  #arena-bg.blue-theme { background: radial-gradient(circle at 50% 45%, #0d2847 0%, #061426 55%, #02070f 100%); }
+  #arena-bg.dark-theme { background: radial-gradient(circle at 50% 45%, #300636 0%, #150119 55%, #050007 100%); }
+
+  .table-stage {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateX(38deg);
+    transform-style: preserve-3d;
+    width: min(88vw, 860px);
+    height: min(56vh, 480px);
+    border-radius: 250px;
+    background: radial-gradient(ellipse at center, #ff7a00 0%, #e63200 45%, #8f1000 80%, #450300 100%);
+    box-shadow: 0 0 60px rgba(255, 90, 0, 0.35), inset 0 0 60px rgba(0,0,0,0.85);
+    border: 14px solid #1a0505;
+    outline: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.8s ease;
+    z-index: 1;
+  }
+  .table-stage.blue-stage {
+    background: radial-gradient(ellipse at center, #0099ff 0%, #005bb5 45%, #002e66 80%, #00122e 100%);
+    box-shadow: 0 0 60px rgba(0, 153, 255, 0.35), inset 0 0 60px rgba(0,0,0,0.85);
+    border-color: #06111f;
+  }
+  .table-stage.dark-stage {
+    background: radial-gradient(ellipse at center, #d80093 0%, #85006b 45%, #420038 80%, #1a0017 100%);
+    box-shadow: 0 0 60px rgba(216, 0, 147, 0.4), inset 0 0 60px rgba(0,0,0,0.9);
+    border-color: #170014;
+  }
+
+  .direction-ring-3d {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(60vw, 510px);
+    height: min(60vw, 510px);
+    max-height: 440px;
+    pointer-events: none;
+    animation: ringSpinCW 9s linear infinite;
+    z-index: 5;
+    filter: drop-shadow(0 0 8px rgba(255, 234, 0, 0.7));
+  }
+  .direction-ring-3d.reverse { animation: ringSpinCCW 9s linear infinite; }
+  .ring-svg { width: 100%; height: 100%; overflow: visible; }
+  .arrow-unit .arrow-shape {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .direction-ring-3d.reverse .arrow-unit .arrow-shape { transform: rotate(180deg); }
+  @keyframes ringSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+  @keyframes ringSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
+
+  #discard-pile-3d {
+    position: absolute;
+    top: 48%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--card-w);
+    height: var(--card-h);
+    transform-style: preserve-3d;
+    z-index: 25;
+    pointer-events: none;
+  }
+  #discard-pile-3d::after {
+    content: '';
+    position: absolute;
+    inset: -16px;
+    border-radius: 24px;
+    background: radial-gradient(circle, var(--active-glow-color) 0%, transparent 75%);
+    z-index: -1;
+    animation: auraPulse 1.8s infinite alternate ease-in-out;
+  }
+  @keyframes auraPulse { 0% { transform: scale(0.94); opacity: 0.6; } 100% { transform: scale(1.15); opacity: 0.95; } }
+  #discard-pile-3d .card {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.65);
+    transition: transform 0.25s ease;
+  }
+
+  #active-color-badge {
+    position: absolute;
+    top: -36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(4, 9, 18, 0.9);
+    border: 2px solid #fff;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    z-index: 50;
+  }
+  .color-badge-dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #fff; }
+
+  #draw-deck-3d {
+    position: absolute;
+    top: 28%;
+    left: 24%;
+    transform: translate(-50%, -50%);
+    width: var(--card-w);
+    height: var(--card-h);
+    transform-style: preserve-3d;
+    cursor: pointer;
+    z-index: 25;
+    transition: transform 0.2s ease, filter 0.25s ease;
+  }
+  #draw-deck-3d:hover { transform: translate(-50%, -50%) scale(1.06); }
+  
+  #draw-deck-3d.deck-must-draw {
+    animation: deckMustDrawPulse 1.1s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes deckMustDrawPulse {
+    0% { transform: translate(-50%, -50%) scale(1.02); filter: drop-shadow(0 0 12px #f7b300); }
+    100% { transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 0 24px #ffea00) brightness(1.2); }
+  }
+
+  .deck-3d-stack {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: -1px 1px 0 #ddd, -2px 2px 0 #ccc, -3px 3px 0 #bbb, -4px 4px 0 #aaa, -5px 5px 0 #999, -6px 6px 0 #888, -10px 12px 20px rgba(0,0,0,0.65);
+  }
+
+  .leave-game-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 120;
+    background: linear-gradient(135deg, rgba(234, 35, 35, 0.9), rgba(168, 10, 28, 0.9));
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 8px 16px;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 18px rgba(234, 35, 35, 0.5);
+    transition: transform 0.15s;
+  }
+  .leave-game-btn:hover { transform: translateY(-2px) scale(1.05); }
+
+  #leaderboard-widget {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    width: 200px;
+    background: rgba(10, 16, 26, 0.94);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 10px 12px;
+    z-index: 95;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .lb-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 4px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #f7b300;
+    text-transform: uppercase;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 2px 0;
+  }
+  .lb-left { display: flex; align-items: center; gap: 6px; overflow: hidden; }
+  .lb-rank { font-weight: 900; width: 18px; font-size: 0.82rem; }
+  .lb-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 95px; }
+  .lb-score { font-size: 0.72rem; font-weight: 900; padding: 2px 6px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+  .lb-score.won { background: #f7b300; color: #000; }
+
+  /* Player Spots & Cards */
+  .player-spot {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 50;
+  }
+  .player-box { display: flex; align-items: center; gap: 8px; position: relative; }
+  .player-nameplate {
+    background: linear-gradient(180deg, #0076e6, #004b9e);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    position: absolute;
+    top: -24px;
+    left: 0;
+    white-space: nowrap;
+  }
+  .player-portrait {
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 3px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+  }
+  .player-spot.active .player-portrait {
+    border-color: #fff;
+    transform: scale(1.16);
+    animation: activeAuraPulse 1.2s infinite alternate ease-in-out;
+  }
+  @keyframes activeAuraPulse {
+    0% { box-shadow: 0 0 0 3px #fff, 0 0 16px #ffb700, 0 0 32px rgba(255, 183, 0, 0.7); }
+    100% { box-shadow: 0 0 0 4px #fff, 0 0 24px #ff4400, 0 0 48px rgba(255, 196, 0, 0.95); }
+  }
+
+  .card-count-badge {
+    background: #fff;
+    color: #111;
+    font-weight: 900;
+    font-size: 0.9rem;
+    padding: 5px 8px;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    border: 1.5px solid #000;
+    margin-left: 2px;
+  }
+  .card-count-badge.won-badge { background: #f7b300; color: #000; border-color: #fff; }
+
+  .card {
+    width: var(--card-w);
+    height: var(--card-h);
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 4px;
+    position: relative;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    transform-style: preserve-3d;
+  }
+  .card-face {
+    width: 100%;
+    height: 100%;
+    border-radius: 9px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.25s ease;
+  }
+  .c-red .card-face { background: var(--c-red); }
+  .c-blue .card-face { background: var(--c-blue); }
+  .c-green .card-face { background: var(--c-green); }
+  .c-yellow .card-face { background: var(--c-yellow); }
+  .c-wild .card-face { background: #121214; }
+  .c-pink .card-face { background: var(--c-pink); }
+  .c-teal .card-face { background: var(--c-teal); }
+  .c-purple .card-face { background: var(--c-purple); }
+  .c-orange .card-face { background: var(--c-orange); }
+  .c-wild-dark .card-face { background: #120317; }
+
+  .card-oval {
+    width: 78%;
+    height: 86%;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform: rotate(-28deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #ffffff;
+    position: relative;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  }
+  .c-red .card-oval { background: var(--c-red-dark); }
+  .c-blue .card-oval { background: var(--c-blue-dark); }
+  .c-green .card-oval { background: var(--c-green-dark); }
+  .c-yellow .card-oval { background: var(--c-yellow-dark); }
+  .c-pink .card-oval { background: var(--c-pink-dark); }
+  .c-teal .card-oval { background: var(--c-teal-dark); }
+  .c-purple .card-oval { background: var(--c-purple-dark); }
+  .c-orange .card-oval { background: var(--c-orange-dark); }
+  .c-wild .card-oval, .c-wild-dark .card-oval { background: #fff; border: none; }
+
+  .wild-quadrant {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: conic-gradient(var(--c-red) 0deg 90deg, var(--c-blue) 90deg 180deg, var(--c-green) 180deg 270deg, var(--c-yellow) 270deg 360deg);
+  }
+  .wild-dark-quadrant {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: conic-gradient(var(--c-pink) 0deg 90deg, var(--c-teal) 90deg 180deg, var(--c-purple) 180deg 270deg, var(--c-orange) 270deg 360deg);
+  }
+
+  .card-val-num {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: 3rem;
+    color: #ffffff;
+    transform: rotate(28deg);
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.7), -1px -1px 0 rgba(0,0,0,0.4);
+    z-index: 2;
+  }
+  .card-corner {
+    position: absolute;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: #ffffff;
+    text-shadow: 1.5px 1.5px 0px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 0.9;
+    z-index: 5;
+  }
+  .card-corner.top-left { top: 5px; left: 7px; }
+  .card-corner.bottom-right { bottom: 5px; right: 7px; transform: rotate(180deg); }
+
+  .mini-uno-badge {
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    font-size: 0.55rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #f7b300;
+    text-shadow: 1px 1px 0 #000;
+  }
+
+  .card-back-design {
+    width: 100%;
+    height: 100%;
+    border-radius: 9px;
+    background: #111;
+    border: 2px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .card-back-oval {
+    width: 82%;
+    height: 86%;
+    background: var(--c-red);
+    border-radius: 50%;
+    transform: rotate(-28deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .card-back-logo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #f7b300;
+    text-shadow: 2px 2px 0 #000;
+    transform: rotate(28deg);
+  }
+
+  #player-left { top: 46%; left: 30px; transform: translateY(-50%); align-items: flex-start; }
+  #player-top { top: 18px; left: 50%; transform: translateX(-50%); }
+  #player-right { top: 46%; right: 30px; transform: translateY(-50%); align-items: flex-end; }
+  #player-bottom {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 80;
+    pointer-events: none;
+  }
+
+  .opponent-3d-hand {
+    display: flex;
+    transform-style: preserve-3d;
+    pointer-events: none;
+    margin-top: 6px;
+  }
+  #opp-hand-left { transform: rotateY(35deg); }
+  #opp-hand-right { transform: rotateY(-35deg); }
+  .opp-stand-card {
+    width: 46px;
+    height: 70px;
+    border-radius: 8px;
+    background: #fff;
+    padding: 2.5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    flex-shrink: 0;
+    margin-left: -24px;
+    transition: transform 0.25s ease;
+  }
+  .opp-stand-card:first-child { margin-left: 0 !important; }
+
+  .human-hand-viewport {
+    height: 185px;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    perspective: 1000px;
+    overflow: visible;
+    pointer-events: auto;
+  }
+  .human-hand-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    transform-style: preserve-3d;
+  }
+  
+  .card-slot {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    margin-left: calc(var(--card-w) * -0.5);
+    width: var(--card-w);
+    height: var(--card-h);
+    transform-origin: 50% 120%;
+    transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .card-slot:hover { z-index: 200 !important; }
+  
+  .card-slot .card {
+    transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), box-shadow 0.2s, filter 0.2s;
+    pointer-events: none;
+  }
+  .card-slot .card.playable {
+    transform: translateY(-18px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.7), 0 0 14px rgba(255, 230, 0, 0.6);
+    animation: playableGlowPulse 1.8s infinite alternate ease-in-out;
+  }
+  @keyframes playableGlowPulse {
+    0% { box-shadow: 0 12px 24px rgba(0,0,0,0.7), 0 0 10px rgba(255, 215, 0, 0.4); }
+    100% { box-shadow: 0 14px 28px rgba(0,0,0,0.8), 0 0 20px rgba(255, 235, 0, 0.85); }
+  }
+  .card-slot:hover .card {
+    transform: translateY(-48px) scale(1.16) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.85), 0 0 28px rgba(247, 179, 0, 0.95) !important;
+    filter: brightness(1.08) !important;
+  }
+  .card-slot .card.unplayable { filter: brightness(0.85); }
+
+  #fly-animation-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 300;
+    overflow: hidden;
+  }
+  .flying-card-obj {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--card-w);
+    height: var(--card-h);
+    transform-style: preserve-3d;
+    z-index: 310;
+    pointer-events: none;
+  }
+
+  #center-vfx-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 400;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  #center-vfx-overlay.active { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  .vfx-icon-burst {
+    width: 190px;
+    height: 190px;
+    filter: drop-shadow(0 0 25px #f7b300);
+    animation: vfxSpin 1.2s ease-out;
+  }
+  .vfx-banner-txt {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    font-style: italic;
+    color: #fff;
+    text-shadow: 0 0 20px #ea2323, 3px 3px 0 #000;
+    margin-top: 10px;
+    letter-spacing: 2px;
+  }
+  @keyframes vfxSpin { 0% { transform: scale(0.2) rotate(-90deg); filter: brightness(2); } 50% { transform: scale(1.2) rotate(15deg); } 100% { transform: scale(1) rotate(0deg); } }
+
+  #penalty-streak-box {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: radial-gradient(circle, #ff0044 20%, #7a001a 100%);
+    border: 4px solid #fff;
+    border-radius: 50px;
+    padding: 12px 35px;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 0 50px #ff0044;
+    z-index: 350;
+    pointer-events: none;
+    transition: 0.3s transform cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  #penalty-streak-box.show { transform: translate(-50%, -50%) scale(1); }
+
+  #uno-btn {
+    position: absolute;
+    right: 35px;
+    bottom: 180px;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ea2323 30%, #850000 100%);
+    border: 4px solid #fff;
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 900;
+    font-style: italic;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(234,35,35,0.9);
+    z-index: 100;
+    display: none;
+    transition: 0.2s transform;
+  }
+  #uno-btn.alert { display: block; animation: unoAlertPulse 0.7s infinite alternate; }
+  @keyframes unoAlertPulse { 0% { transform: scale(0.95); } 100% { transform: scale(1.18); filter: brightness(1.3) drop-shadow(0 0 25px #f7b300); } }
+
   .avatar-select-grid {
     display: flex;
     gap: 8px;
@@ -664,7 +1289,6 @@
     background: rgba(247, 179, 0, 0.15);
   }
 
-  /* Color Picker */
   #color-picker-modal {
     position: absolute;
     inset: 0;
@@ -824,7 +1448,7 @@
             <label style="color:#fff; font-size:0.75rem; letter-spacing:1px;">Bot Difficulty</label>
             <span class="diff-badge" id="diff-badge-label">STANDARD</span>
           </div>
-          <input type="range" class="diff-range" id="bot-diff-range" min="0" max="2" value="1" step="1">
+          <input type="range" class="diff-range" id="bot-diff-range" min="0" max="2" value="1" step="1" oninput="updateDifficultySlider(this.value)" onchange="updateDifficultySlider(this.value)">
           <div class="diff-slider-ticks">
             <span class="tick-label" id="tick-0" onclick="setDifficultySlider(0)">EASY</span>
             <span class="tick-label active" id="tick-1" onclick="setDifficultySlider(1)">STANDARD</span>
@@ -1568,14 +2192,14 @@ function confirmStartSoloGame() {
 /**
  * GAME ENGINE STATE & ACTION LOCKING (SPAM PREVENTION)
  */
-let isActionLocked = false;
+let isTurnLocked = false;
 let hostProcessingAction = false;
 let guestActionTimeout = null;
 
-function setActionLocked(locked) {
-  isActionLocked = locked;
+function setTurnLocked(locked) {
+  isTurnLocked = locked;
   if (document.body) {
-    document.body.classList.toggle('action-locked', locked);
+    document.body.classList.toggle('turn-locked', locked);
   }
 }
 
@@ -1927,13 +2551,13 @@ function handleGuestData(conn, data) {
   }
   else if (data.type === 'MATCH_OVER') {
     clearTimeout(guestActionTimeout);
-    setActionLocked(false);
+    setTurnLocked(false);
     GameState.rankings = data.rankings || [];
     showMatchOverScreen(GameState.rankings);
   }
   else if (data.type === 'RETURN_TO_ROOM_LOBBY') {
     clearTimeout(guestActionTimeout);
-    setActionLocked(false);
+    setTurnLocked(false);
     const modal = document.getElementById('match-end-modal');
     if (modal) modal.style.display = 'none';
     document.getElementById('viewport-3d').style.display = 'none';
@@ -1943,7 +2567,7 @@ function handleGuestData(conn, data) {
   }
   else if (data.type === 'SYNC_STATE') {
     clearTimeout(guestActionTimeout);
-    setActionLocked(false);
+    setTurnLocked(false);
 
     const sideChanged = GameState.flipSide !== data.state.flipSide;
     GameState.inGame = true;
@@ -2164,7 +2788,7 @@ function initGameEngine() {
   GameState.stackedDrawCount = 0;
   GameState.direction = 1;
   GameState.turnIndex = 0;
-  setActionLocked(false);
+  setTurnLocked(false);
   hostProcessingAction = false;
 
   GameState.players.forEach(p => {
@@ -2202,7 +2826,7 @@ function confirmQuitGame() {
 function closeMatchEndAndReturnToLobby() {
   GameState.inGame = false;
   GameState.isDealing = false;
-  setActionLocked(false);
+  setTurnLocked(false);
   hostProcessingAction = false;
   clearTimeout(guestActionTimeout);
 
@@ -2261,7 +2885,7 @@ function returnToRoomLobbyAfterMatch() {
 
   GameState.inGame = false;
   GameState.isDealing = false;
-  setActionLocked(false);
+  setTurnLocked(false);
   hostProcessingAction = false;
   clearTimeout(guestActionTimeout);
 
@@ -2321,7 +2945,7 @@ function returnToRoomLobbyAfterMatch() {
 function showMatchOverScreen(rankings) {
   GameState.inGame = false;
   GameState.isDealing = false;
-  setActionLocked(false);
+  setTurnLocked(false);
   hostProcessingAction = false;
   clearTimeout(guestActionTimeout);
 
@@ -2377,7 +3001,7 @@ function showMatchOverScreen(rankings) {
 }
 
 /**
- * DECK GENERATION & RULES
+ * FULL-SIZE OFFICIAL DECK GENERATOR
  */
 function buildDeck(edition) {
   let deck = [];
@@ -2471,18 +3095,14 @@ function shuffle(arr) {
 
 function getCardFace(card) {
   if (!card) return { color: 'red', value: '5', type: 'number' };
-  if (card.light && card.dark) {
-    return GameState.flipSide === 'light' ? card.light : card.dark;
-  }
+  if (card.light && card.dark) return GameState.flipSide === 'light' ? card.light : card.dark;
   if (card.color && card.value) return card;
   return { color: 'red', value: '5', type: 'number' };
 }
 
 function getOppositeFace(card) {
   if (!card) return { color: 'pink', value: '5', type: 'number' };
-  if (card.light && card.dark) {
-    return GameState.flipSide === 'light' ? card.dark : card.light;
-  }
+  if (card.light && card.dark) return GameState.flipSide === 'light' ? card.dark : card.light;
   if (card.color && card.value) return card;
   return { color: 'pink', value: '5', type: 'number' };
 }
@@ -2660,7 +3280,7 @@ function renderGame() {
   }
 
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
-  const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing && !isActionLocked);
+  const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing && !isTurnLocked);
 
   const drawDeck = document.getElementById('draw-deck-3d');
   if (drawDeck) {
@@ -3062,7 +3682,7 @@ function triggerCenterSpecialVFX(type, text) {
 }
 
 /**
- * GAME PLAY RULES & SPAM SHIELDS
+ * GAME PLAY RULES
  */
 function canPlayCard(card) {
   const topCard = GameState.discardPile[GameState.discardPile.length - 1];
@@ -3090,25 +3710,25 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
   const player = GameState.players[playerId];
   if (!player || player.hasWon || player.eliminated || !GameState.inGame) {
     hostProcessingAction = false;
-    setActionLocked(false);
+    setTurnLocked(false);
     return;
   }
   if (playerId !== GameState.turnIndex) {
     hostProcessingAction = false;
-    setActionLocked(false);
+    setTurnLocked(false);
     return;
   }
 
   const card = player.hand[cardIdx];
   if (!card || !canPlayCard(card)) {
     hostProcessingAction = false;
-    setActionLocked(false);
+    setTurnLocked(false);
     return;
   }
 
   hostProcessingAction = true;
   if (playerId === GameState.myPlayerId) {
-    setActionLocked(true);
+    setTurnLocked(true);
   }
 
   const face = getCardFace(card);
@@ -3135,7 +3755,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
   animateCardThrow(origin, card, card.chosenColor, (rotation) => {
     if (!GameState.inGame) {
       hostProcessingAction = false;
-      setActionLocked(false);
+      setTurnLocked(false);
       return;
     }
 
@@ -3175,7 +3795,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
         renderGame();
 
         hostProcessingAction = false;
-        setActionLocked(false);
+        setTurnLocked(false);
 
         setTimeout(() => {
           showMatchOverScreen(GameState.rankings);
@@ -3185,7 +3805,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
     }
 
     hostProcessingAction = false;
-    setActionLocked(false);
+    setTurnLocked(false);
     nextTurn();
     broadcastState();
     renderGame();
@@ -3295,18 +3915,18 @@ function handlePlayerDraw(playerId) {
   const p = GameState.players[playerId];
   if (!p || p.hasWon || p.eliminated || !GameState.inGame) {
     hostProcessingAction = false;
-    setActionLocked(false);
+    setTurnLocked(false);
     return;
   }
   if (playerId !== GameState.turnIndex) {
     hostProcessingAction = false;
-    setActionLocked(false);
+    setTurnLocked(false);
     return;
   }
 
   hostProcessingAction = true;
   if (playerId === GameState.myPlayerId) {
-    setActionLocked(true);
+    setTurnLocked(true);
   }
 
   const count = GameState.stackedDrawCount > 0 ? GameState.stackedDrawCount : 1;
@@ -3316,7 +3936,7 @@ function handlePlayerDraw(playerId) {
   animateCardPickup(playerId, count, () => {
     if (!GameState.inGame) {
       hostProcessingAction = false;
-      setActionLocked(false);
+      setTurnLocked(false);
       return;
     }
     for (let i = 0; i < count; i++) {
@@ -3324,7 +3944,7 @@ function handlePlayerDraw(playerId) {
     }
     GameState.stackedDrawCount = 0;
     hostProcessingAction = false;
-    setActionLocked(false);
+    setTurnLocked(false);
     nextTurn();
     broadcastState();
     renderGame();
@@ -3432,14 +4052,14 @@ function botTurn() {
 }
 
 function onHumanCardClick(idx) {
-  if (isActionLocked || hostProcessingAction || GameState.isDealing || !GameState.inGame) return;
+  if (isTurnLocked || hostProcessingAction || GameState.isDealing || !GameState.inGame) return;
   if (GameState.turnIndex !== GameState.myPlayerId) return;
   if (GameState.players[GameState.myPlayerId].hasWon) return;
 
   const card = GameState.players[GameState.myPlayerId].hand[idx];
   if (!card || !canPlayCard(card)) return;
 
-  setActionLocked(true);
+  setTurnLocked(true);
 
   const face = getCardFace(card);
   if (face.color.startsWith('wild')) {
@@ -3450,24 +4070,24 @@ function onHumanCardClick(idx) {
       executePlayCard(GameState.myPlayerId, idx);
     } else if (GameState.guestHostConn) {
       clearTimeout(guestActionTimeout);
-      guestActionTimeout = setTimeout(() => setActionLocked(false), 3500);
+      guestActionTimeout = setTimeout(() => setTurnLocked(false), 3500);
       GameState.guestHostConn.send({ type: 'PLAY_CARD', playerId: GameState.myPlayerId, cardIndex: idx });
     }
   }
 }
 
 function onDrawDeckClick() {
-  if (isActionLocked || hostProcessingAction || GameState.isDealing || !GameState.inGame) return;
+  if (isTurnLocked || hostProcessingAction || GameState.isDealing || !GameState.inGame) return;
   if (GameState.turnIndex !== GameState.myPlayerId) return;
   if (GameState.players[GameState.myPlayerId].hasWon) return;
 
-  setActionLocked(true);
+  setTurnLocked(true);
 
   if (GameState.isHost) {
     handlePlayerDraw(GameState.myPlayerId);
   } else if (GameState.guestHostConn) {
     clearTimeout(guestActionTimeout);
-    guestActionTimeout = setTimeout(() => setActionLocked(false), 3500);
+    guestActionTimeout = setTimeout(() => setTurnLocked(false), 3500);
     GameState.guestHostConn.send({ type: 'DRAW_CARD', playerId: GameState.myPlayerId });
   }
 }
@@ -3504,7 +4124,7 @@ function openColorPicker() {
         executePlayCard(GameState.myPlayerId, GameState.pendingWildCard, col.c);
       } else if (GameState.guestHostConn) {
         clearTimeout(guestActionTimeout);
-        guestActionTimeout = setTimeout(() => setActionLocked(false), 3500);
+        guestActionTimeout = setTimeout(() => setTurnLocked(false), 3500);
         GameState.guestHostConn.send({
           type: 'PLAY_CARD',
           playerId: GameState.myPlayerId,
@@ -3521,7 +4141,7 @@ function openColorPicker() {
 function cancelColorPicker() {
   document.getElementById('color-picker-modal').style.display = 'none';
   GameState.pendingWildCard = null;
-  setActionLocked(false);
+  setTurnLocked(false);
 }
 
 window.addEventListener('keydown', (e) => {
