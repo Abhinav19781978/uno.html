@@ -34,7 +34,7 @@
 
     /* Dynamic Difficulty Color */
     --diff-color: #0099ff;
-    --diff-bg: rgba(0, 153, 255, 0.18);
+    --diff-bg: rgba(0, 153, 255, 0.16);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -801,7 +801,34 @@
     outline: none;
   }
 
-  /* BOT DIFFICULTY SLIDER */
+  /* BOT SELECTION & SLIDER ENHANCEMENTS */
+  .bot-count-grid {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  .bot-count-btn {
+    flex: 1;
+    padding: 11px 6px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    outline: none;
+  }
+  .bot-count-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
+  .bot-count-btn.active {
+    background: linear-gradient(135deg, #ffc400, #f77000);
+    border-color: #ffd700;
+    color: #000;
+    box-shadow: 0 0 16px rgba(255, 196, 0, 0.45);
+  }
+
   .diff-slider-wrapper {
     position: relative;
     background: var(--diff-bg);
@@ -811,7 +838,7 @@
     padding: 14px 18px 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     transition: background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
   }
   .diff-top-header {
@@ -831,43 +858,69 @@
     box-shadow: 0 0 14px var(--diff-color);
     transition: background 0.45s ease, box-shadow 0.45s ease;
   }
+
+  /* Fully draggable range track and thumb */
   input[type="range"].diff-range {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 8px;
+    height: 10px;
     border-radius: 6px;
     background: var(--diff-color);
     outline: none;
     cursor: pointer;
     transition: background 0.45s ease;
-    margin: 6px 0;
+    margin: 8px 0;
     padding: 0;
     border: none;
+    pointer-events: auto;
+  }
+  input[type="range"].diff-range::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 6px;
   }
   input[type="range"].diff-range::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 26px;
     height: 26px;
+    margin-top: -8px;
     border-radius: 50%;
     background: #ffffff;
     border: 3.5px solid var(--diff-color);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 12px var(--diff-color);
-    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 14px var(--diff-color);
+    cursor: grab;
     transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
   }
-  input[type="range"].diff-range::-webkit-slider-thumb:hover { transform: scale(1.18); }
+  input[type="range"].diff-range:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    transform: scale(1.22);
+  }
+  input[type="range"].diff-range::-moz-range-track {
+    width: 100%;
+    height: 10px;
+    cursor: pointer;
+    background: transparent;
+    border-radius: 6px;
+  }
   input[type="range"].diff-range::-moz-range-thumb {
     width: 26px;
     height: 26px;
     border-radius: 50%;
     background: #ffffff;
     border: 3.5px solid var(--diff-color);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 12px var(--diff-color);
-    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 14px var(--diff-color);
+    cursor: grab;
     transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
   }
+  input[type="range"].diff-range:active::-moz-range-thumb {
+    cursor: grabbing;
+    transform: scale(1.22);
+  }
+
   .diff-slider-ticks {
     display: flex;
     justify-content: space-between;
@@ -953,6 +1006,29 @@
     border-radius: 12px;
     padding: 8px 14px;
     font-weight: 800;
+  }
+
+  /* SOLO SETUP MODAL */
+  #solo-setup-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 9, 18, 0.92);
+    backdrop-filter: blur(20px);
+    z-index: 650;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+  .solo-setup-card {
+    background: #0f182b;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 26px;
+    width: min(92vw, 440px);
+    padding: 26px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.85);
   }
 
   /* Friends Modal */
@@ -1266,6 +1342,49 @@
     </div>
   </div>
 
+  <!-- SOLO MATCH SETUP MODAL -->
+  <div id="solo-setup-modal">
+    <div class="solo-setup-card">
+      <div style="text-align:center;">
+        <div style="font-size: 1.5rem; font-weight: 900; color: #f7b300; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <span>🤖</span><span>PLAY VS BOTS</span>
+        </div>
+        <p style="font-size: 0.8rem; color: #8fa0b5; margin-top: 2px;">Customize opponents and challenge level</p>
+      </div>
+
+      <!-- BOT COUNT SELECTION -->
+      <div class="form-group">
+        <label>Number of Opponent Bots</label>
+        <div class="bot-count-grid">
+          <button type="button" class="bot-count-btn" id="bot-count-btn-1" onclick="selectBotCount(1)">1 Bot (1v1)</button>
+          <button type="button" class="bot-count-btn" id="bot-count-btn-2" onclick="selectBotCount(2)">2 Bots (3P)</button>
+          <button type="button" class="bot-count-btn active" id="bot-count-btn-3" onclick="selectBotCount(3)">3 Bots (4P)</button>
+        </div>
+      </div>
+
+      <!-- DIFFICULTY SLIDER -->
+      <div class="form-group">
+        <div class="diff-slider-wrapper" id="diff-slider-box">
+          <div class="diff-top-header">
+            <label style="color:#fff; font-size:0.75rem; letter-spacing:1px;">Bot Difficulty</label>
+            <span class="diff-badge" id="diff-badge-label">STANDARD</span>
+          </div>
+          <input type="range" class="diff-range" id="bot-diff-range" min="0" max="2" value="1" step="1">
+          <div class="diff-slider-ticks">
+            <span class="tick-label" id="tick-0" onclick="setDifficultySlider(0)">EASY</span>
+            <span class="tick-label active" id="tick-1" onclick="setDifficultySlider(1)">STANDARD</span>
+            <span class="tick-label" id="tick-2" onclick="setDifficultySlider(2)">HARD</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+        <button class="btn" onclick="confirmStartSoloGame()">START GAME</button>
+        <button class="pill-btn" style="padding:10px; justify-content:center;" onclick="closeSoloSetupModal()">BACK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- PRE-MATCH ROOM LOBBY -->
   <div id="room-lobby-modal">
     <div class="room-lobby-card">
@@ -1319,24 +1438,8 @@
         </select>
       </div>
 
-      <!-- BOT DIFFICULTY SLIDER (VS BOTS ONLY) -->
-      <div class="form-group">
-        <div class="diff-slider-wrapper" id="diff-slider-box">
-          <div class="diff-top-header">
-            <label style="color:#fff; font-size:0.75rem; letter-spacing:1px;">Bot Difficulty (Solo Mode)</label>
-            <span class="diff-badge" id="diff-badge-label">STANDARD</span>
-          </div>
-          <input type="range" class="diff-range" id="bot-diff-range" min="0" max="2" value="1" step="1" oninput="updateDifficultySlider(this.value)">
-          <div class="diff-slider-ticks">
-            <span class="tick-label" id="tick-0" onclick="setDifficultySlider(0)">EASY</span>
-            <span class="tick-label active" id="tick-1" onclick="setDifficultySlider(1)">STANDARD</span>
-            <span class="tick-label" id="tick-2" onclick="setDifficultySlider(2)">HARD</span>
-          </div>
-        </div>
-      </div>
-
       <div class="btn-group">
-        <button class="btn" onclick="startSoloGame()">Play vs Bots</button>
+        <button class="btn" onclick="openSoloSetupModal()">Play vs Bots</button>
         <button class="btn secondary" id="create-room-btn" onclick="createRoom()">Create Room</button>
       </div>
 
@@ -1557,7 +1660,7 @@ const AudioEngine = {
 document.addEventListener('pointerdown', () => AudioEngine.init(), { passive: true });
 
 /**
- * PEERJS HIGH-RELIABILITY STUN CONFIG
+ * PEERJS CONFIG
  */
 const PEER_CONFIG = {
   debug: 1,
@@ -1573,7 +1676,7 @@ const PEER_CONFIG = {
 };
 
 /**
- * AUTH & PERSISTENCE
+ * AUTH & USER STATE
  */
 let CurrentUser = {
   username: 'Player',
@@ -1872,18 +1975,19 @@ function initUserPeerNetwork() {
 }
 
 /**
- * BOT DIFFICULTY SLIDER CONTROLLER
+ * BOT DIFFICULTY CONTROLLER
  */
 const DIFFICULTY_PRESETS = [
-  { name: 'EASY', color: '#2ecc71', bg: 'rgba(46, 204, 113, 0.18)' },
-  { name: 'STANDARD', color: '#0099ff', bg: 'rgba(0, 153, 255, 0.18)' },
-  { name: 'HARD', color: '#ea2323', bg: 'rgba(234, 35, 35, 0.22)' }
+  { name: 'EASY', color: '#2ecc71', bg: 'rgba(46, 204, 113, 0.16)' },
+  { name: 'STANDARD', color: '#0099ff', bg: 'rgba(0, 153, 255, 0.16)' },
+  { name: 'HARD', color: '#ea2323', bg: 'rgba(234, 35, 35, 0.20)' }
 ];
 
 let currentSelectedDifficulty = 'standard';
+let selectedBotCount = 3;
 
 function updateDifficultySlider(value) {
-  const val = parseInt(value, 10);
+  const val = Math.max(0, Math.min(2, parseInt(value, 10)));
   const preset = DIFFICULTY_PRESETS[val];
   currentSelectedDifficulty = preset.name.toLowerCase();
 
@@ -1908,8 +2012,31 @@ function setDifficultySlider(val) {
   }
 }
 
+function selectBotCount(count) {
+  selectedBotCount = count;
+  [1, 2, 3].forEach(n => {
+    const btn = document.getElementById(`bot-count-btn-${n}`);
+    if (btn) btn.classList.toggle('active', n === count);
+  });
+}
+
+function openSoloSetupModal() {
+  document.getElementById('solo-setup-modal').style.display = 'flex';
+  setDifficultySlider(currentSelectedDifficulty === 'easy' ? 0 : (currentSelectedDifficulty === 'hard' ? 2 : 1));
+  selectBotCount(selectedBotCount);
+}
+
+function closeSoloSetupModal() {
+  document.getElementById('solo-setup-modal').style.display = 'none';
+}
+
+function confirmStartSoloGame() {
+  closeSoloSetupModal();
+  startSoloGameWithParams(selectedBotCount, currentSelectedDifficulty);
+}
+
 /**
- * GAME STATE
+ * GAME ENGINE STATE
  */
 let GameState = {
   edition: 'flip',
@@ -2382,18 +2509,34 @@ function startHostedGame() {
   initGameEngine();
 }
 
-function startSoloGame() {
+function startSoloGameWithParams(botCount, difficulty) {
   GameState.edition = document.getElementById('game-edition').value;
   GameState.isHost = true;
   GameState.myPlayerId = 0;
-  GameState.botDifficulty = currentSelectedDifficulty;
+  GameState.botDifficulty = difficulty;
+
+  const defaultBots = [
+    { name: 'Shorty', avatar: '🐭' },
+    { name: 'Archie', avatar: '🐱' },
+    { name: 'Ringo', avatar: '🐶' }
+  ];
 
   GameState.players = [
-    { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, hand: [], isBot: false, hasWon: false },
-    { id: 1, name: 'Shorty', avatar: '🐭', hand: [], isBot: true, hasWon: false },
-    { id: 2, name: 'Archie', avatar: '🐱', hand: [], isBot: true, hasWon: false },
-    { id: 3, name: 'Ringo', avatar: '🐶', hand: [], isBot: true, hasWon: false }
+    { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, hand: [], isBot: false, hasWon: false }
   ];
+
+  for (let i = 0; i < botCount; i++) {
+    const b = defaultBots[i] || { name: `Bot ${i+1}`, avatar: '🤖' };
+    GameState.players.push({
+      id: i + 1,
+      name: b.name,
+      avatar: b.avatar,
+      hand: [],
+      isBot: true,
+      hasWon: false
+    });
+  }
+
   showScreen('game');
   initGameEngine();
 }
@@ -2425,7 +2568,6 @@ function initGameEngine() {
   updateTheme();
   renderGame();
 
-  // Instantly broadcast state so all guests mount opponent hands and slots
   broadcastState();
   broadcastAnimation({ type: 'RUN_DEAL_ANIM' });
 
@@ -2478,6 +2620,7 @@ function closeMatchEndAndReturnToLobby() {
     cards.forEach(c => c.remove());
   }
 
+  document.getElementById('solo-setup-modal').style.display = 'none';
   document.getElementById('match-end-modal').style.display = 'none';
   document.getElementById('color-picker-modal').style.display = 'none';
   document.getElementById('room-lobby-modal').style.display = 'none';
@@ -2997,7 +3140,6 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
     delete card.chosenColor;
   }
 
-  // Broadcast card play animation with exact card index to guests
   broadcastAnimation({
     type: 'ANIM_CARD_THROW',
     playerId: playerId,
@@ -3039,7 +3181,6 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
           GameState.rankings.push({ id: lastP.id, name: lastP.name, avatar: lastP.avatar, rank: lastP.rank });
         }
 
-        // Broadcast final state and trigger End Screen
         broadcastState();
         broadcastAnimation({ type: 'MATCH_OVER', rankings: GameState.rankings });
         renderGame();
@@ -3366,8 +3507,9 @@ function cancelColorPicker() {
 }
 
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && document.getElementById('color-picker-modal').style.display === 'flex') {
-    cancelColorPicker();
+  if (e.key === 'Escape') {
+    if (document.getElementById('color-picker-modal').style.display === 'flex') cancelColorPicker();
+    if (document.getElementById('solo-setup-modal').style.display === 'flex') closeSoloSetupModal();
   }
 });
 
@@ -3439,7 +3581,6 @@ function renderGame() {
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
   const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing);
 
-  // Auto Pickup Deck Glow when player has no valid card to play
   const drawDeck = document.getElementById('draw-deck-3d');
   if (drawDeck) {
     const hasPlayableCards = myPlayer.hand && myPlayer.hand.some(c => canPlayCard(c));
@@ -3618,7 +3759,7 @@ function renderLeaderboard() {
   });
 }
 
-// Auto Session Restorer
+// Global Slider Event Listeners for smooth mouse and touch dragging
 window.addEventListener('load', () => {
   const activeUser = localStorage.getItem('uno_active_user');
   if (activeUser) {
@@ -3632,12 +3773,20 @@ window.addEventListener('load', () => {
       };
       showScreen('lobby');
       initUserPeerNetwork();
-      updateDifficultySlider(1);
-      return;
+    } else {
+      showScreen('auth');
     }
+  } else {
+    showScreen('auth');
   }
-  showScreen('auth');
+
+  const slider = document.getElementById('bot-diff-range');
+  if (slider) {
+    slider.addEventListener('input', (e) => updateDifficultySlider(e.target.value));
+    slider.addEventListener('change', (e) => updateDifficultySlider(e.target.value));
+  }
   updateDifficultySlider(1);
+  selectBotCount(3);
 });
 
 window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) renderGame(); });
