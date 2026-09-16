@@ -31,6 +31,10 @@
     --card-w: 92px;
     --card-h: 142px;
     --active-glow-color: rgba(234, 35, 35, 0.7);
+
+    /* Dynamic Difficulty Color */
+    --diff-color: #0099ff;
+    --diff-bg: rgba(0, 153, 255, 0.18);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -227,7 +231,6 @@
   }
   #draw-deck-3d:hover { transform: translate(-50%, -50%) scale(1.06); }
   
-  /* Glowing Draw Deck when Drawing is the ONLY Option */
   #draw-deck-3d.deck-must-draw {
     animation: deckMustDrawPulse 1.1s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -798,6 +801,93 @@
     outline: none;
   }
 
+  /* BOT DIFFICULTY SLIDER STYLING */
+  .diff-slider-wrapper {
+    position: relative;
+    background: var(--diff-bg);
+    border: 1.5px solid var(--diff-color);
+    box-shadow: 0 0 25px var(--diff-bg);
+    border-radius: 18px;
+    padding: 14px 18px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: background 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+  }
+  .diff-top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .diff-badge {
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    padding: 4px 12px;
+    border-radius: 10px;
+    background: var(--diff-color);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 0 14px var(--diff-color);
+    transition: background 0.45s ease, box-shadow 0.45s ease;
+  }
+  input[type="range"].diff-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 6px;
+    background: var(--diff-color);
+    outline: none;
+    cursor: pointer;
+    transition: background 0.45s ease;
+    margin: 6px 0;
+    padding: 0;
+    border: none;
+  }
+  input[type="range"].diff-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3.5px solid var(--diff-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 12px var(--diff-color);
+    cursor: pointer;
+    transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
+  }
+  input[type="range"].diff-range::-webkit-slider-thumb:hover {
+    transform: scale(1.18);
+  }
+  input[type="range"].diff-range::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3.5px solid var(--diff-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 12px var(--diff-color);
+    cursor: pointer;
+    transition: border-color 0.45s ease, box-shadow 0.45s ease, transform 0.15s ease;
+  }
+  .diff-slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #8fa0b5;
+  }
+  .tick-label {
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+  }
+  .tick-label:hover { color: #fff; transform: translateY(-1px); }
+  .tick-label.active {
+    color: #fff;
+    text-shadow: 0 0 10px var(--diff-color);
+  }
+
   .btn-group { display: flex; gap: 10px; }
   .btn {
     flex: 1;
@@ -1235,6 +1325,22 @@
           <option value="classic">Standard UNO (Classic Rules)</option>
           <option value="nomercy">UNO Show 'Em NO MERCY!</option>
         </select>
+      </div>
+
+      <!-- BOT DIFFICULTY SLIDER (VS BOTS ONLY) -->
+      <div class="form-group">
+        <div class="diff-slider-wrapper" id="diff-slider-box">
+          <div class="diff-top-header">
+            <label style="color:#fff; font-size:0.75rem; letter-spacing:1px;">Bot Difficulty (Solo Mode)</label>
+            <span class="diff-badge" id="diff-badge-label">STANDARD</span>
+          </div>
+          <input type="range" class="diff-range" id="bot-diff-range" min="0" max="2" value="1" step="1" oninput="updateDifficultySlider(this.value)">
+          <div class="diff-slider-ticks">
+            <span class="tick-label" id="tick-0" onclick="setDifficultySlider(0)">EASY</span>
+            <span class="tick-label active" id="tick-1" onclick="setDifficultySlider(1)">STANDARD</span>
+            <span class="tick-label" id="tick-2" onclick="setDifficultySlider(2)">HARD</span>
+          </div>
+        </div>
       </div>
 
       <div class="btn-group">
@@ -1774,6 +1880,43 @@ function initUserPeerNetwork() {
 }
 
 /**
+ * BOT DIFFICULTY SLIDER CONTROLLER
+ */
+const DIFFICULTY_PRESETS = [
+  { name: 'EASY', color: '#2ecc71', bg: 'rgba(46, 204, 113, 0.18)' },
+  { name: 'STANDARD', color: '#0099ff', bg: 'rgba(0, 153, 255, 0.18)' },
+  { name: 'HARD', color: '#ea2323', bg: 'rgba(234, 35, 35, 0.22)' }
+];
+
+let currentSelectedDifficulty = 'standard';
+
+function updateDifficultySlider(value) {
+  const val = parseInt(value, 10);
+  const preset = DIFFICULTY_PRESETS[val];
+  currentSelectedDifficulty = preset.name.toLowerCase();
+
+  const root = document.documentElement;
+  root.style.setProperty('--diff-color', preset.color);
+  root.style.setProperty('--diff-bg', preset.bg);
+
+  const badge = document.getElementById('diff-badge-label');
+  if (badge) badge.textContent = preset.name;
+
+  [0, 1, 2].forEach(i => {
+    const tick = document.getElementById(`tick-${i}`);
+    if (tick) tick.classList.toggle('active', i === val);
+  });
+}
+
+function setDifficultySlider(val) {
+  const slider = document.getElementById('bot-diff-range');
+  if (slider) {
+    slider.value = val;
+    updateDifficultySlider(val);
+  }
+}
+
+/**
  * GAME STATE
  */
 let GameState = {
@@ -1797,7 +1940,8 @@ let GameState = {
   guestHostConn: null,
   pendingWildCard: null,
   isDealing: false,
-  inGame: false
+  inGame: false,
+  botDifficulty: 'standard'
 };
 
 let activeDealIntervalTimer = null;
@@ -2184,6 +2328,7 @@ function leaveRoomLobby() {
  */
 function startHostedGame() {
   const fillBots = document.getElementById('fill-bots-check').checked;
+  GameState.botDifficulty = 'standard';
 
   if (fillBots) {
     const defaultBots = [
@@ -2215,6 +2360,8 @@ function startSoloGame() {
   GameState.edition = document.getElementById('game-edition').value;
   GameState.isHost = true;
   GameState.myPlayerId = 0;
+  GameState.botDifficulty = currentSelectedDifficulty;
+
   GameState.players = [
     { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, hand: [], isBot: false, hasWon: false },
     { id: 1, name: 'Shorty', avatar: '🐭', hand: [], isBot: true, hasWon: false },
@@ -2966,15 +3113,31 @@ function handlePlayerDraw(playerId) {
   });
 }
 
+/**
+ * THREE-TIER BOT ARTIFICIAL INTELLIGENCE
+ */
 function botTurn() {
   if (!GameState.inGame) return;
   const bot = GameState.players[GameState.turnIndex];
   if (!bot || !bot.isBot || bot.hasWon || bot.eliminated || GameState.isDealing) return;
 
-  if (bot.hand.length === 2 && Math.random() < 0.9) {
+  const diff = GameState.botDifficulty || 'standard';
+
+  // 1. UNO Call Accuracy by Tier
+  let unoCallChance = 0.95; // Hard
+  if (diff === 'standard') unoCallChance = 0.65;
+  else if (diff === 'easy') unoCallChance = 0.35;
+
+  if (bot.hand.length === 2 && Math.random() < unoCallChance) {
     GameState.unoCalledPlayers.add(bot.id);
     triggerCenterSpecialVFX('reverse', `${bot.name} UNO!`);
     AudioEngine.uno();
+  }
+
+  // 2. Unforced Errors on Easy
+  if (diff === 'easy' && Math.random() < 0.16 && GameState.stackedDrawCount === 0) {
+    handlePlayerDraw(bot.id);
+    return;
   }
 
   const valid = [];
@@ -2982,17 +3145,76 @@ function botTurn() {
 
   if (valid.length > 0) {
     let chosenIdx = valid[0];
-    const discardAllIndex = valid.find(idx => getCardFace(bot.hand[idx]).value === 'discard_all');
-    if (discardAllIndex !== undefined) chosenIdx = discardAllIndex;
-    else chosenIdx = valid[Math.floor(Math.random() * valid.length)];
+
+    if (diff === 'hard') {
+      // Tactical Evaluation (Targeting leaders, attacks, discard-all)
+      const isOpponentOnUno = GameState.players.some(p => p.id !== bot.id && !p.hasWon && p.hand.length === 1);
+      
+      const attackIdx = valid.find(idx => {
+        const val = getCardFace(bot.hand[idx]).value;
+        return val.includes('+') || val === 'skip' || val === 'skip_all';
+      });
+
+      const discardAllIdx = valid.find(idx => getCardFace(bot.hand[idx]).value === 'discard_all');
+
+      if (isOpponentOnUno && attackIdx !== undefined) {
+        chosenIdx = attackIdx;
+      } else if (discardAllIdx !== undefined) {
+        chosenIdx = discardAllIdx;
+      } else {
+        // Play action or highest number
+        const numberIdx = valid.filter(idx => !isNaN(parseInt(getCardFace(bot.hand[idx]).value)));
+        if (numberIdx.length > 0) {
+          chosenIdx = numberIdx.reduce((maxIdx, currIdx) => {
+            const maxVal = parseInt(getCardFace(bot.hand[maxIdx]).value);
+            const currVal = parseInt(getCardFace(bot.hand[currIdx]).value);
+            return currVal > maxVal ? currIdx : maxIdx;
+          }, numberIdx[0]);
+        } else {
+          chosenIdx = valid[Math.floor(Math.random() * valid.length)];
+        }
+      }
+    } else if (diff === 'standard') {
+      // Balanced Standard Play
+      const discardAllIndex = valid.find(idx => getCardFace(bot.hand[idx]).value === 'discard_all');
+      if (discardAllIndex !== undefined && Math.random() < 0.7) chosenIdx = discardAllIndex;
+      else chosenIdx = valid[Math.floor(Math.random() * valid.length)];
+    } else {
+      // Easy Mode: Holds attacks, plays basic cards first
+      const simpleNumber = valid.find(idx => !isNaN(parseInt(getCardFace(bot.hand[idx]).value)));
+      if (simpleNumber !== undefined) chosenIdx = simpleNumber;
+      else chosenIdx = valid[Math.floor(Math.random() * valid.length)];
+    }
 
     const card = bot.hand[chosenIdx];
     const face = getCardFace(card);
     let chosenCol = 'red';
+
     if (face.color.startsWith('wild')) {
       const pool = GameState.flipSide === 'light' ? ['red', 'blue', 'green', 'yellow'] : ['pink', 'teal', 'purple', 'orange'];
-      chosenCol = pool[Math.floor(Math.random() * pool.length)];
+      
+      if (diff === 'hard') {
+        // Pick dominant hand color
+        const colorCounts = {};
+        pool.forEach(c => colorCounts[c] = 0);
+        bot.hand.forEach(c => {
+          const cCol = getCardFace(c).color;
+          if (colorCounts[cCol] !== undefined) colorCounts[cCol]++;
+        });
+        chosenCol = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] >= colorCounts[b] ? a : b);
+      } else if (diff === 'standard') {
+        if (Math.random() < 0.5) {
+          const myColors = bot.hand.map(c => getCardFace(c).color).filter(c => pool.includes(c));
+          chosenCol = myColors.length > 0 ? myColors[Math.floor(Math.random() * myColors.length)] : pool[0];
+        } else {
+          chosenCol = pool[Math.floor(Math.random() * pool.length)];
+        }
+      } else {
+        // Easy: Completely random color choice
+        chosenCol = pool[Math.floor(Math.random() * pool.length)];
+      }
     }
+
     executePlayCard(bot.id, chosenIdx, chosenCol);
   } else {
     handlePlayerDraw(bot.id);
@@ -3242,7 +3464,6 @@ function renderGame() {
 
     const box = document.getElementById(`player-${spotName}`);
     const portrait = document.getElementById(`p-portrait-${spotName}`);
-    const nameEl = document.getElementById(`p-name-${spotName}`);
     const countEl = document.getElementById(`p-count-${spotName}`);
     const handEl = document.getElementById(`opp-hand-${spotName}`);
 
@@ -3346,10 +3567,12 @@ window.addEventListener('load', () => {
       };
       showScreen('lobby');
       initUserPeerNetwork();
+      updateDifficultySlider(1);
       return;
     }
   }
   showScreen('auth');
+  updateDifficultySlider(1);
 });
 
 window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) renderGame(); });
