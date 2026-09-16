@@ -846,6 +846,62 @@
   }
   .leave-game-btn:hover { transform: translateY(-2px) scale(1.05); }
 
+  /* SORT CARDS TOGGLE BUTTON */
+  #sort-hand-btn {
+    position: absolute;
+    left: 26px;
+    bottom: 180px;
+    z-index: 115;
+    background: rgba(14, 21, 37, 0.92);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 10px 16px;
+    color: #fff;
+    font-family: 'Montserrat', 'Outfit', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.65);
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: auto;
+    outline: none;
+    text-transform: uppercase;
+  }
+  #sort-hand-btn:hover {
+    transform: translateY(-2px) scale(1.06);
+    border-color: #f7b300;
+  }
+  #sort-hand-btn.active {
+    background: linear-gradient(135deg, #f7b300 0%, #ff7700 100%);
+    border-color: #ffffff;
+    color: #05070e;
+    box-shadow: 0 0 24px rgba(247, 179, 0, 0.85);
+  }
+  .sort-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ff4757;
+    box-shadow: 0 0 8px #ff4757;
+    transition: all 0.2s ease;
+  }
+  #sort-hand-btn.active .sort-indicator {
+    background: #00ff73;
+    box-shadow: 0 0 10px #00ff73;
+  }
+  @media (max-width: 600px) {
+    #sort-hand-btn {
+      left: 12px;
+      bottom: 190px;
+      padding: 7px 12px;
+      font-size: 0.7rem;
+    }
+  }
+
   #leaderboard-widget {
     position: absolute;
     top: 18px;
@@ -1640,6 +1696,13 @@
       <span>✕</span><span>LEAVE GAME</span>
     </button>
 
+    <!-- SORT HAND TOGGLE BUTTON -->
+    <button id="sort-hand-btn" onclick="toggleHandSort()" title="Toggle auto-sort for cards">
+      <span class="sort-indicator"></span>
+      <span style="font-size:1.1rem;">🎴</span>
+      <span id="sort-btn-txt">SORT: OFF</span>
+    </button>
+
     <div id="leaderboard-widget">
       <div class="lb-header">
         <span>🏆</span>
@@ -2223,8 +2286,6 @@ function onHostChangeEdition(newEdition) {
   GameState.edition = newEdition;
   const mainEditionSelect = document.getElementById('game-edition');
   if (mainEditionSelect) mainEditionSelect.value = newEdition;
-
-  // Broadcast the new edition immediately to guests in room lobby
   broadcastLobbyUpdate();
 }
 
@@ -2234,6 +2295,70 @@ function onHostChangeEdition(newEdition) {
 let isTurnLocked = false;
 let hostProcessingAction = false;
 let guestActionTimeout = null;
+
+/* CARD SORTING TOGGLE STATE */
+let isHandSortActive = localStorage.getItem('uno_hand_sort') === 'true';
+
+function toggleHandSort() {
+  isHandSortActive = !isHandSortActive;
+  localStorage.setItem('uno_hand_sort', isHandSortActive);
+  updateSortButtonUI();
+  renderGame();
+}
+
+function updateSortButtonUI() {
+  const btn = document.getElementById('sort-hand-btn');
+  const txt = document.getElementById('sort-btn-txt');
+  if (!btn || !txt) return;
+  if (isHandSortActive) {
+    btn.classList.add('active');
+    txt.textContent = 'SORT: ON';
+  } else {
+    btn.classList.remove('active');
+    txt.textContent = 'SORT: OFF';
+  }
+}
+
+/**
+ * SORTING WEIGHT CALCULATION
+ * 1. By Colors (Red -> Blue -> Green -> Yellow / Pink -> Teal -> Purple -> Orange)
+ * 2. Color's + Cards on right of that color
+ * 3. All Wildcards & +Wildcards on far right of hand
+ */
+function getCardSortWeight(card) {
+  const face = getCardFace(card);
+  const color = (face.color || '').toLowerCase();
+  const val = String(face.value || '');
+  const isPlus = val.includes('+');
+  const isWild = color.startsWith('wild') || face.type === 'wild' || face.type === 'wild_draw_color';
+
+  let colorOrder = 99;
+  if (isWild) {
+    colorOrder = 900; // Put all wildcards at the far right
+  } else {
+    const lightMap = { red: 10, blue: 20, green: 30, yellow: 40 };
+    const darkMap = { pink: 10, teal: 20, purple: 30, orange: 40 };
+    const colorMap = GameState.flipSide === 'dark' ? darkMap : lightMap;
+    colorOrder = colorMap[color] || 50;
+  }
+
+  // 0: Normal numbers/actions, 1: Plus cards of that color (places + cards on the right side)
+  const plusGroup = isPlus ? 1 : 0;
+
+  // Secondary ordering within sub-group
+  let valWeight = 0;
+  if (isPlus) {
+    const num = parseInt(val.replace(/[^0-9]/g, ''), 10) || 0;
+    valWeight = num;
+  } else if (!isNaN(parseInt(val, 10))) {
+    valWeight = parseInt(val, 10);
+  } else {
+    const actionWeights = { skip: 15, reverse: 16, flip: 17, discard_all: 18, skip_all: 19, wild: 10, wild_color: 11 };
+    valWeight = actionWeights[val.toLowerCase()] || 25;
+  }
+
+  return { colorOrder, plusGroup, valWeight };
+}
 
 function setTurnLocked(locked) {
   isTurnLocked = locked;
@@ -2366,6 +2491,13 @@ function getCardThrowOrigin(playerId, cardIdx) {
   }
 
   if (playerId === GameState.myPlayerId) {
+    if (cardIdx !== undefined) {
+      const exactSlot = document.querySelector(`.human-hand-container .card-slot[data-original-index="${cardIdx}"]`);
+      if (exactSlot) {
+        const r = exactSlot.getBoundingClientRect();
+        if (r.width > 0) return { x: r.left, y: r.top };
+      }
+    }
     const slots = document.querySelectorAll('.human-hand-container .card-slot');
     if (cardIdx !== undefined && slots[cardIdx]) {
       const r = slots[cardIdx].getBoundingClientRect();
@@ -2870,6 +3002,7 @@ function initGameEngine() {
 
   document.getElementById('match-end-modal').style.display = 'none';
   updateTheme();
+  updateSortButtonUI();
   renderGame();
 
   broadcastState();
@@ -3198,7 +3331,7 @@ function getVectorCardInner(face) {
     return `<svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));"><circle cx="50" cy="50" r="32" fill="none" stroke="#ffffff" stroke-width="11"/><line x1="28" y1="28" x2="72" y2="72" stroke="#ffffff" stroke-width="11"/><circle cx="50" cy="50" r="32" fill="none" stroke="#000" stroke-width="2"/><line x1="28" y1="28" x2="72" y2="72" stroke="#000" stroke-width="2"/></svg>`;
   }
   if (val === 'skip_all') {
-    return `<svg viewBox="0 0 100 100" style="width:75%; height:75%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.6));"><circle cx="50" cy="50" r="35" fill="none" stroke="#ffffff" stroke-width="8"/><circle cx="50" cy="50" r="22" fill="none" stroke="#ffffff" stroke-width="6"/><line x1="25" y1="25" x2="75" y2="75" stroke="#ffffff" stroke-width="9"/></svg>`;
+    return `<svg viewBox="0 0 100 100" style="width:75%; height:75%; transform: rotate(28deg); filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));"><circle cx="50" cy="50" r="35" fill="none" stroke="#ffffff" stroke-width="8"/><circle cx="50" cy="50" r="22" fill="none" stroke="#ffffff" stroke-width="6"/><line x1="25" y1="25" x2="75" y2="75" stroke="#ffffff" stroke-width="9"/></svg>`;
   }
   if (val === '+1' || val === '+2' || val === '+5') {
     return `<div style="display:flex; flex-direction:column; align-items:center; transform: rotate(28deg);"><span class="card-val-num" style="transform:none; font-size:2.4rem;">${val}</span></div>`;
@@ -3372,9 +3505,25 @@ function renderGame() {
     const maxAngle = Math.min(18, total * 2.2) * angleDampener;
     const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
 
-    myHand.forEach((card, idx) => {
+    // Map each card to its original array index to prevent play desync
+    let displayCards = myHand.map((card, originalIndex) => ({ card, originalIndex }));
+
+    // If sorting toggle is active, apply sorting rules
+    if (isHandSortActive) {
+      displayCards.sort((a, b) => {
+        const wa = getCardSortWeight(a.card);
+        const wb = getCardSortWeight(b.card);
+        if (wa.colorOrder !== wb.colorOrder) return wa.colorOrder - wb.colorOrder;
+        if (wa.plusGroup !== wb.plusGroup) return wa.plusGroup - wb.plusGroup;
+        if (wa.valWeight !== wb.valWeight) return wa.valWeight - wb.valWeight;
+        return a.originalIndex - b.originalIndex;
+      });
+    }
+
+    displayCards.forEach(({ card, originalIndex }, displayIdx) => {
       const slotEl = document.createElement('div');
       slotEl.className = 'card-slot';
+      slotEl.dataset.originalIndex = originalIndex;
 
       const cardEl = createCardElement(card);
       if (isMyTurn) {
@@ -3383,14 +3532,14 @@ function renderGame() {
       }
 
       slotEl.appendChild(cardEl);
-      const offset = idx - (total - 1) / 2;
+      const offset = displayIdx - (total - 1) / 2;
       const rotateDeg = total > 1 ? (offset / ((total - 1) / 2 || 1)) * (maxAngle / 2) : 0;
       const translateY = Math.abs(offset) * yDampener;
       const translateX = offset * step;
 
       slotEl.style.transform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
-      slotEl.style.zIndex = idx + 1;
-      slotEl.onclick = () => onHumanCardClick(idx);
+      slotEl.style.zIndex = displayIdx + 1;
+      slotEl.onclick = () => onHumanCardClick(originalIndex);
       handBox.appendChild(slotEl);
     });
   }
@@ -3493,6 +3642,7 @@ function renderGame() {
   });
 
   renderLeaderboard();
+  updateSortButtonUI();
 }
 
 function renderLeaderboard() {
@@ -4245,6 +4395,7 @@ window.addEventListener('load', () => {
   }
   updateDifficultySlider(1);
   selectBotCount(3);
+  updateSortButtonUI();
 });
 
 window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) renderGame(); });
