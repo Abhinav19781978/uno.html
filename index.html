@@ -57,7 +57,7 @@
     cursor: default !important;
   }
 
-  /* GLOBAL TOP-RIGHT MUTE TOGGLE */
+  /* IN-GAME TOP-RIGHT MUTE TOGGLE */
   #sound-toggle-btn {
     position: fixed;
     top: 14px;
@@ -71,17 +71,16 @@
     color: #fff;
     font-size: 1.25rem;
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    transition: transform 0.15s ease, border-color 0.15s ease;
     outline: none;
   }
   #sound-toggle-btn:hover {
     transform: scale(1.1);
     border-color: #f7b300;
-    background: rgba(25, 35, 60, 0.95);
   }
 
   #auth-screen, #lobby-screen {
@@ -193,28 +192,49 @@
   @keyframes driftCard6 { 0% { transform: translateY(0) rotate(-20deg) scale(1.18); } 100% { transform: translateY(-18px) rotate(-24deg) scale(1.22); } }
   @media (max-width: 900px) { .ambient-cards-layer { display: none !important; } }
 
-  /* HOME PROFILE & LOBBY */
+  /* EXPANDABLE / COMPRESSIBLE PROFILE BANNER */
   .home-profile-banner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: min(92vw, 470px);
-    background: rgba(14, 21, 37, 0.92) !important;
+    width: auto;
+    min-width: 175px;
+    max-width: 220px;
+    background: rgba(14, 21, 37, 0.94) !important;
     backdrop-filter: blur(20px);
-    border: 1.5px solid rgba(255, 255, 255, 0.18);
-    border-radius: 20px;
-    padding: 10px 18px;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 7px 14px;
     margin-bottom: 12px;
     z-index: 20;
     box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    transition: max-width 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+                padding 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+    overflow: hidden;
   }
-  .user-badge-left { display: flex; align-items: center; gap: 12px; }
+  .home-profile-banner.expanded {
+    max-width: min(94vw, 520px);
+    width: min(94vw, 520px);
+    padding: 9px 18px;
+    border-color: rgba(247, 179, 0, 0.65);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(247, 179, 0, 0.25);
+  }
+
+  .user-badge-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
   .user-avatar-tag {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
     background: rgba(255,255,255,0.08);
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -222,18 +242,37 @@
     cursor: pointer;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
   }
-  .user-avatar-tag:hover { transform: scale(1.12); box-shadow: 0 0 15px rgba(247, 179, 0, 0.8); }
+  .user-avatar-tag:hover { transform: scale(1.1); box-shadow: 0 0 14px rgba(247, 179, 0, 0.8); }
   .user-text-info { display: flex; flex-direction: column; }
-  .user-username { font-weight: 900; font-size: 1rem; color: #fff; }
-  .user-wins-stat { font-size: 0.72rem; font-weight: 800; color: #f7b300; letter-spacing: 1px; }
+  .user-username { font-weight: 900; font-size: 0.95rem; color: #fff; }
+  .user-wins-stat { font-size: 0.7rem; font-weight: 800; color: #f7b300; letter-spacing: 1px; }
+
+  /* SLIDE-OUT ACTIONS IN PROFILE BANNER */
+  .profile-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+  }
+  .home-profile-banner.expanded .profile-banner-actions {
+    max-width: 320px;
+    opacity: 1;
+    pointer-events: auto;
+    margin-left: 10px;
+  }
 
   .pill-btn {
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.25);
     color: #fff;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 18px;
+    font-size: 0.72rem;
     font-weight: 800;
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
@@ -746,6 +785,7 @@
   @keyframes ringSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
   @keyframes ringSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
 
+  /* SIDE-BY-SIDE CENTER PILES */
   #discard-pile-3d {
     position: absolute;
     top: 48%;
@@ -828,7 +868,6 @@
     box-shadow: -1px 1px 0 #ddd, -2px 2px 0 #ccc, -3px 3px 0 #bbb, -4px 4px 0 #aaa, -5px 5px 0 #999, -6px 6px 0 #888, -10px 12px 20px rgba(0,0,0,0.65);
   }
 
-  /* LEAVE BUTTON POSITIONED BESIDE MUTE TOGGLE */
   .leave-game-btn {
     position: absolute;
     top: 14px;
@@ -893,6 +932,58 @@
     transition: all 0.2s ease;
   }
   #sort-hand-btn.active .sort-indicator { background: #00ff73; box-shadow: 0 0 10px #00ff73; }
+
+  /* STANDINGS WIDGET */
+  #leaderboard-widget {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 175px;
+    background: rgba(10, 16, 26, 0.92);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 8px 10px;
+    z-index: 95;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: auto;
+    backdrop-filter: blur(10px);
+  }
+  .lb-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 3px;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #f7b300;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  #lb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 2px 0;
+  }
+  .lb-left { display: flex; align-items: center; gap: 5px; overflow: hidden; }
+  .lb-rank { font-weight: 900; width: 16px; font-size: 0.76rem; }
+  .lb-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+  .lb-score { font-size: 0.68rem; font-weight: 900; padding: 2px 5px; border-radius: 6px; background: rgba(255,255,255,0.1); }
+  .lb-score.won { background: #f7b300; color: #000; }
 
   /* 7 PERIMETER OPPONENT SLOTS */
   .player-spot {
@@ -994,7 +1085,7 @@
   }
   .opp-stand-card:first-child { margin-left: 0 !important; }
 
-  /* CARDS & HAND */
+  /* CARD STYLING */
   .card {
     width: var(--card-w);
     height: var(--card-h);
@@ -1387,7 +1478,7 @@
 </head>
 <body>
 
-  <!-- GLOBAL AUDIO TOGGLE BUTTON -->
+  <!-- IN-GAME TOP-RIGHT MUTE TOGGLE -->
   <button id="sound-toggle-btn" onclick="toggleAudioMute()" title="Mute/Unmute Audio">🔊</button>
 
   <div id="flash-overlay"></div>
@@ -1665,98 +1756,34 @@
     </div>
   </div>
 
-  <!-- HOME SCREEN (LOBBY WITH PARLOR BACKGROUND & RESTORED UI STYLE) -->
+  <!-- HOME SCREEN (EXPANDABLE/COMPRESSIBLE PROFILE HEADER) -->
   <div id="lobby-screen" style="display:none;">
-    
-    <!-- Warm Luxury Lounge Atmosphere -->
     <div class="home-parlor-bg">
       <div class="parlor-walls"></div>
       <div class="parlor-table-deck"></div>
-      
-      <!-- Floating Glowing 3D Cards -->
       <div class="ambient-cards-layer">
-        <div class="float-glow-card fcard-1 c-red">
-          <div class="card-face">
-            <div class="mini-uno-badge">UNO</div>
-            <div class="card-corner top-left">⇄</div>
-            <div class="card-oval">
-              <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);">
-                <path d="M 28,62 L 14,44 L 30,44 C 40,44 50,50 50,62 L 40,62 C 40,54 34,51 30,51 L 28,62 Z" fill="#fff" stroke="#111" stroke-width="2"/>
-                <path d="M 72,38 L 86,56 L 70,56 C 60,56 50,50 50,38 L 60,38 C 60,46 66,49 70,49 L 72,38 Z" fill="#fff" stroke="#111" stroke-width="2"/>
-              </svg>
-            </div>
-            <div class="card-corner bottom-right">⇄</div>
-          </div>
-        </div>
-
-        <div class="float-glow-card fcard-2 c-yellow">
-          <div class="card-face">
-            <div class="mini-uno-badge">UNO</div>
-            <div class="card-corner top-left">1</div>
-            <div class="card-oval"><span class="card-val-num">1</span></div>
-            <div class="card-corner bottom-right">1</div>
-          </div>
-        </div>
-
-        <div class="float-glow-card fcard-3 c-purple">
-          <div class="card-face">
-            <div class="mini-uno-badge">FLIP!</div>
-            <div class="card-corner top-left">🗘</div>
-            <div class="card-oval">
-              <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);">
-                <path d="M 50 18 A 32 32 0 0 1 82 50 L 92 42 L 88 64 L 66 60 L 74 54 A 24 24 0 0 0 50 26 Z" fill="#fff" stroke="#000" stroke-width="2"/>
-                <path d="M 50 82 A 32 32 0 0 1 18 50 L 8 58 L 12 36 L 34 40 L 26 46 A 24 24 0 0 0 50 74 Z" fill="#fff" stroke="#000" stroke-width="2"/>
-              </svg>
-            </div>
-            <div class="card-corner bottom-right">🗘</div>
-          </div>
-        </div>
-
-        <div class="float-glow-card fcard-4 c-blue">
-          <div class="card-face">
-            <div class="mini-uno-badge">UNO</div>
-            <div class="card-corner top-left">4</div>
-            <div class="card-oval"><span class="card-val-num">4</span></div>
-            <div class="card-corner bottom-right">4</div>
-          </div>
-        </div>
-
-        <div class="float-glow-card fcard-5 c-teal">
-          <div class="card-face">
-            <div class="mini-uno-badge">FLIP!</div>
-            <div class="card-corner top-left">2</div>
-            <div class="card-oval"><span class="card-val-num">2</span></div>
-            <div class="card-corner bottom-right">2</div>
-          </div>
-        </div>
-
-        <div class="float-glow-card fcard-6 c-green">
-          <div class="card-face">
-            <div class="mini-uno-badge">UNO</div>
-            <div class="card-corner top-left">⊘</div>
-            <div class="card-oval">
-              <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);">
-                <circle cx="50" cy="50" r="32" fill="none" stroke="#fff" stroke-width="10"/>
-                <line x1="28" y1="28" x2="72" y2="72" stroke="#fff" stroke-width="10"/>
-              </svg>
-            </div>
-            <div class="card-corner bottom-right">⊘</div>
-          </div>
-        </div>
+        <div class="float-glow-card fcard-1 c-red"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">⇄</div><div class="card-oval"><svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);"><path d="M 28,62 L 14,44 L 30,44 C 40,44 50,50 50,62 L 40,62 C 40,54 34,51 30,51 L 28,62 Z" fill="#fff" stroke="#111" stroke-width="2"/><path d="M 72,38 L 86,56 L 70,56 C 60,56 50,50 50,38 L 60,38 C 60,46 66,49 70,49 L 72,38 Z" fill="#fff" stroke="#111" stroke-width="2"/></svg></div><div class="card-corner bottom-right">⇄</div></div></div>
+        <div class="float-glow-card fcard-2 c-yellow"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">1</div><div class="card-oval"><span class="card-val-num">1</span></div><div class="card-corner bottom-right">1</div></div></div>
+        <div class="float-glow-card fcard-3 c-purple"><div class="card-face"><div class="mini-uno-badge">FLIP!</div><div class="card-corner top-left">🗘</div><div class="card-oval"><svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);"><path d="M 50 18 A 32 32 0 0 1 82 50 L 92 42 L 88 64 L 66 60 L 74 54 A 24 24 0 0 0 50 26 Z" fill="#fff" stroke="#000" stroke-width="2"/><path d="M 50 82 A 32 32 0 0 1 18 50 L 8 58 L 12 36 L 34 40 L 26 46 A 24 24 0 0 0 50 74 Z" fill="#fff" stroke="#000" stroke-width="2"/></svg></div><div class="card-corner bottom-right">🗘</div></div></div>
+        <div class="float-glow-card fcard-4 c-blue"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">4</div><div class="card-oval"><span class="card-val-num">4</span></div><div class="card-corner bottom-right">4</div></div></div>
+        <div class="float-glow-card fcard-5 c-teal"><div class="card-face"><div class="mini-uno-badge">FLIP!</div><div class="card-corner top-left">2</div><div class="card-oval"><span class="card-val-num">2</span></div><div class="card-corner bottom-right">2</div></div></div>
+        <div class="float-glow-card fcard-6 c-green"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">⊘</div><div class="card-oval"><svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);"><circle cx="50" cy="50" r="32" fill="none" stroke="#fff" stroke-width="10"/><line x1="28" y1="28" x2="72" y2="72" stroke="#fff" stroke-width="10"/></svg></div><div class="card-corner bottom-right">⊘</div></div></div>
       </div>
     </div>
 
-    <!-- Active Restored Menu UI -->
-    <div class="home-profile-banner">
-      <div class="user-badge-left">
-        <div class="user-avatar-tag" id="bar-user-avatar" onclick="openEmojiPickerModal()" title="Click to choose profile emoji">⚡</div>
+    <!-- EXPANDABLE PROFILE BAR -->
+    <div class="home-profile-banner" id="home-profile-banner">
+      <div class="user-badge-left" onclick="toggleProfileBanner()" title="Click to view profile options">
+        <div class="user-avatar-tag" id="bar-user-avatar">⚡</div>
         <div class="user-text-info">
           <span class="user-username" id="bar-user-name">Player</span>
           <span class="user-wins-stat" id="bar-user-wins">Wins: 0</span>
         </div>
       </div>
-      <div style="display:flex; gap:8px; align-items:center;">
+      <!-- SLIDE OUT CONTROLS: CHANGE EMOJI, MUTE, LOGOUT -->
+      <div class="profile-banner-actions">
         <button class="pill-btn" onclick="openEmojiPickerModal()" style="background:rgba(247,179,0,0.18); border-color:#f7b300; color:#ffd700;">CHANGE EMOJI</button>
+        <button class="pill-btn" id="banner-mute-btn" onclick="toggleAudioMute()">🔊 SOUND: ON</button>
         <button class="pill-btn danger" onclick="logoutUser()">LOGOUT</button>
       </div>
     </div>
@@ -1815,7 +1842,7 @@
       <span id="sort-btn-txt">SORT: OFF</span>
     </button>
 
-    <!-- COLLAPSIBLE STANDINGS WIDGET -->
+    <!-- STANDINGS WIDGET -->
     <div id="leaderboard-widget">
       <div class="lb-header" onclick="toggleLeaderboard()" title="Click to minimize/expand standings">
         <span style="display:flex; align-items:center; gap:5px;">🏆 <span>Standings</span></span>
@@ -1921,15 +1948,37 @@ let isAudioMuted = localStorage.getItem('uno_muted') === 'true';
 
 function updateMuteButtonUI() {
   const btn = document.getElementById('sound-toggle-btn');
-  if (!btn) return;
-  btn.textContent = isAudioMuted ? '🔇' : '🔊';
-  btn.title = isAudioMuted ? 'Unmute Audio' : 'Mute Audio';
+  const bannerMuteBtn = document.getElementById('banner-mute-btn');
+  if (btn) {
+    btn.textContent = isAudioMuted ? '🔇' : '🔊';
+    btn.title = isAudioMuted ? 'Unmute Audio' : 'Mute Audio';
+  }
+  if (bannerMuteBtn) {
+    bannerMuteBtn.textContent = isAudioMuted ? '🔇 SOUND: OFF' : '🔊 SOUND: ON';
+    if (isAudioMuted) {
+      bannerMuteBtn.style.background = 'rgba(234, 35, 35, 0.35)';
+      bannerMuteBtn.style.borderColor = 'rgba(234, 35, 35, 0.6)';
+    } else {
+      bannerMuteBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+      bannerMuteBtn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+    }
+  }
 }
 
 function toggleAudioMute() {
   isAudioMuted = !isAudioMuted;
   localStorage.setItem('uno_muted', isAudioMuted);
   updateMuteButtonUI();
+}
+
+/**
+ * TOGGLE PROFILE BANNER (EXPAND / COMPRESS)
+ */
+function toggleProfileBanner() {
+  const banner = document.getElementById('home-profile-banner');
+  if (banner) {
+    banner.classList.toggle('expanded');
+  }
 }
 
 const AudioEngine = {
@@ -2213,6 +2262,12 @@ function showScreen(screen) {
   document.getElementById('auth-screen').style.display = (screen === 'auth') ? 'flex' : 'none';
   document.getElementById('lobby-screen').style.display = (screen === 'lobby') ? 'flex' : 'none';
   document.getElementById('viewport-3d').style.display = (screen === 'game') ? 'flex' : 'none';
+  
+  const inGameSoundBtn = document.getElementById('sound-toggle-btn');
+  if (inGameSoundBtn) {
+    inGameSoundBtn.style.display = (screen === 'game') ? 'flex' : 'none';
+  }
+
   if (screen === 'lobby') updateUserUI();
 }
 
@@ -2433,6 +2488,12 @@ function closeSoloSetupModal() { document.getElementById('solo-setup-modal').sty
 function confirmStartSoloGame() {
   closeSoloSetupModal();
   startSoloGameWithParams(selectedBotCount, currentSelectedDifficulty);
+}
+
+function getEditionLabel(ed) {
+  if (ed === 'classic') return "Standard UNO (Classic Rules)";
+  if (ed === 'nomercy') return "UNO Show 'Em NO MERCY!";
+  return "UNO FLIP! (Light & Dark Sides)";
 }
 
 function onHostChangeEdition(newEdition) {
@@ -3109,6 +3170,7 @@ function initGameEngine() {
   document.getElementById('match-end-modal').style.display = 'none';
   updateTheme();
   updateSortButtonUI();
+  updateMuteButtonUI();
   renderGame();
 
   broadcastState();
