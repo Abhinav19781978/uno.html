@@ -57,6 +57,33 @@
     cursor: default !important;
   }
 
+  /* GLOBAL TOP-RIGHT MUTE TOGGLE */
+  #sound-toggle-btn {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 1000;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(14, 21, 37, 0.92);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    outline: none;
+  }
+  #sound-toggle-btn:hover {
+    transform: scale(1.1);
+    border-color: #f7b300;
+    background: rgba(25, 35, 60, 0.95);
+  }
+
   #auth-screen, #lobby-screen {
     position: fixed;
     inset: 0;
@@ -401,7 +428,7 @@
   .tick-label.active { color: #fff; text-shadow: 0 0 10px var(--diff-color); }
 
   /* Modals */
-  #room-lobby-modal, #solo-setup-modal, #friends-modal, #emoji-picker-modal {
+  #room-lobby-modal, #solo-setup-modal, #friends-modal, #emoji-picker-modal, #rulebook-modal {
     position: fixed;
     inset: 0;
     background: rgba(6, 9, 18, 0.94);
@@ -411,7 +438,7 @@
     justify-content: center;
     align-items: center;
   }
-  .room-lobby-card, .solo-setup-card, .friends-card, .emoji-picker-card {
+  .room-lobby-card, .solo-setup-card, .friends-card, .emoji-picker-card, .rulebook-card {
     background: #0f182b;
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 26px;
@@ -423,6 +450,67 @@
     box-shadow: 0 25px 80px rgba(0,0,0,0.85);
   }
   .room-lobby-card { text-align: center; }
+
+  /* RULE BOOK MODAL STYLES */
+  .rulebook-card {
+    width: min(92vw, 550px);
+    max-height: 88vh;
+    padding: 22px 24px;
+  }
+  .rulebook-tabs {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  .rule-tab-btn {
+    flex: 1;
+    padding: 9px 4px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    outline: none;
+  }
+  .rule-tab-btn:hover { background: rgba(255,255,255,0.12); }
+  .rule-tab-btn.active {
+    background: linear-gradient(135deg, #ffc400, #f77000);
+    border-color: #ffd700;
+    color: #000;
+    box-shadow: 0 0 16px rgba(255, 196, 0, 0.45);
+  }
+  .rulebook-content {
+    overflow-y: auto;
+    max-height: 56vh;
+    padding-right: 6px;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: #cbd5e1;
+  }
+  .rulebook-content h4 {
+    color: #f7b300;
+    font-size: 1rem;
+    margin: 10px 0 4px;
+    font-weight: 800;
+  }
+  .rulebook-content h4:first-child { margin-top: 0; }
+  .rulebook-content p { margin-bottom: 8px; }
+  .rulebook-content ul { margin-left: 18px; margin-bottom: 8px; }
+  .rulebook-content li { margin-bottom: 4px; }
+  .rulebook-content .badge-rule {
+    display: inline-block;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.1);
+    color: #ffd700;
+    margin-right: 4px;
+  }
 
   .room-code-tag {
     background: rgba(255,255,255,0.08);
@@ -494,7 +582,7 @@
   .invite-friend-btn:disabled { background: rgba(255,255,255,0.1); color: #666; cursor: not-allowed; }
   .del-friend-btn { background: transparent; border: none; color: #ff5252; font-size: 1.1rem; cursor: pointer; }
 
-  /* Match End Screen (Scroll-Safe for 8 players) */
+  /* Match End Screen */
   #match-end-modal {
     position: fixed;
     inset: 0;
@@ -658,7 +746,6 @@
   @keyframes ringSpinCW { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
   @keyframes ringSpinCCW { 0% { transform: translate(-50%, -50%) rotate(360deg); } 100% { transform: translate(-50%, -50%) rotate(0deg); } }
 
-  /* SIDE-BY-SIDE CENTER PILES (ZERO TABLE CLUTTER) */
   #discard-pile-3d {
     position: absolute;
     top: 48%;
@@ -741,10 +828,11 @@
     box-shadow: -1px 1px 0 #ddd, -2px 2px 0 #ccc, -3px 3px 0 #bbb, -4px 4px 0 #aaa, -5px 5px 0 #999, -6px 6px 0 #888, -10px 12px 20px rgba(0,0,0,0.65);
   }
 
+  /* LEAVE BUTTON POSITIONED BESIDE MUTE TOGGLE */
   .leave-game-btn {
     position: absolute;
     top: 14px;
-    right: 14px;
+    right: 66px;
     z-index: 120;
     background: linear-gradient(135deg, rgba(234, 35, 35, 0.9), rgba(168, 10, 28, 0.9));
     border: 2px solid rgba(255, 255, 255, 0.6);
@@ -806,59 +894,7 @@
   }
   #sort-hand-btn.active .sort-indicator { background: #00ff73; box-shadow: 0 0 10px #00ff73; }
 
-  /* COLLAPSIBLE STANDINGS WIDGET */
-  #leaderboard-widget {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    width: 175px;
-    background: rgba(10, 16, 26, 0.92);
-    border: 1.5px solid rgba(255, 255, 255, 0.18);
-    border-radius: 14px;
-    padding: 8px 10px;
-    z-index: 95;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    pointer-events: auto;
-    backdrop-filter: blur(10px);
-  }
-  .lb-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    padding-bottom: 3px;
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 1px;
-    color: #f7b300;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-  #lb-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-  .lb-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.74rem;
-    font-weight: 700;
-    padding: 2px 0;
-  }
-  .lb-left { display: flex; align-items: center; gap: 5px; overflow: hidden; }
-  .lb-rank { font-weight: 900; width: 16px; font-size: 0.76rem; }
-  .lb-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
-  .lb-score { font-size: 0.68rem; font-weight: 900; padding: 2px 5px; border-radius: 6px; background: rgba(255,255,255,0.1); }
-  .lb-score.won { background: #f7b300; color: #000; }
-
-  /* 7 PERIMETER OPPONENT SLOTS (UP TO 8 PLAYERS) */
+  /* 7 PERIMETER OPPONENT SLOTS */
   .player-spot {
     position: absolute;
     display: none;
@@ -958,7 +994,7 @@
   }
   .opp-stand-card:first-child { margin-left: 0 !important; }
 
-  /* CARD STYLING */
+  /* CARDS & HAND */
   .card {
     width: var(--card-w);
     height: var(--card-h);
@@ -1351,6 +1387,9 @@
 </head>
 <body>
 
+  <!-- GLOBAL AUDIO TOGGLE BUTTON -->
+  <button id="sound-toggle-btn" onclick="toggleAudioMute()" title="Mute/Unmute Audio">🔊</button>
+
   <div id="flash-overlay"></div>
 
   <!-- Invitation Toast Banner -->
@@ -1441,6 +1480,86 @@
       <div style="display:flex; gap:10px; margin-top:4px;">
         <button class="btn" onclick="saveChosenProfileEmoji()">SAVE AVATAR</button>
         <button class="pill-btn danger" style="padding:10px 18px;" onclick="closeEmojiPickerModal()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFICIAL RULE BOOK MODAL (3 MODES) -->
+  <div id="rulebook-modal">
+    <div class="rulebook-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px;">
+        <div style="font-size: 1.3rem; font-weight: 900; color: #f7b300; display:flex; align-items:center; gap:8px;">
+          <span>📖</span><span>OFFICIAL RULE BOOK</span>
+        </div>
+        <button class="del-friend-btn" onclick="closeRulebookModal()" style="font-size:1.4rem;">✕</button>
+      </div>
+
+      <!-- Page Switcher Tabs -->
+      <div class="rulebook-tabs">
+        <button type="button" class="rule-tab-btn active" id="rule-tab-classic" onclick="switchRulePage('classic')">Classic UNO</button>
+        <button type="button" class="rule-tab-btn" id="rule-tab-flip" onclick="switchRulePage('flip')">UNO Flip!</button>
+        <button type="button" class="rule-tab-btn" id="rule-tab-nomercy" onclick="switchRulePage('nomercy')">No Mercy</button>
+      </div>
+
+      <!-- PAGE 1: CLASSIC UNO -->
+      <div class="rulebook-content" id="rule-content-classic">
+        <h4>Objective</h4>
+        <p>Be the first player to play all cards from your hand before your opponents!</p>
+
+        <h4>Gameplay Basics</h4>
+        <ul>
+          <li>On your turn, match the top discard card by <b>Color</b>, <b>Number</b>, or <b>Symbol</b>.</li>
+          <li>If you have no playable card, tap the <b>Draw Deck</b> to draw 1 card.</li>
+        </ul>
+
+        <h4>Special Action Cards</h4>
+        <ul>
+          <li><span class="badge-rule">Skip (⊘)</span> Next player loses their turn.</li>
+          <li><span class="badge-rule">Reverse (⇄)</span> Reverses turn direction. In a 2-player match, acts as a Skip.</li>
+          <li><span class="badge-rule">Draw Two (+2)</span> Next player draws 2 cards and forfeits their turn (or stacks if matching).</li>
+          <li><span class="badge-rule">Wild</span> Can be played on any card; player chooses the next active color.</li>
+          <li><span class="badge-rule">Wild Draw Four (+4)</span> Player chooses active color, and next player draws 4 cards.</li>
+        </ul>
+
+        <h4>Calling UNO</h4>
+        <p>When you have only <b>1 card remaining</b>, you must press the flashing <b>UNO!</b> button before your turn ends!</p>
+      </div>
+
+      <!-- PAGE 2: UNO FLIP! -->
+      <div class="rulebook-content" id="rule-content-flip" style="display:none;">
+        <h4>The Flip Mechanic</h4>
+        <p>Cards have two sides: a <b>Light Side</b> (Red, Blue, Green, Yellow) and a <b>Dark Side</b> (Pink, Teal, Purple, Orange). When a <span class="badge-rule">FLIP (🗘)</span> card is played, the entire match flips over: your hand, opponent hands, draw pile, and discard stack!</p>
+
+        <h4>Light Side Actions</h4>
+        <ul>
+          <li><span class="badge-rule">Draw One (+1)</span> Next player draws 1 card.</li>
+          <li><span class="badge-rule">Skip (⊘)</span> Skips the next player.</li>
+          <li><span class="badge-rule">Reverse (⇄)</span> Reverses direction of play.</li>
+          <li><span class="badge-rule">Wild</span> Changes color to any Light color.</li>
+        </ul>
+
+        <h4>Dark Side Actions (Brutal & Penalizing)</h4>
+        <ul>
+          <li><span class="badge-rule">Draw Five (+5)</span> Next player must draw 5 cards immediately!</li>
+          <li><span class="badge-rule">Skip Everyone</span> Skips every other player at the table—you immediately take another turn!</li>
+          <li><span class="badge-rule">Dark Reverse</span> Reverses direction under dark rules.</li>
+          <li><span class="badge-rule">Wild Draw Color</span> Player chooses a color; the victim must keep drawing from the deck until that specific color appears!</li>
+        </ul>
+      </div>
+
+      <!-- PAGE 3: UNO SHOW 'EM NO MERCY -->
+      <div class="rulebook-content" id="rule-content-nomercy" style="display:none;">
+        <h4>Extreme Rules & The Mercy Knockout</h4>
+        <p>Show 'Em No Mercy is the toughest, fastest edition of UNO with cutthroat stacking rules.</p>
+        <p><b>Mercy Rule:</b> If any player ever accumulates <b>25 or more cards</b> in their hand at once, they are automatically <b>knocked out</b> of the match!</p>
+
+        <h4>Attack Cards & Stacking</h4>
+        <ul>
+          <li><span class="badge-rule">+4, +6, +10</span> Heavy penalties! All draw cards can be stacked on each other if you play an equal or higher draw card to pass the attack streak down the line.</li>
+          <li><span class="badge-rule">Discard All</span> Discards all cards in your hand matching the active color in a single turn.</li>
+          <li><span class="badge-rule">Wild Reverse +4 (⇄+4)</span> Reverses turn direction AND attacks the player behind you with 4 cards.</li>
+          <li><span class="badge-rule">Skip All</span> Gives you another immediate turn while skipping the rest of the table.</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -1546,22 +1665,88 @@
     </div>
   </div>
 
-  <!-- HOME SCREEN -->
+  <!-- HOME SCREEN (LOBBY WITH PARLOR BACKGROUND & RESTORED UI STYLE) -->
   <div id="lobby-screen" style="display:none;">
+    
+    <!-- Warm Luxury Lounge Atmosphere -->
     <div class="home-parlor-bg">
       <div class="parlor-walls"></div>
       <div class="parlor-table-deck"></div>
+      
+      <!-- Floating Glowing 3D Cards -->
       <div class="ambient-cards-layer">
-        <div class="float-glow-card fcard-1 c-red"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">⇄</div><div class="card-oval"><svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);"><path d="M 28,62 L 14,44 L 30,44 C 40,44 50,50 50,62 L 40,62 C 40,54 34,51 30,51 L 28,62 Z" fill="#fff" stroke="#111" stroke-width="2"/><path d="M 72,38 L 86,56 L 70,56 C 60,56 50,50 50,38 L 60,38 C 60,46 66,49 70,49 L 72,38 Z" fill="#fff" stroke="#111" stroke-width="2"/></svg></div><div class="card-corner bottom-right">⇄</div></div></div>
-        <div class="float-glow-card fcard-2 c-yellow"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">1</div><div class="card-oval"><span class="card-val-num">1</span></div><div class="card-corner bottom-right">1</div></div></div>
-        <div class="float-glow-card fcard-3 c-purple"><div class="card-face"><div class="mini-uno-badge">FLIP!</div><div class="card-corner top-left">🗘</div><div class="card-oval"><svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);"><path d="M 50 18 A 32 32 0 0 1 82 50 L 92 42 L 88 64 L 66 60 L 74 54 A 24 24 0 0 0 50 26 Z" fill="#fff" stroke="#000" stroke-width="2"/><path d="M 50 82 A 32 32 0 0 1 18 50 L 8 58 L 12 36 L 34 40 L 26 46 A 24 24 0 0 0 50 74 Z" fill="#fff" stroke="#000" stroke-width="2"/></svg></div><div class="card-corner bottom-right">🗘</div></div></div>
-        <div class="float-glow-card fcard-4 c-blue"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">4</div><div class="card-oval"><span class="card-val-num">4</span></div><div class="card-corner bottom-right">4</div></div></div>
-        <div class="float-glow-card fcard-5 c-teal"><div class="card-face"><div class="mini-uno-badge">FLIP!</div><div class="card-corner top-left">2</div><div class="card-oval"><span class="card-val-num">2</span></div><div class="card-corner bottom-right">2</div></div></div>
-        <div class="float-glow-card fcard-6 c-green"><div class="card-face"><div class="mini-uno-badge">UNO</div><div class="card-corner top-left">⊘</div><div class="card-oval"><svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);"><circle cx="50" cy="50" r="32" fill="none" stroke="#fff" stroke-width="10"/><line x1="28" y1="28" x2="72" y2="72" stroke="#fff" stroke-width="10"/></svg></div><div class="card-corner bottom-right">⊘</div></div></div>
+        <div class="float-glow-card fcard-1 c-red">
+          <div class="card-face">
+            <div class="mini-uno-badge">UNO</div>
+            <div class="card-corner top-left">⇄</div>
+            <div class="card-oval">
+              <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);">
+                <path d="M 28,62 L 14,44 L 30,44 C 40,44 50,50 50,62 L 40,62 C 40,54 34,51 30,51 L 28,62 Z" fill="#fff" stroke="#111" stroke-width="2"/>
+                <path d="M 72,38 L 86,56 L 70,56 C 60,56 50,50 50,38 L 60,38 C 60,46 66,49 70,49 L 72,38 Z" fill="#fff" stroke="#111" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="card-corner bottom-right">⇄</div>
+          </div>
+        </div>
+
+        <div class="float-glow-card fcard-2 c-yellow">
+          <div class="card-face">
+            <div class="mini-uno-badge">UNO</div>
+            <div class="card-corner top-left">1</div>
+            <div class="card-oval"><span class="card-val-num">1</span></div>
+            <div class="card-corner bottom-right">1</div>
+          </div>
+        </div>
+
+        <div class="float-glow-card fcard-3 c-purple">
+          <div class="card-face">
+            <div class="mini-uno-badge">FLIP!</div>
+            <div class="card-corner top-left">🗘</div>
+            <div class="card-oval">
+              <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);">
+                <path d="M 50 18 A 32 32 0 0 1 82 50 L 92 42 L 88 64 L 66 60 L 74 54 A 24 24 0 0 0 50 26 Z" fill="#fff" stroke="#000" stroke-width="2"/>
+                <path d="M 50 82 A 32 32 0 0 1 18 50 L 8 58 L 12 36 L 34 40 L 26 46 A 24 24 0 0 0 50 74 Z" fill="#fff" stroke="#000" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="card-corner bottom-right">🗘</div>
+          </div>
+        </div>
+
+        <div class="float-glow-card fcard-4 c-blue">
+          <div class="card-face">
+            <div class="mini-uno-badge">UNO</div>
+            <div class="card-corner top-left">4</div>
+            <div class="card-oval"><span class="card-val-num">4</span></div>
+            <div class="card-corner bottom-right">4</div>
+          </div>
+        </div>
+
+        <div class="float-glow-card fcard-5 c-teal">
+          <div class="card-face">
+            <div class="mini-uno-badge">FLIP!</div>
+            <div class="card-corner top-left">2</div>
+            <div class="card-oval"><span class="card-val-num">2</span></div>
+            <div class="card-corner bottom-right">2</div>
+          </div>
+        </div>
+
+        <div class="float-glow-card fcard-6 c-green">
+          <div class="card-face">
+            <div class="mini-uno-badge">UNO</div>
+            <div class="card-corner top-left">⊘</div>
+            <div class="card-oval">
+              <svg viewBox="0 0 100 100" style="width:70%; height:70%; transform: rotate(28deg);">
+                <circle cx="50" cy="50" r="32" fill="none" stroke="#fff" stroke-width="10"/>
+                <line x1="28" y1="28" x2="72" y2="72" stroke="#fff" stroke-width="10"/>
+              </svg>
+            </div>
+            <div class="card-corner bottom-right">⊘</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Active Menu Profile -->
+    <!-- Active Restored Menu UI -->
     <div class="home-profile-banner">
       <div class="user-badge-left">
         <div class="user-avatar-tag" id="bar-user-avatar" onclick="openEmojiPickerModal()" title="Click to choose profile emoji">⚡</div>
@@ -1598,6 +1783,11 @@
 
       <button class="btn friends-btn" onclick="openFriendsModal()">
         👥 Friends List (<span id="friends-count-num">0</span>)
+      </button>
+
+      <!-- RULE BOOK BUTTON -->
+      <button class="btn" style="background: linear-gradient(135deg, #ff9f43 0%, #ee5253 100%) !important; box-shadow: 0 6px 20px rgba(238,82,83,0.4);" onclick="openRulebookModal()">
+        📖 Rule Book
       </button>
 
       <div class="form-group" style="margin-top: 2px;">
@@ -1653,7 +1843,7 @@
       </div>
     </div>
 
-    <!-- CENTER PILES (SIDE BY SIDE: NO OVERLAPPING) -->
+    <!-- CENTER PILES -->
     <div id="discard-pile-3d">
       <div id="active-color-badge"><div class="color-badge-dot" id="badge-dot"></div><span id="badge-text">RED</span></div>
     </div>
@@ -1725,8 +1915,23 @@
 
 <script>
 /**
- * AUDIO ENGINE
+ * AUDIO ENGINE & MUTE FUNCTIONALITY
  */
+let isAudioMuted = localStorage.getItem('uno_muted') === 'true';
+
+function updateMuteButtonUI() {
+  const btn = document.getElementById('sound-toggle-btn');
+  if (!btn) return;
+  btn.textContent = isAudioMuted ? '🔇' : '🔊';
+  btn.title = isAudioMuted ? 'Unmute Audio' : 'Mute Audio';
+}
+
+function toggleAudioMute() {
+  isAudioMuted = !isAudioMuted;
+  localStorage.setItem('uno_muted', isAudioMuted);
+  updateMuteButtonUI();
+}
+
 const AudioEngine = {
   ctx: null,
   init() {
@@ -1739,6 +1944,7 @@ const AudioEngine = {
     }
   },
   cardThrow() {
+    if (isAudioMuted) return;
     this.init();
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
@@ -1752,6 +1958,7 @@ const AudioEngine = {
     osc.start(); osc.stop(this.ctx.currentTime + 0.14);
   },
   cardPickup() {
+    if (isAudioMuted) return;
     this.init();
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
@@ -1765,6 +1972,7 @@ const AudioEngine = {
     osc.start(); osc.stop(this.ctx.currentTime + 0.11);
   },
   flipTransition() {
+    if (isAudioMuted) return;
     this.init();
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
@@ -1778,6 +1986,7 @@ const AudioEngine = {
     osc.start(); osc.stop(this.ctx.currentTime + 0.6);
   },
   vfxBoom() {
+    if (isAudioMuted) return;
     this.init();
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
@@ -1791,6 +2000,7 @@ const AudioEngine = {
     osc.start(); osc.stop(this.ctx.currentTime + 0.35);
   },
   penaltyZap() {
+    if (isAudioMuted) return;
     this.init();
     if (!this.ctx) return;
     [200, 350, 500, 750].forEach((f, i) => {
@@ -1806,6 +2016,7 @@ const AudioEngine = {
     });
   },
   uno() {
+    if (isAudioMuted) return;
     this.init();
     if (!this.ctx) return;
     [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
@@ -1821,6 +2032,7 @@ const AudioEngine = {
     });
   },
   fanfare() {
+    if (isAudioMuted) return;
     this.init();
     if (!this.ctx) return;
     [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
@@ -1837,6 +2049,27 @@ const AudioEngine = {
   }
 };
 document.addEventListener('pointerdown', () => AudioEngine.init(), { passive: true });
+
+/**
+ * RULE BOOK MODAL CONTROLLERS
+ */
+function openRulebookModal() {
+  document.getElementById('rulebook-modal').style.display = 'flex';
+  switchRulePage('classic');
+}
+
+function closeRulebookModal() {
+  document.getElementById('rulebook-modal').style.display = 'none';
+}
+
+function switchRulePage(page) {
+  ['classic', 'flip', 'nomercy'].forEach(p => {
+    const tab = document.getElementById(`rule-tab-${p}`);
+    const content = document.getElementById(`rule-content-${p}`);
+    if (tab) tab.classList.toggle('active', p === page);
+    if (content) content.style.display = (p === page) ? 'block' : 'none';
+  });
+}
 
 /**
  * PEERJS CONFIG
@@ -2202,12 +2435,6 @@ function confirmStartSoloGame() {
   startSoloGameWithParams(selectedBotCount, currentSelectedDifficulty);
 }
 
-function getEditionLabel(ed) {
-  if (ed === 'classic') return "Standard UNO (Classic Rules)";
-  if (ed === 'nomercy') return "UNO Show 'Em NO MERCY!";
-  return "UNO FLIP! (Light & Dark Sides)";
-}
-
 function onHostChangeEdition(newEdition) {
   if (!GameState.isHost) return;
   GameState.edition = newEdition;
@@ -2398,7 +2625,7 @@ function buildFallbackCard() {
 }
 
 /**
- * 8-PLAYER SIGHTLINE POSITIONING MATRIX (NO COLLISION)
+ * 8-PLAYER SIGHTLINE POSITIONING MATRIX
  */
 const SLOT_CONFIGS = {
   2: [4],
@@ -2939,6 +3166,7 @@ function closeMatchEndAndReturnToLobby() {
   document.getElementById('match-end-modal').style.display = 'none';
   document.getElementById('color-picker-modal').style.display = 'none';
   document.getElementById('room-lobby-modal').style.display = 'none';
+  document.getElementById('rulebook-modal').style.display = 'none';
   GameState.hostingRoomCode = null;
   GameState.guestHostConn = null;
 
@@ -3380,13 +3608,11 @@ function renderGame() {
     }
   }
 
-  // Reset all 7 spots first
   for (let s = 1; s <= 7; s++) {
     const box = document.getElementById(`player-spot-${s}`);
     if (box) box.style.display = 'none';
   }
 
-  // Position all other players dynamically in the 7 perimeter spots
   GameState.players.forEach(p => {
     if (p.id === GameState.myPlayerId) return;
     const spotNum = getSpotNumberForPlayer(p.id);
@@ -3755,6 +3981,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
     handleCardAction(face, playerId);
 
     if (player.hand.length === 0 && !player.hasWon) {
+      player.hand = [];
       player.hasWon = true;
       const rank = GameState.rankings.length + 1;
       player.rank = rank;
@@ -3798,7 +4025,6 @@ function executePlayCard(playerId, cardIdx, chosenColor = null) {
 
 function handleCardAction(face, playerId) {
   const val = face.value;
-  const player = GameState.players[playerId];
 
   if (val === '+1') { GameState.stackedDrawCount += 1; triggerCenterSpecialVFX('penalty'); }
   else if (val === '+2') { GameState.stackedDrawCount += 2; triggerCenterSpecialVFX('penalty'); }
@@ -3842,6 +4068,7 @@ function handleCardAction(face, playerId) {
 
   if (val === 'discard_all') {
     const targetColor = face.color;
+    const player = GameState.players[playerId];
     const matching = [];
     const kept = [];
     player.hand.forEach(c => {
@@ -4101,6 +4328,7 @@ window.addEventListener('keydown', (e) => {
     if (document.getElementById('color-picker-modal').style.display === 'flex') cancelColorPicker();
     if (document.getElementById('solo-setup-modal').style.display === 'flex') closeSoloSetupModal();
     if (document.getElementById('emoji-picker-modal').style.display === 'flex') closeEmojiPickerModal();
+    if (document.getElementById('rulebook-modal').style.display === 'flex') closeRulebookModal();
   }
 });
 
@@ -4132,6 +4360,7 @@ window.addEventListener('load', () => {
   updateDifficultySlider(1);
   selectBotCount(3);
   updateSortButtonUI();
+  updateMuteButtonUI();
 });
 
 window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) renderGame(); });
