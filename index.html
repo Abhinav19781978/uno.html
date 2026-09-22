@@ -696,6 +696,7 @@
   /* 3D ARENA & COLLISION-FREE 8-PLAYER STADIUM LAYOUT */
   #viewport-3d {
     width: 100vw;
+    will-change: transform;
     height: 100vh;
     position: fixed;
     inset: 0;
@@ -772,6 +773,7 @@
 
   .direction-ring-3d {
     position: absolute;
+    will-change: transform;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -1310,6 +1312,7 @@
   }
   .flying-card-obj {
     position: absolute;
+    will-change: transform;
     top: 0;
     left: 0;
     width: var(--card-w);
@@ -1321,6 +1324,7 @@
 
   #center-vfx-overlay {
     position: absolute;
+    will-change: transform, opacity;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
@@ -1354,6 +1358,7 @@
 
   #penalty-streak-box {
     position: absolute;
+    will-change: transform;
     top: 38%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
@@ -2788,6 +2793,86 @@ let GameState = {
 let activeDealIntervalTimer = null;
 let activeBotTurnTimeout = null;
 
+
+/*
+ * RENDER PERFORMANCE LAYER
+ *
+ * The game state can be broadcast/rendered several times during a single turn.
+ * Keep the existing visuals and immediate renderGame() API, but coalesce only
+ * explicitly scheduled renders and skip rebuilding DOM sections whose content
+ * has not changed.
+ */
+const RenderCache = {
+  discardKey: null,
+  handKey: null,
+  opponentHandKeys: new Map(),
+  leaderboardKey: null
+};
+
+let scheduledRenderFrame = 0;
+
+function invalidateRenderCaches() {
+  RenderCache.discardKey = null;
+  RenderCache.handKey = null;
+  RenderCache.opponentHandKeys.clear();
+  RenderCache.leaderboardKey = null;
+}
+
+function requestRenderGame() {
+  if (scheduledRenderFrame) return;
+  scheduledRenderFrame = requestAnimationFrame(() => {
+    scheduledRenderFrame = 0;
+    if (GameState.inGame && GameState.players.length > 0) renderGame();
+  });
+}
+
+
+let handClickDelegationBound = false;
+
+function ensureHandClickDelegation() {
+  if (handClickDelegationBound) return;
+  const handBox = document.getElementById('player-hand');
+  if (!handBox) return;
+
+  handBox.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : event.target && event.target.parentElement;
+    const slot = target && target.closest ? target.closest('.card-slot') : null;
+    if (!slot || !handBox.contains(slot)) return;
+
+    const idx = Number(slot.dataset.originalIndex);
+    if (Number.isInteger(idx)) onHumanCardClick(idx);
+  }, { passive: true });
+
+  handClickDelegationBound = true;
+}
+
+function renderKeyPart(value) {
+  return value === null || value === undefined ? '' : String(value);
+}
+
+function cardSignature(card) {
+  if (!card) return '';
+  return `${renderKeyPart(card.id)}:${renderKeyPart(card.chosenColor)}`;
+}
+
+function handSignature(hand) {
+  if (!Array.isArray(hand) || hand.length === 0) return '0';
+  return `${hand.length}|${hand.map(cardSignature).join(',')}`;
+}
+
+function visibleOpponentSignature(player) {
+  if (!player || GameState.edition !== 'flip') return '';
+  const hand = Array.isArray(player.hand) ? player.hand : [];
+  if (hand.length > 0) {
+    return hand.slice(0, 6).map(card => {
+      const face = getOppositeFace(card) || {};
+      return `${face.color || ''}:${face.value || ''}:${face.type || ''}`;
+    }).join(',');
+  }
+  const faces = Array.isArray(player.oppositeFaces) ? player.oppositeFaces : [];
+  return faces.slice(0, 6).map(face => `${face.color || ''}:${face.value || ''}:${face.type || ''}`).join(',');
+}
+
 const COLOR_HEX = {
   red: '#ea2323', blue: '#0076e6', green: '#37a324', yellow: '#f7b300',
   pink: '#d80064', teal: '#00b8a9', purple: '#7514a6', orange: '#f25500',
@@ -3137,8 +3222,31 @@ function broadcastAnimation(payload) {
 
 function broadcastState() {
   if (!GameState.isHost || !GameState.inGame) return;
+
+  // Build shared player metadata once. Previously this entire structure,
+  // including every opponent's opposite-face array, was rebuilt for every
+  // recipient connection.
+  const sharedPlayers = GameState.players.map(pl => ({
+    id: pl.id,
+    name: pl.name,
+    avatar: pl.avatar,
+    handCount: pl.hand ? pl.hand.length : 0,
+    hand: null,
+    oppositeFaces: (GameState.edition === 'flip' && pl.hand)
+      ? pl.hand.map(c => getOppositeFace(c))
+      : (pl.oppositeFaces || []),
+    isBot: pl.isBot,
+    hasWon: pl.hasWon,
+    rank: pl.rank,
+    eliminated: pl.eliminated
+  }));
+
   GameState.players.forEach(p => {
     if (p.conn && p.conn.open) {
+      const recipientPlayers = sharedPlayers.map(pl =>
+        pl.id === p.id ? { ...pl, hand: p.hand } : pl
+      );
+
       p.conn.send({
         type: 'SYNC_STATE',
         yourId: p.id,
@@ -3148,18 +3256,7 @@ function broadcastState() {
           discardPile: GameState.discardPile,
           discardRotations: GameState.discardRotations,
           rankings: GameState.rankings,
-          players: GameState.players.map(pl => ({
-            id: pl.id,
-            name: pl.name,
-            avatar: pl.avatar,
-            handCount: pl.hand ? pl.hand.length : 0,
-            hand: pl.id === p.id ? pl.hand : null,
-            oppositeFaces: (GameState.edition === 'flip' && pl.hand) ? pl.hand.map(c => getOppositeFace(c)) : (pl.oppositeFaces || []),
-            isBot: pl.isBot,
-            hasWon: pl.hasWon,
-            rank: pl.rank,
-            eliminated: pl.eliminated
-          })),
+          players: recipientPlayers,
           turnIndex: GameState.turnIndex,
           direction: GameState.direction,
           stackedDrawCount: GameState.stackedDrawCount,
@@ -3171,7 +3268,7 @@ function broadcastState() {
       });
     }
   });
-  renderGame();
+  requestRenderGame();
 }
 
 function openRoomLobbyModal(roomCode, isHost) {
@@ -3314,7 +3411,9 @@ function initGameEngine() {
   GameState.pendingAllWildDrawPlayerId = null;
   GameState.pendingAllWildDrawCardIndex = null;
   GameState.pendingWildCard = null;
+  GameState.unoCalledPlayers.clear();
   GameState.direction = 1;
+  invalidateRenderCaches();
   GameState.turnIndex = 0;
   setTurnLocked(false);
   hostProcessingAction = false;
@@ -3361,6 +3460,7 @@ function closeMatchEndAndReturnToLobby() {
   GameState.pendingAllWildDrawPlayerId = null;
   GameState.pendingAllWildDrawCardIndex = null;
   GameState.allWildSkipCount = 0;
+  invalidateRenderCaches();
 
   if (activeDealIntervalTimer) { clearInterval(activeDealIntervalTimer); activeDealIntervalTimer = null; }
   if (activeBotTurnTimeout) { clearTimeout(activeBotTurnTimeout); activeBotTurnTimeout = null; }
@@ -3421,6 +3521,7 @@ function returnToRoomLobbyAfterMatch() {
   GameState.pendingAllWildDrawPlayerId = null;
   GameState.pendingAllWildDrawCardIndex = null;
   GameState.allWildSkipCount = 0;
+  invalidateRenderCaches();
 
   if (activeDealIntervalTimer) { clearInterval(activeDealIntervalTimer); activeDealIntervalTimer = null; }
   if (activeBotTurnTimeout) { clearTimeout(activeBotTurnTimeout); activeBotTurnTimeout = null; }
@@ -3478,6 +3579,7 @@ function showMatchOverScreen(rankings) {
   GameState.pendingAllWildDrawPlayerId = null;
   GameState.pendingAllWildDrawCardIndex = null;
   GameState.allWildSkipCount = 0;
+  invalidateRenderCaches();
 
   if (activeDealIntervalTimer) { clearInterval(activeDealIntervalTimer); activeDealIntervalTimer = null; }
   if (activeBotTurnTimeout) { clearTimeout(activeBotTurnTimeout); activeBotTurnTimeout = null; }
@@ -3763,6 +3865,13 @@ function updateTheme() {
  * 8-PLAYER ARENA SEAT RENDERING
  */
 function renderGame() {
+  // A direct render should win over a queued render so geometry-dependent
+  // interactions such as hand sorting remain synchronous and reliable.
+  if (scheduledRenderFrame) {
+    cancelAnimationFrame(scheduledRenderFrame);
+    scheduledRenderFrame = 0;
+  }
+
   const dirEl = document.getElementById('dir-ring');
   if (dirEl) dirEl.className = GameState.direction === -1 ? 'direction-ring-3d reverse' : 'direction-ring-3d';
 
@@ -3783,20 +3892,29 @@ function renderGame() {
     if (dotEl) dotEl.style.background = curColorHex;
     if (textEl) textEl.textContent = GameState.edition === 'allwild' ? 'ALL WILD' : GameState.currentColor.toUpperCase();
 
-    const oldCards = discardBox.querySelectorAll('.card');
-    oldCards.forEach(c => c.remove());
-
     const recentCards = GameState.discardPile.slice(-4);
     const recentRotations = GameState.discardRotations.slice(-4);
+    const discardKey = [
+      GameState.edition,
+      GameState.flipSide,
+      GameState.currentColor,
+      recentCards.map((card, i) => `${cardSignature(card)}:${recentRotations[i] || 0}`).join('|')
+    ].join('¦');
 
-    recentCards.forEach((card, i) => {
-      const isTop = (i === recentCards.length - 1);
-      const overrideCol = (isTop && card.chosenColor) ? card.chosenColor : null;
-      const el = createCardElement(card, overrideCol);
-      const rot = recentRotations[i] || 0;
-      el.style.transform = `rotate(${rot}deg) translateZ(${i * 2}px)`;
-      discardBox.appendChild(el);
-    });
+    if (RenderCache.discardKey !== discardKey) {
+      discardBox.querySelectorAll('.card').forEach(c => c.remove());
+      const fragment = document.createDocumentFragment();
+      recentCards.forEach((card, i) => {
+        const isTop = (i === recentCards.length - 1);
+        const overrideCol = (isTop && card.chosenColor) ? card.chosenColor : null;
+        const el = createCardElement(card, overrideCol);
+        const rot = recentRotations[i] || 0;
+        el.style.transform = `rotate(${rot}deg) translateZ(${i * 2}px)`;
+        fragment.appendChild(el);
+      });
+      discardBox.appendChild(fragment);
+      RenderCache.discardKey = discardKey;
+    }
   }
 
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
@@ -3811,62 +3929,80 @@ function renderGame() {
 
   const handBox = document.getElementById('player-hand');
   if (handBox) {
-    handBox.innerHTML = '';
+    ensureHandClickDelegation();
     const myHand = myPlayer.hand || [];
     const total = myHand.length;
+    const handKey = [
+      GameState.myPlayerId,
+      GameState.edition,
+      GameState.flipSide,
+      GameState.turnIndex,
+      GameState.currentColor,
+      GameState.stackedDrawCount,
+      GameState.pendingAllWildDrawPlayerId,
+      GameState.pendingAllWildDrawCardIndex,
+      isHandSortActive,
+      isTurnLocked,
+      GameState.isDealing,
+      handSignature(myHand)
+    ].map(renderKeyPart).join('¦');
 
-    const maxAllowedWidth = Math.min(window.innerWidth - 60, 940);
-    const cardWidth = 86;
-    const step = total > 1 ? Math.min(42, (maxAllowedWidth - cardWidth) / (total - 1)) : 0;
+    if (RenderCache.handKey !== handKey) {
+      const maxAllowedWidth = Math.min(window.innerWidth - 60, 940);
+      const cardWidth = 86;
+      const step = total > 1 ? Math.min(42, (maxAllowedWidth - cardWidth) / (total - 1)) : 0;
 
-    const angleDampener = total > 22 ? 0.28 : (total > 14 ? 0.5 : (total > 8 ? 0.8 : 1.0));
-    const maxAngle = Math.min(18, total * 2.2) * angleDampener;
-    const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
+      const angleDampener = total > 22 ? 0.28 : (total > 14 ? 0.5 : (total > 8 ? 0.8 : 1.0));
+      const maxAngle = Math.min(18, total * 2.2) * angleDampener;
+      const yDampener = total > 22 ? 0.22 : (total > 14 ? 0.45 : (total > 8 ? 0.8 : 1.2));
 
-    let displayCards = myHand.map((card, originalIndex) => ({ card, originalIndex }));
-    if (isHandSortActive) {
-      displayCards.sort((a, b) => {
-        const wa = getCardSortWeight(a.card);
-        const wb = getCardSortWeight(b.card);
-        if (wa.colorOrder !== wb.colorOrder) return wa.colorOrder - wb.colorOrder;
-        if (wa.plusGroup !== wb.plusGroup) return wa.plusGroup - wb.plusGroup;
-        if (wa.valWeight !== wb.valWeight) return wa.valWeight - wb.valWeight;
-        return a.originalIndex - b.originalIndex;
-      });
-    }
-
-    displayCards.forEach(({ card, originalIndex }, displayIdx) => {
-      const slotEl = document.createElement('div');
-      slotEl.className = 'card-slot';
-      slotEl.dataset.originalIndex = originalIndex;
-
-      const cardEl = createCardElement(card);
-      if (isMyTurn) {
-        const allWildDrawLock = GameState.edition === 'allwild' &&
-          GameState.pendingAllWildDrawPlayerId === GameState.myPlayerId &&
-          GameState.pendingAllWildDrawCardIndex !== null;
-        const isAllowedCard = allWildDrawLock
-          ? originalIndex === GameState.pendingAllWildDrawCardIndex
-          : canPlayCard(card);
-        if (isAllowedCard) cardEl.classList.add('playable');
-        else cardEl.classList.add('unplayable');
+      let displayCards = myHand.map((card, originalIndex) => ({ card, originalIndex }));
+      if (isHandSortActive) {
+        displayCards.sort((a, b) => {
+          const wa = getCardSortWeight(a.card);
+          const wb = getCardSortWeight(b.card);
+          if (wa.colorOrder !== wb.colorOrder) return wa.colorOrder - wb.colorOrder;
+          if (wa.plusGroup !== wb.plusGroup) return wa.plusGroup - wb.plusGroup;
+          if (wa.valWeight !== wb.valWeight) return wa.valWeight - wb.valWeight;
+          return a.originalIndex - b.originalIndex;
+        });
       }
 
-      slotEl.appendChild(cardEl);
-      const offset = displayIdx - (total - 1) / 2;
-      const rotateDeg = total > 1 ? (offset / ((total - 1) / 2 || 1)) * (maxAngle / 2) : 0;
-      const translateY = Math.abs(offset) * yDampener;
-      const translateX = offset * step;
+      const fragment = document.createDocumentFragment();
+      displayCards.forEach(({ card, originalIndex }, displayIdx) => {
+        const slotEl = document.createElement('div');
+        slotEl.className = 'card-slot';
+        slotEl.dataset.originalIndex = originalIndex;
 
-      const targetTransform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
-      slotEl.style.transform = targetTransform;
-      slotEl.dataset.targetTransform = targetTransform;
-      slotEl.style.zIndex = displayIdx + 1;
-      slotEl.dataset.baseZIndex = displayIdx + 1;
+        const cardEl = createCardElement(card);
+        if (isMyTurn) {
+          const allWildDrawLock = GameState.edition === 'allwild' &&
+            GameState.pendingAllWildDrawPlayerId === GameState.myPlayerId &&
+            GameState.pendingAllWildDrawCardIndex !== null;
+          const isAllowedCard = allWildDrawLock
+            ? originalIndex === GameState.pendingAllWildDrawCardIndex
+            : canPlayCard(card);
+          if (isAllowedCard) cardEl.classList.add('playable');
+          else cardEl.classList.add('unplayable');
+        }
 
-      slotEl.onclick = () => onHumanCardClick(originalIndex);
-      handBox.appendChild(slotEl);
-    });
+        slotEl.appendChild(cardEl);
+        const offset = displayIdx - (total - 1) / 2;
+        const rotateDeg = total > 1 ? (offset / ((total - 1) / 2 || 1)) * (maxAngle / 2) : 0;
+        const translateY = Math.abs(offset) * yDampener;
+        const translateX = offset * step;
+
+        const targetTransform = `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotateDeg}deg)`;
+        slotEl.style.transform = targetTransform;
+        slotEl.dataset.targetTransform = targetTransform;
+        slotEl.style.zIndex = displayIdx + 1;
+        slotEl.dataset.baseZIndex = displayIdx + 1;
+
+        fragment.appendChild(slotEl);
+      });
+      handBox.replaceChildren(fragment);
+      RenderCache.handKey = handKey;
+    }
   }
 
   const pCount0 = document.getElementById('p-count-0');
@@ -3941,29 +4077,44 @@ function renderGame() {
       }
 
       if (handEl) {
-        handEl.innerHTML = '';
-        if (!p.hasWon) {
-          const displayCards = Math.min(count, 6);
-          const oppHand = (p.hand && Array.isArray(p.hand)) ? p.hand : [];
-          const oppOppositeFaces = p.oppositeFaces || [];
-          const oppStep = displayCards > 1 ? Math.min(18, 120 / (displayCards - 1)) : 0;
+        const oppHand = (p.hand && Array.isArray(p.hand)) ? p.hand : [];
+        const oppOppositeFaces = p.oppositeFaces || [];
+        const displayCards = Math.min(count, 6);
+        const opponentHandKey = [
+          p.id,
+          GameState.edition,
+          GameState.flipSide,
+          p.hasWon,
+          p.rank,
+          count,
+          displayCards,
+          visibleOpponentSignature(p)
+        ].map(renderKeyPart).join('¦');
 
-          for (let i = 0; i < displayCards; i++) {
-            let standCard;
-            if (GameState.edition === 'flip') {
-              let face = null;
-              if (oppHand[i]) face = getOppositeFace(oppHand[i]);
-              else if (oppOppositeFaces[i]) face = oppOppositeFaces[i];
-              if (!face || !face.color || !face.value) face = { color: GameState.flipSide === 'light' ? 'teal' : 'pink', value: 'FLIP' };
-              standCard = createMiniOpponentCard(face);
-            } else {
-              standCard = document.createElement('div');
-              standCard.className = 'opp-stand-card';
-              standCard.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo" style="font-size:0.75rem;">UNO</div></div></div>`;
+        if (RenderCache.opponentHandKeys.get(spotNum) !== opponentHandKey) {
+          const fragment = document.createDocumentFragment();
+          if (!p.hasWon) {
+            const oppStep = displayCards > 1 ? Math.min(18, 120 / (displayCards - 1)) : 0;
+
+            for (let i = 0; i < displayCards; i++) {
+              let standCard;
+              if (GameState.edition === 'flip') {
+                let face = null;
+                if (oppHand[i]) face = getOppositeFace(oppHand[i]);
+                else if (oppOppositeFaces[i]) face = oppOppositeFaces[i];
+                if (!face || !face.color || !face.value) face = { color: GameState.flipSide === 'light' ? 'teal' : 'pink', value: 'FLIP' };
+                standCard = createMiniOpponentCard(face);
+              } else {
+                standCard = document.createElement('div');
+                standCard.className = 'opp-stand-card';
+                standCard.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo" style="font-size:0.75rem;">UNO</div></div></div>`;
+              }
+              if (i > 0) standCard.style.marginLeft = `-${20 - oppStep}px`;
+              fragment.appendChild(standCard);
             }
-            if (i > 0) standCard.style.marginLeft = `-${20 - oppStep}px`;
-            handEl.appendChild(standCard);
           }
+          handEl.replaceChildren(fragment);
+          RenderCache.opponentHandKeys.set(spotNum, opponentHandKey);
         }
       }
     }
@@ -3976,7 +4127,12 @@ function renderGame() {
 function renderLeaderboard() {
   const lbList = document.getElementById('lb-list');
   if (!lbList) return;
-  lbList.innerHTML = '';
+
+  const leaderboardKey = GameState.players.map(p =>
+    `${p.id}:${p.name}:${p.avatar || ''}:${p.hasWon ? 1 : 0}:${p.rank || 0}:${p.eliminated ? 1 : 0}:${getHandCount(p)}`
+  ).join('|');
+
+  if (RenderCache.leaderboardKey === leaderboardKey) return;
 
   const sorted = [...GameState.players].sort((a, b) => {
     if (a.hasWon && b.hasWon) return (a.rank || 0) - (b.rank || 0);
@@ -3988,6 +4144,7 @@ function renderLeaderboard() {
   });
 
   const medals = ['🥇', '🥈', '🥉', '4th', '5th', '6th', '7th', '8th'];
+  const fragment = document.createDocumentFragment();
 
   sorted.forEach((p, idx) => {
     const row = document.createElement('div');
@@ -4004,8 +4161,11 @@ function renderLeaderboard() {
       </div>
       <span class="lb-score ${p.hasWon ? 'won' : ''}">${scoreText}</span>
     `;
-    lbList.appendChild(row);
+    fragment.appendChild(row);
   });
+
+  lbList.replaceChildren(fragment);
+  RenderCache.leaderboardKey = leaderboardKey;
 }
 
 /**
@@ -5060,7 +5220,7 @@ window.addEventListener('load', () => {
   updateMuteButtonUI();
 });
 
-window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) renderGame(); });
+window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) requestRenderGame(); }, { passive: true });
 </script>
 </body>
 </html>
