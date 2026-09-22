@@ -115,6 +115,7 @@
     pointer-events: none !important;
     z-index: 0;
     overflow: hidden;
+    transform: translateZ(0);
   }
   .parlor-walls {
     position: absolute;
@@ -167,6 +168,8 @@
     align-items: center;
     transform-style: preserve-3d;
     pointer-events: none !important;
+    will-change: transform;
+    backface-visibility: hidden;
   }
   .float-glow-card .card-face {
     width: 100%;
@@ -706,6 +709,7 @@
     align-items: center;
     transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
+    contain: layout size;
   }
   #viewport-3d.flip-tumble { animation: viewportFlip 0.85s cubic-bezier(0.4, 0, 0.2, 1); }
   @keyframes viewportFlip {
@@ -721,6 +725,7 @@
     opacity: 0;
     pointer-events: none;
     z-index: 500;
+    transform: translateZ(0);
   }
   #flash-overlay.flash { opacity: 0.85; animation: flashFade 0.6s ease-out forwards; }
   @keyframes flashFade { 0% { opacity: 0.85; } 100% { opacity: 0; } }
@@ -731,6 +736,7 @@
     background: radial-gradient(circle at 50% 45%, #2a0808 0%, #120303 55%, #050101 100%);
     transition: background 0.8s ease;
     z-index: 0;
+    transform: translateZ(0);
   }
   #arena-bg.blue-theme { background: radial-gradient(circle at 50% 45%, #0d2847 0%, #061426 55%, #02070f 100%); }
   #arena-bg.dark-theme { background: radial-gradient(circle at 50% 45%, #300636 0%, #150119 55%, #050007 100%); }
@@ -750,6 +756,7 @@
     outline: 2px solid rgba(255, 255, 255, 0.2);
     transition: all 0.8s ease;
     z-index: 1;
+    will-change: transform;
   }
   .table-stage.blue-stage {
     background: radial-gradient(ellipse at center, #0099ff 0%, #005bb5 45%, #002e66 80%, #00122e 100%);
@@ -781,6 +788,7 @@
     animation: ringSpinCW 9s linear infinite;
     z-index: 5;
     filter: drop-shadow(0 0 8px rgba(255, 234, 0, 0.7));
+    will-change: transform;
   }
   .direction-ring-3d.reverse { animation: ringSpinCCW 9s linear infinite; }
   .ring-svg { width: 100%; height: 100%; overflow: visible; }
@@ -822,6 +830,8 @@
     margin: 0 !important;
     box-shadow: 0 10px 24px rgba(0,0,0,0.65);
     transition: transform 0.25s ease;
+    will-change: transform;
+    backface-visibility: hidden;
   }
 
   #active-color-badge {
@@ -958,6 +968,7 @@
     gap: 4px;
     pointer-events: auto;
     backdrop-filter: blur(10px);
+    transform: translateZ(0);
   }
   .lb-header {
     display: flex;
@@ -1001,6 +1012,7 @@
     align-items: center;
     z-index: 50;
     pointer-events: none;
+    transform: translateZ(0);
   }
   .spot-pos-1 { top: 58%; left: 16px; transform: translateY(-50%); align-items: flex-start; }
   .spot-pos-2 { top: 35%; left: 16px; transform: translateY(-50%); align-items: flex-start; }
@@ -1075,6 +1087,7 @@
     transform-style: preserve-3d;
     pointer-events: none;
     margin-top: 4px;
+    contain: layout;
   }
   .spot-pos-1 .opponent-3d-hand, .spot-pos-2 .opponent-3d-hand { transform: rotateY(25deg); }
   .spot-pos-6 .opponent-3d-hand, .spot-pos-7 .opponent-3d-hand { transform: rotateY(-25deg); }
@@ -1090,6 +1103,7 @@
     flex-shrink: 0;
     margin-left: -20px;
     transition: transform 0.25s ease;
+    backface-visibility: hidden;
   }
   .opp-stand-card:first-child { margin-left: 0 !important; }
 
@@ -1107,6 +1121,8 @@
     align-items: center;
     flex-shrink: 0;
     transform-style: preserve-3d;
+    backface-visibility: hidden;
+    will-change: transform;
   }
   .card-face {
     width: 100%;
@@ -1118,6 +1134,7 @@
     justify-content: center;
     align-items: center;
     transition: background 0.25s ease;
+    backface-visibility: hidden;
   }
   .c-red .card-face { background: var(--c-red); }
   .c-blue .card-face { background: var(--c-blue); }
@@ -1265,6 +1282,7 @@
     justify-content: center;
     align-items: flex-end;
     transform-style: preserve-3d;
+    contain: layout;
   }
   
   .card-slot {
@@ -1278,6 +1296,8 @@
     transition: transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28);
     pointer-events: auto;
     cursor: pointer;
+    will-change: transform;
+    backface-visibility: hidden;
   }
   .card-slot:hover { z-index: 200 !important; }
   
@@ -1307,6 +1327,7 @@
     pointer-events: none;
     z-index: 300;
     overflow: hidden;
+    transform: translateZ(0);
   }
   .flying-card-obj {
     position: absolute;
@@ -1317,6 +1338,8 @@
     transform-style: preserve-3d;
     z-index: 310;
     pointer-events: none;
+    will-change: transform;
+    backface-visibility: hidden;
   }
 
   #center-vfx-overlay {
@@ -1332,6 +1355,7 @@
     justify-content: center;
     opacity: 0;
     transition: all 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    will-change: transform, opacity;
   }
   #center-vfx-overlay.active { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   .vfx-icon-burst {
@@ -1368,6 +1392,7 @@
     z-index: 350;
     pointer-events: none;
     transition: 0.3s transform cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    will-change: transform;
   }
   #penalty-streak-box.show { transform: translate(-50%, -50%) scale(1); }
 
@@ -1389,6 +1414,7 @@
     z-index: 100;
     display: none;
     transition: 0.2s transform;
+    outline: none;
   }
   #uno-btn.alert { display: block; animation: unoAlertPulse 0.7s infinite alternate; }
   @keyframes unoAlertPulse { 0% { transform: scale(0.95); } 100% { transform: scale(1.18); filter: brightness(1.3) drop-shadow(0 0 25px #f7b300); } }
@@ -1412,6 +1438,7 @@
     box-shadow: 0 0 24px rgba(117,20,166,0.75);
     z-index: 101;
     display: none;
+    outline: none;
   }
   #allwild-pass-btn.show { display: block; animation: allWildPassPulse 0.9s infinite alternate; }
   @keyframes allWildPassPulse { 0% { transform: scale(0.98); } 100% { transform: scale(1.04); filter: brightness(1.2); } }
@@ -1675,7 +1702,7 @@
     </div>
   </div>
 
-  <!-- OFFICIAL RULE BOOK MODAL (3 MODES) -->
+  <!-- OFFICIAL RULE BOOK MODAL (4 MODES) -->
   <div id="rulebook-modal">
     <div class="rulebook-card">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px;">
@@ -1714,7 +1741,7 @@
         </ul>
 
         <h4>Calling UNO</h4>
-        <p>When you have only <b>1 card remaining</b>, you must press the flashing <b>UNO!</b> button before your turn ends!</p>
+        <p>When you have only <b>1 card remaining</b>, you must press the flashing <b>UNO!</b> button before your turn ends! If caught without calling, you must draw 2 penalty cards.</p>
       </div>
 
       <!-- PAGE 2: UNO FLIP! -->
@@ -1735,7 +1762,7 @@
           <li><span class="badge-rule">Draw Five (+5)</span> Next player must draw 5 cards immediately!</li>
           <li><span class="badge-rule">Skip Everyone</span> Skips every other player at the table—you immediately take another turn!</li>
           <li><span class="badge-rule">Dark Reverse</span> Reverses direction under dark rules.</li>
-          <li><span class="badge-rule">Wild Draw Color</span> Player chooses a color; the victim must keep drawing from the deck until that specific color appears!</li>
+          <li><span class="badge-rule">Wild Draw Color</span> Player chooses a color; the victim must keep drawing from the deck until that specific color appears and forfeits their turn!</li>
         </ul>
       </div>
 
@@ -2080,7 +2107,7 @@
 
 <script>
 /**
- * AUDIO ENGINE & MUTE FUNCTIONALITY
+ * AUDIO ENGINE & MUTE FUNCTIONALITY WITH MASTER GAIN & CLIPPING PROTECTION
  */
 let isAudioMuted = localStorage.getItem('uno_muted') === 'true';
 
@@ -2106,6 +2133,9 @@ function updateMuteButtonUI() {
 function toggleAudioMute() {
   isAudioMuted = !isAudioMuted;
   localStorage.setItem('uno_muted', isAudioMuted);
+  if (AudioEngine.masterGain && AudioEngine.ctx) {
+    AudioEngine.masterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.65, AudioEngine.ctx.currentTime);
+  }
   updateMuteButtonUI();
 }
 
@@ -2121,83 +2151,99 @@ function toggleProfileBanner() {
 
 const AudioEngine = {
   ctx: null,
+  masterGain: null,
+  lastSoundTimes: {},
   init() {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) this.ctx = new AudioCtx();
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.setValueAtTime(isAudioMuted ? 0 : 0.65, this.ctx.currentTime);
+        this.masterGain.connect(this.ctx.destination);
+      }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
     }
   },
+  canPlaySound(name, minIntervalMs = 45) {
+    if (isAudioMuted) return false;
+    const now = performance.now();
+    if (this.lastSoundTimes[name] && (now - this.lastSoundTimes[name] < minIntervalMs)) {
+      return false;
+    }
+    this.lastSoundTimes[name] = now;
+    return true;
+  },
   cardThrow() {
-    if (isAudioMuted) return;
+    if (!this.canPlaySound('throw', 40)) return;
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(320, this.ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.12);
-    gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.32, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.14);
-    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.connect(gain); gain.connect(this.masterGain);
     osc.start(); osc.stop(this.ctx.currentTime + 0.14);
   },
   cardPickup() {
-    if (isAudioMuted) return;
+    if (!this.canPlaySound('pickup', 65)) return;
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(420, this.ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(220, this.ctx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.22, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.11);
-    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.connect(gain); gain.connect(this.masterGain);
     osc.start(); osc.stop(this.ctx.currentTime + 0.11);
   },
   flipTransition() {
     if (isAudioMuted) return;
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(120, this.ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.5);
-    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.6);
-    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.connect(gain); gain.connect(this.masterGain);
     osc.start(); osc.stop(this.ctx.currentTime + 0.6);
   },
   vfxBoom() {
     if (isAudioMuted) return;
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(150, this.ctx.currentTime);
     osc.frequency.linearRampToValueAtTime(550, this.ctx.currentTime + 0.28);
-    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+    gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
     gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.35);
-    osc.connect(gain); gain.connect(this.ctx.destination);
+    osc.connect(gain); gain.connect(this.masterGain);
     osc.start(); osc.stop(this.ctx.currentTime + 0.35);
   },
   penaltyZap() {
     if (isAudioMuted) return;
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || !this.masterGain) return;
     [200, 350, 500, 750].forEach((f, i) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'square';
       osc.frequency.value = f;
-      gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.05);
+      gain.gain.setValueAtTime(0.18, this.ctx.currentTime + i * 0.05);
       gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + i * 0.05 + 0.15);
-      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.connect(gain); gain.connect(this.masterGain);
       osc.start(this.ctx.currentTime + i * 0.05);
       osc.stop(this.ctx.currentTime + i * 0.05 + 0.15);
     });
@@ -2205,15 +2251,15 @@ const AudioEngine = {
   uno() {
     if (isAudioMuted) return;
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || !this.masterGain) return;
     [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.3, this.ctx.currentTime + idx * 0.07);
+      gain.gain.setValueAtTime(0.28, this.ctx.currentTime + idx * 0.07);
       gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + idx * 0.07 + 0.25);
-      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.connect(gain); gain.connect(this.masterGain);
       osc.start(this.ctx.currentTime + idx * 0.07);
       osc.stop(this.ctx.currentTime + idx * 0.07 + 0.25);
     });
@@ -2221,15 +2267,15 @@ const AudioEngine = {
   fanfare() {
     if (isAudioMuted) return;
     this.init();
-    if (!this.ctx) return;
+    if (!this.ctx || !this.masterGain) return;
     [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.3, this.ctx.currentTime + idx * 0.12);
+      gain.gain.setValueAtTime(0.28, this.ctx.currentTime + idx * 0.12);
       gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + idx * 0.12 + 0.45);
-      osc.connect(gain); gain.connect(this.ctx.destination);
+      osc.connect(gain); gain.connect(this.masterGain);
       osc.start(this.ctx.currentTime + idx * 0.12);
       osc.stop(this.ctx.currentTime + idx * 0.12 + 0.45);
     });
@@ -2262,7 +2308,7 @@ function switchRulePage(page) {
  * PEERJS CONFIG
  */
 const PEER_CONFIG = {
-  debug: 1,
+  debug: 0,
   config: {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -2305,7 +2351,7 @@ function openEmojiPickerModal() {
   document.getElementById('custom-emoji-input').value = pendingModalEmoji;
 
   const catalog = document.getElementById('emoji-catalog-grid');
-  catalog.innerHTML = '';
+  const frag = document.createDocumentFragment();
   POPULAR_GOOGLE_EMOJIS.forEach(emoji => {
     const item = document.createElement('div');
     item.className = 'catalog-emoji-item';
@@ -2315,8 +2361,9 @@ function openEmojiPickerModal() {
       document.getElementById('modal-emoji-preview').textContent = emoji;
       document.getElementById('custom-emoji-input').value = emoji;
     };
-    catalog.appendChild(item);
+    frag.appendChild(item);
   });
+  catalog.replaceChildren(frag);
   modal.style.display = 'flex';
 }
 
@@ -2450,11 +2497,11 @@ function syncAccountStorage() {
 
 function renderFriendsList() {
   const container = document.getElementById('friends-list-el');
-  container.innerHTML = '';
   if (!CurrentUser.friends || CurrentUser.friends.length === 0) {
     container.innerHTML = '<div style="color:#8fa0b5; font-size:0.8rem; text-align:center; padding:15px;">No friends added yet. Enter a username above!</div>';
     return;
   }
+  const frag = document.createDocumentFragment();
   CurrentUser.friends.forEach(friendKey => {
     const row = document.createElement('div');
     row.className = 'friend-row';
@@ -2471,9 +2518,10 @@ function renderFriendsList() {
         <button class="del-friend-btn" onclick="removeFriend('${friendKey}')">✕</button>
       </div>
     `;
-    container.appendChild(row);
-    checkFriendPresence(friendKey);
+    frag.appendChild(row);
   });
+  container.replaceChildren(frag);
+  CurrentUser.friends.forEach(friendKey => checkFriendPresence(friendKey));
 }
 
 function checkFriendPresence(friendKey) {
@@ -2566,6 +2614,9 @@ function initUserPeerNetwork() {
         if (data.type === 'PRESENCE_PING') conn.send({ type: 'PRESENCE_PONG', avatar: CurrentUser.avatar });
         else if (data.type === 'DIRECT_INVITE') receiveInvite(data);
       });
+    });
+    GameState.presencePeer.on('error', (err) => {
+      console.warn("Presence peer note:", err.type || err);
     });
   } catch (e) {
     console.warn("Presence network init error:", e);
@@ -2686,9 +2737,9 @@ function toggleHandSort() {
         slot.style.zIndex = '300';
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            slot.style.transition = 'transform 0.45s cubic-bezier(0.2, 0.85, 0.35, 1.2)';
+            slot.style.transition = 'transform 0.42s cubic-bezier(0.2, 0.85, 0.35, 1.2)';
             slot.style.transform = targetTransform;
-            setTimeout(() => { slot.style.zIndex = slot.dataset.baseZIndex || ''; }, 460);
+            setTimeout(() => { slot.style.zIndex = slot.dataset.baseZIndex || ''; }, 430);
           });
         });
       }
@@ -2815,8 +2866,11 @@ function drawOneCardSafe() {
   if (!GameState.drawPile || GameState.drawPile.length === 0) {
     if (GameState.discardPile && GameState.discardPile.length > 1) {
       const top = GameState.discardPile.pop();
+      const topRot = GameState.discardRotations[GameState.discardRotations.length - 1] || 0;
       GameState.drawPile = shuffle(GameState.discardPile);
+      GameState.drawPile.forEach(c => delete c.chosenColor);
       GameState.discardPile = [top];
+      GameState.discardRotations = [topRot];
     } else {
       GameState.drawPile = buildDeck(GameState.edition);
     }
@@ -2829,7 +2883,7 @@ function buildFallbackCard() {
   if (GameState.edition === 'allwild') {
     return { id: Math.floor(Math.random() * 999999), color: 'wild', value: 'WILD', type: 'wild' };
   }
-  if (GameState.edition === 'flip') {
+    if (GameState.edition === 'flip') {
     return { id: Math.floor(Math.random() * 999999), light: { color: 'blue', value: '5', type: 'number' }, dark: { color: 'teal', value: '5', type: 'number' } };
   }
   return { id: Math.floor(Math.random() * 999999), color: 'blue', value: '5', type: 'number' };
@@ -2927,7 +2981,8 @@ function createRoom() {
       hand: [],
       isBot: false,
       conn: null,
-      hasWon: false
+      hasWon: false,
+      eliminated: false
     }];
     openRoomLobbyModal(code, true);
   });
@@ -3017,7 +3072,7 @@ function handleHostData(conn, data) {
       return;
     }
     const newId = GameState.players.length;
-    const newPlayer = { id: newId, name: data.name, avatar: data.avatar || '😎', hand: [], isBot: false, conn: conn, hasWon: false };
+    const newPlayer = { id: newId, name: data.name, avatar: data.avatar || '😎', hand: [], isBot: false, conn: conn, hasWon: false, eliminated: false };
     GameState.players.push(newPlayer);
     conn.send({
       type: 'JOIN_ACCEPTED',
@@ -3212,26 +3267,28 @@ function copyRoomCode() {
 
 function updateLobbyPlayerListUI() {
   const listEl = document.getElementById('lobby-players-list');
-  listEl.innerHTML = '';
   document.getElementById('lobby-player-count').textContent = GameState.players.length;
+  const frag = document.createDocumentFragment();
   GameState.players.forEach((p) => {
     const row = document.createElement('div');
     row.className = 'lobby-player-row';
     row.innerHTML = `<span>${p.avatar || '👤'} ${p.name}</span><span style="color:#00ff73; font-size:0.75rem;">READY</span>`;
-    listEl.appendChild(row);
+    frag.appendChild(row);
   });
+  listEl.replaceChildren(frag);
 }
 
 function renderLobbyPlayerRows(players) {
   const listEl = document.getElementById('lobby-players-list');
-  listEl.innerHTML = '';
   document.getElementById('lobby-player-count').textContent = players.length;
+  const frag = document.createDocumentFragment();
   players.forEach(p => {
     const row = document.createElement('div');
     row.className = 'lobby-player-row';
     row.innerHTML = `<span>${p.avatar || '👤'} ${p.name}</span><span style="color:#00ff73; font-size:0.75rem;">CONNECTED</span>`;
-    listEl.appendChild(row);
+    frag.appendChild(row);
   });
+  listEl.replaceChildren(frag);
 }
 
 function leaveRoomLobby() {
@@ -3268,7 +3325,7 @@ function startHostedGame() {
   if (fillBots) {
     for (let i = GameState.players.length; i < 8; i++) {
       const b = DEFAULT_BOT_PROFILES[i - 1] || { name: `Bot ${i}`, avatar: '🤖' };
-      GameState.players.push({ id: i, name: b.name, avatar: b.avatar, hand: [], isBot: true, conn: null, hasWon: false });
+      GameState.players.push({ id: i, name: b.name, avatar: b.avatar, hand: [], isBot: true, conn: null, hasWon: false, eliminated: false });
     }
   } else {
     if (GameState.players.length < 2) return alert("You need at least 2 players to start without bots!");
@@ -3290,12 +3347,12 @@ function startSoloGameWithParams(botCount, difficulty) {
   GameState.botDifficulty = difficulty;
 
   GameState.players = [
-    { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, hand: [], isBot: false, hasWon: false }
+    { id: 0, name: `${CurrentUser.username} (You)`, avatar: CurrentUser.avatar, hand: [], isBot: false, hasWon: false, eliminated: false }
   ];
 
   for (let i = 0; i < botCount; i++) {
     const b = DEFAULT_BOT_PROFILES[i] || { name: `Bot ${i+1}`, avatar: '🤖' };
-    GameState.players.push({ id: i + 1, name: b.name, avatar: b.avatar, hand: [], isBot: true, hasWon: false });
+    GameState.players.push({ id: i + 1, name: b.name, avatar: b.avatar, hand: [], isBot: true, hasWon: false, eliminated: false });
   }
 
   showScreen('game');
@@ -3322,6 +3379,7 @@ function initGameEngine() {
   GameState.players.forEach(p => {
     p.hand = [];
     p.hasWon = false;
+    p.eliminated = false;
   });
 
   for (let round = 0; round < 7; round++) {
@@ -3366,7 +3424,7 @@ function closeMatchEndAndReturnToLobby() {
   if (activeBotTurnTimeout) { clearTimeout(activeBotTurnTimeout); activeBotTurnTimeout = null; }
 
   const flyLayer = document.getElementById('fly-animation-layer');
-  if (flyLayer) flyLayer.innerHTML = '';
+  if (flyLayer) flyLayer.replaceChildren();
 
   if (GameState.peer) {
     try { GameState.peer.destroy(); } catch (e) {}
@@ -3374,11 +3432,11 @@ function closeMatchEndAndReturnToLobby() {
   }
 
   const handBox = document.getElementById('player-hand');
-  if (handBox) handBox.innerHTML = '';
+  if (handBox) handBox.replaceChildren();
   
   for (let s = 1; s <= 7; s++) {
     const oppHand = document.getElementById(`opp-hand-spot-${s}`);
-    if (oppHand) oppHand.innerHTML = '';
+    if (oppHand) oppHand.replaceChildren();
     const box = document.getElementById(`player-spot-${s}`);
     if (box) box.style.display = 'none';
   }
@@ -3426,14 +3484,14 @@ function returnToRoomLobbyAfterMatch() {
   if (activeBotTurnTimeout) { clearTimeout(activeBotTurnTimeout); activeBotTurnTimeout = null; }
 
   const flyLayer = document.getElementById('fly-animation-layer');
-  if (flyLayer) flyLayer.innerHTML = '';
+  if (flyLayer) flyLayer.replaceChildren();
 
   const handBox = document.getElementById('player-hand');
-  if (handBox) handBox.innerHTML = '';
+  if (handBox) handBox.replaceChildren();
 
   for (let s = 1; s <= 7; s++) {
     const oppHand = document.getElementById(`opp-hand-spot-${s}`);
-    if (oppHand) oppHand.innerHTML = '';
+    if (oppHand) oppHand.replaceChildren();
     const box = document.getElementById(`player-spot-${s}`);
     if (box) box.style.display = 'none';
   }
@@ -3492,10 +3550,9 @@ function showMatchOverScreen(rankings) {
   const returnRoomBtn = document.getElementById('end-return-room-btn');
 
   if (returnRoomBtn) returnRoomBtn.textContent = GameState.hostingRoomCode ? 'RETURN TO ROOM' : 'PLAY AGAIN';
-  ranksList.innerHTML = '';
 
   const myRankObj = rankings.find(r => r.id === GameState.myPlayerId);
-  if (myRankObj && myRankObj.rank === 1) {
+  if (myRankObj && myRankObj.rank === 1 && !myRankObj.eliminated) {
     trophy.textContent = '👑';
     title.textContent = 'VICTORY!';
     subtitle.textContent = 'You took 1st place!';
@@ -3506,11 +3563,12 @@ function showMatchOverScreen(rankings) {
   }
 
   const medals = ['🥇', '🥈', '🥉', '4th', '5th', '6th', '7th', '8th'];
+  const frag = document.createDocumentFragment();
 
   rankings.forEach(r => {
     const row = document.createElement('div');
-    row.className = `end-rank-row ${r.rank === 1 ? 'first-place' : ''}`;
-    const medal = medals[r.rank - 1] || `${r.rank}.`;
+    row.className = `end-rank-row ${r.rank === 1 && !r.eliminated ? 'first-place' : ''}`;
+    const medal = r.eliminated ? '☠️' : (medals[r.rank - 1] || `${r.rank}.`);
     const isMe = (r.id === GameState.myPlayerId);
 
     row.innerHTML = `
@@ -3519,10 +3577,11 @@ function showMatchOverScreen(rankings) {
         <span style="font-size:1.4rem;">${r.avatar || '👤'}</span>
         <span class="end-rank-name" style="${isMe ? 'color:#ffd700; font-weight:900;' : ''}">${r.name} ${isMe ? '(You)' : ''}</span>
       </div>
-      <span class="end-rank-status ${r.rank === 1 ? 'winner' : ''}">${r.rank === 1 ? 'WINNER' : '#' + r.rank}</span>
+      <span class="end-rank-status ${r.rank === 1 && !r.eliminated ? 'winner' : ''}">${r.eliminated ? 'OUT' : (r.rank === 1 ? 'WINNER' : '#' + r.rank)}</span>
     `;
-    ranksList.appendChild(row);
+    frag.appendChild(row);
   });
+  ranksList.replaceChildren(frag);
   modal.style.display = 'flex';
 }
 
@@ -3574,9 +3633,6 @@ function buildDeck(edition) {
     }
   } 
   else if (edition === 'allwild') {
-    // UNO All Wild contains 112 cards: every card is wild.
-    // Counts: 54 Wild, 14 Reverse, 14 Skip, 6 Skip Two,
-    // 10 Draw Two, 6 Draw Four, 4 Targeted Draw Two, 4 Forced Swap.
     const allWildCards = [
       ['WILD', 'wild', 54],
       ['wild_reverse', 'wild', 14],
@@ -3760,9 +3816,10 @@ function updateTheme() {
 }
 
 /**
- * 8-PLAYER ARENA SEAT RENDERING
+ * 8-PLAYER ARENA SEAT RENDERING - BATCHED & REF-OPTIMIZED
  */
 function renderGame() {
+  if (!GameState.inGame) return;
   const dirEl = document.getElementById('dir-ring');
   if (dirEl) dirEl.className = GameState.direction === -1 ? 'direction-ring-3d reverse' : 'direction-ring-3d';
 
@@ -3776,15 +3833,14 @@ function renderGame() {
       badgeEl = document.createElement('div');
       badgeEl.id = 'active-color-badge';
       badgeEl.innerHTML = '<div class="color-badge-dot" id="badge-dot"></div><span id="badge-text">RED</span>';
-      discardBox.appendChild(badgeEl);
     }
-    const dotEl = document.getElementById('badge-dot');
-    const textEl = document.getElementById('badge-text');
+    const dotEl = badgeEl.querySelector('#badge-dot');
+    const textEl = badgeEl.querySelector('#badge-text');
     if (dotEl) dotEl.style.background = curColorHex;
     if (textEl) textEl.textContent = GameState.edition === 'allwild' ? 'ALL WILD' : GameState.currentColor.toUpperCase();
 
-    const oldCards = discardBox.querySelectorAll('.card');
-    oldCards.forEach(c => c.remove());
+    const frag = document.createDocumentFragment();
+    frag.appendChild(badgeEl);
 
     const recentCards = GameState.discardPile.slice(-4);
     const recentRotations = GameState.discardRotations.slice(-4);
@@ -3795,12 +3851,13 @@ function renderGame() {
       const el = createCardElement(card, overrideCol);
       const rot = recentRotations[i] || 0;
       el.style.transform = `rotate(${rot}deg) translateZ(${i * 2}px)`;
-      discardBox.appendChild(el);
+      frag.appendChild(el);
     });
+    discardBox.replaceChildren(frag);
   }
 
   const myPlayer = GameState.players[GameState.myPlayerId] || { hand: [] };
-  const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !GameState.isDealing && !isTurnLocked);
+  const isMyTurn = (GameState.turnIndex === GameState.myPlayerId && !myPlayer.hasWon && !myPlayer.eliminated && !GameState.isDealing && !isTurnLocked);
 
   const drawDeck = document.getElementById('draw-deck-3d');
   if (drawDeck) {
@@ -3811,7 +3868,6 @@ function renderGame() {
 
   const handBox = document.getElementById('player-hand');
   if (handBox) {
-    handBox.innerHTML = '';
     const myHand = myPlayer.hand || [];
     const total = myHand.length;
 
@@ -3835,6 +3891,7 @@ function renderGame() {
       });
     }
 
+    const handFrag = document.createDocumentFragment();
     displayCards.forEach(({ card, originalIndex }, displayIdx) => {
       const slotEl = document.createElement('div');
       slotEl.className = 'card-slot';
@@ -3865,8 +3922,9 @@ function renderGame() {
       slotEl.dataset.baseZIndex = displayIdx + 1;
 
       slotEl.onclick = () => onHumanCardClick(originalIndex);
-      handBox.appendChild(slotEl);
+      handFrag.appendChild(slotEl);
     });
+    handBox.replaceChildren(handFrag);
   }
 
   const pCount0 = document.getElementById('p-count-0');
@@ -3874,6 +3932,9 @@ function renderGame() {
     if (myPlayer.hasWon) {
       pCount0.textContent = `Won #${myPlayer.rank}`;
       pCount0.classList.add('won-badge');
+    } else if (myPlayer.eliminated) {
+      pCount0.textContent = `OUT`;
+      pCount0.classList.remove('won-badge');
     } else {
       pCount0.textContent = getHandCount(myPlayer);
       pCount0.classList.remove('won-badge');
@@ -3891,7 +3952,7 @@ function renderGame() {
   const unoBtn = document.getElementById('uno-btn');
   if (unoBtn) {
     const currentHandCount = getHandCount(myPlayer);
-    if (currentHandCount === 2 && !GameState.unoCalledPlayers.has(GameState.myPlayerId) && !myPlayer.hasWon && !GameState.isDealing) {
+    if ((currentHandCount === 2 || currentHandCount === 1) && !GameState.unoCalledPlayers.has(GameState.myPlayerId) && !myPlayer.hasWon && !myPlayer.eliminated && !GameState.isDealing) {
       unoBtn.classList.add('alert');
     } else {
       unoBtn.classList.remove('alert');
@@ -3904,7 +3965,7 @@ function renderGame() {
       GameState.turnIndex === GameState.myPlayerId &&
       GameState.pendingAllWildDrawPlayerId === GameState.myPlayerId &&
       GameState.pendingAllWildDrawCardIndex !== null &&
-      !myPlayer.hasWon && !GameState.isDealing && !isTurnLocked && !hostProcessingAction;
+      !myPlayer.hasWon && !myPlayer.eliminated && !GameState.isDealing && !isTurnLocked && !hostProcessingAction;
     allWildPassBtn.classList.toggle('show', !!canPassDrawnCard);
   }
 
@@ -3925,7 +3986,7 @@ function renderGame() {
 
     if (box) {
       box.style.display = 'flex';
-      box.classList.toggle('active', GameState.turnIndex === p.id && !p.hasWon && !GameState.isDealing);
+      box.classList.toggle('active', GameState.turnIndex === p.id && !p.hasWon && !p.eliminated && !GameState.isDealing);
 
       if (portrait) portrait.innerHTML = `<div class="player-nameplate" id="p-name-spot-${spotNum}">${p.name}</div>${p.avatar || '🤖'}`;
       const count = getHandCount(p);
@@ -3934,6 +3995,9 @@ function renderGame() {
         if (p.hasWon) {
           countEl.textContent = `Won #${p.rank}`;
           countEl.classList.add('won-badge');
+        } else if (p.eliminated) {
+          countEl.textContent = `OUT`;
+          countEl.classList.remove('won-badge');
         } else {
           countEl.textContent = count;
           countEl.classList.remove('won-badge');
@@ -3941,12 +4005,12 @@ function renderGame() {
       }
 
       if (handEl) {
-        handEl.innerHTML = '';
-        if (!p.hasWon) {
+        if (!p.hasWon && !p.eliminated) {
           const displayCards = Math.min(count, 6);
           const oppHand = (p.hand && Array.isArray(p.hand)) ? p.hand : [];
           const oppOppositeFaces = p.oppositeFaces || [];
           const oppStep = displayCards > 1 ? Math.min(18, 120 / (displayCards - 1)) : 0;
+          const oppFrag = document.createDocumentFragment();
 
           for (let i = 0; i < displayCards; i++) {
             let standCard;
@@ -3962,8 +4026,11 @@ function renderGame() {
               standCard.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo" style="font-size:0.75rem;">UNO</div></div></div>`;
             }
             if (i > 0) standCard.style.marginLeft = `-${20 - oppStep}px`;
-            handEl.appendChild(standCard);
+            oppFrag.appendChild(standCard);
           }
+          handEl.replaceChildren(oppFrag);
+        } else {
+          handEl.replaceChildren();
         }
       }
     }
@@ -3976,23 +4043,24 @@ function renderGame() {
 function renderLeaderboard() {
   const lbList = document.getElementById('lb-list');
   if (!lbList) return;
-  lbList.innerHTML = '';
 
   const sorted = [...GameState.players].sort((a, b) => {
     if (a.hasWon && b.hasWon) return (a.rank || 0) - (b.rank || 0);
     if (a.hasWon) return -1;
     if (b.hasWon) return 1;
+    if (a.eliminated && b.eliminated) return (b.rank || 0) - (a.rank || 0);
     if (a.eliminated) return 1;
     if (b.eliminated) return -1;
     return getHandCount(a) - getHandCount(b);
   });
 
   const medals = ['🥇', '🥈', '🥉', '4th', '5th', '6th', '7th', '8th'];
+  const frag = document.createDocumentFragment();
 
   sorted.forEach((p, idx) => {
     const row = document.createElement('div');
     row.className = 'lb-row';
-    const rankSymbol = p.hasWon ? medals[p.rank - 1] : `${idx + 1}.`;
+    const rankSymbol = p.eliminated ? '☠️' : (p.hasWon ? medals[p.rank - 1] : `${idx + 1}.`);
     const count = getHandCount(p);
     const scoreText = p.hasWon ? 'WON' : p.eliminated ? 'OUT' : `${count}c`;
 
@@ -4004,12 +4072,13 @@ function renderLeaderboard() {
       </div>
       <span class="lb-score ${p.hasWon ? 'won' : ''}">${scoreText}</span>
     `;
-    lbList.appendChild(row);
+    frag.appendChild(row);
   });
+  lbList.replaceChildren(frag);
 }
 
 /**
- * HARDWARE-ACCELERATED CARD ANIMATIONS
+ * HARDWARE-ACCELERATED CARD ANIMATIONS (RAF OPTIMIZED - ZERO FORCED REFLOWS)
  */
 function animateCardThrow(origin, cardData, chosenColor, callback) {
   const flyLayer = document.getElementById('fly-animation-layer');
@@ -4029,17 +4098,17 @@ function animateCardThrow(origin, cardData, chosenColor, callback) {
 
   flyLayer.appendChild(flyer);
   AudioEngine.cardThrow();
-  void flyer.offsetWidth;
 
   const randomRot = Math.floor(Math.random() * 40) - 20;
-  setTimeout(() => {
-    flyer.style.transition = 'transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)';
+  requestAnimationFrame(() => {
+    flyer.style.transition = 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1)';
     flyer.style.transform = `translate3d(${destX}px, ${destY}px, 0px) scale(1) rotate(${randomRot}deg) translateY(-6px)`;
-    setTimeout(() => {
-      flyer.remove();
-      if (callback) callback(randomRot);
-    }, 430);
-  }, 20);
+  });
+
+  setTimeout(() => {
+    flyer.remove();
+    if (callback) callback(randomRot);
+  }, 400);
 }
 
 function animateCardPickup(targetPlayerId, count, callback) {
@@ -4048,7 +4117,8 @@ function animateCardPickup(targetPlayerId, count, callback) {
   const fromRect = drawDeck ? drawDeck.getBoundingClientRect() : { left: window.innerWidth * 0.45, top: window.innerHeight * 0.48, width: 86, height: 134 };
   const destOrigin = getCardThrowOrigin(targetPlayerId);
 
-  for (let i = 0; i < count; i++) {
+  const animCount = Math.min(count, 8);
+  for (let i = 0; i < animCount; i++) {
     setTimeout(() => {
       if (!GameState.inGame) return;
       const flyer = document.createElement('div');
@@ -4057,19 +4127,19 @@ function animateCardPickup(targetPlayerId, count, callback) {
       flyer.style.transform = `translate3d(${fromRect.left}px, ${fromRect.top}px, 0px) scale(0.85) rotate(0deg)`;
 
       flyLayer.appendChild(flyer);
-      AudioEngine.cardPickup();
-      void flyer.offsetWidth;
+      if (i % 2 === 0 || count <= 4) AudioEngine.cardPickup();
+
+      const rot = Math.random() * 26 - 13;
+      requestAnimationFrame(() => {
+        flyer.style.transition = 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1)';
+        flyer.style.transform = `translate3d(${destOrigin.x}px, ${destOrigin.y}px, 0px) scale(0.72) rotate(${rot}deg)`;
+      });
 
       setTimeout(() => {
-        const rot = Math.random() * 26 - 13;
-        flyer.style.transition = 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
-        flyer.style.transform = `translate3d(${destOrigin.x}px, ${destOrigin.y}px, 0px) scale(0.72) rotate(${rot}deg)`;
-        setTimeout(() => {
-          flyer.remove();
-          if (i === count - 1 && callback) callback();
-        }, 410);
-      }, 20);
-    }, i * 90);
+        flyer.remove();
+        if (i === animCount - 1 && callback) callback();
+      }, 390);
+    }, i * 80);
   }
 }
 
@@ -4077,7 +4147,7 @@ function runDealVisualAnimation(onComplete) {
   GameState.isDealing = true;
   const flyLayer = document.getElementById('fly-animation-layer');
   const drawDeck = document.getElementById('draw-deck-3d');
-  if (!drawDeck) {
+  if (!drawDeck || !flyLayer) {
     GameState.isDealing = false;
     if (onComplete) onComplete();
     return;
@@ -4085,7 +4155,7 @@ function runDealVisualAnimation(onComplete) {
   const fromRect = drawDeck.getBoundingClientRect();
   const totalCards = 7 * GameState.players.length;
   let cardCount = 0;
-  const dealInterval = 40;
+  const dealInterval = 45;
 
   activeDealIntervalTimer = setInterval(() => {
     if (!GameState.inGame) {
@@ -4102,15 +4172,16 @@ function runDealVisualAnimation(onComplete) {
     flyer.innerHTML = `<div class="card-back-design"><div class="card-back-oval"><div class="card-back-logo">UNO</div></div></div>`;
     flyer.style.transform = `translate3d(${fromRect.left}px, ${fromRect.top}px, 0px) scale(0.75) rotate(0deg)`;
     flyLayer.appendChild(flyer);
-    AudioEngine.cardPickup();
-    void flyer.offsetWidth;
 
-    setTimeout(() => {
-      const rot = Math.random() * 24 - 12;
+    if (cardCount % 2 === 0) AudioEngine.cardPickup();
+
+    const rot = Math.random() * 24 - 12;
+    requestAnimationFrame(() => {
       flyer.style.transition = 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)';
       flyer.style.transform = `translate3d(${destOrigin.x}px, ${destOrigin.y}px, 0px) scale(0.65) rotate(${rot}deg)`;
-      setTimeout(() => { flyer.remove(); }, 360);
-    }, 20);
+    });
+
+    setTimeout(() => { flyer.remove(); }, 360);
 
     cardCount++;
     if (cardCount >= totalCards) {
@@ -4151,12 +4222,14 @@ function triggerFlip3DTransition() {
   const flash = document.getElementById('flash-overlay');
 
   flash.classList.remove('flash');
-  void flash.offsetWidth;
-  flash.classList.add('flash');
-
   viewport.classList.remove('flip-tumble');
-  void viewport.offsetWidth;
-  viewport.classList.add('flip-tumble');
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flash.classList.add('flash');
+      viewport.classList.add('flip-tumble');
+    });
+  });
 
   AudioEngine.flipTransition();
   setTimeout(() => {
@@ -4175,7 +4248,7 @@ function triggerCenterSpecialVFX(type, text) {
   const txt = document.getElementById('vfx-text');
 
   txt.textContent = text;
-  gfx.innerHTML = '';
+  gfx.replaceChildren();
 
   if (type === 'reverse') {
     gfx.innerHTML = `<svg class="vfx-icon-burst" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#f7b300" stroke-width="6"/><path d="M 30,65 L 12,45 L 32,45 C 45,45 58,52 58,65 Z" fill="#fff"/><path d="M 70,35 L 88,55 L 68,55 C 55,55 42,48 42,35 Z" fill="#fff"/></svg>`;
@@ -4191,7 +4264,7 @@ function triggerCenterSpecialVFX(type, text) {
     AudioEngine.vfxBoom();
   } else if (type === 'penalty') {
     const streak = document.getElementById('penalty-streak-box');
-    streak.textContent = `ATTACK! +${GameState.stackedDrawCount}`;
+    streak.textContent = text || `ATTACK! +${GameState.stackedDrawCount}`;
     streak.classList.add('show');
     AudioEngine.penaltyZap();
     setTimeout(() => streak.classList.remove('show'), 1600);
@@ -4211,7 +4284,6 @@ function triggerCenterSpecialVFX(type, text) {
  * GAME RULES & ACTIONS
  */
 function canPlayCard(card) {
-  // UNO All Wild: every card is playable. No color/number matching and no stacking restriction.
   if (GameState.edition === 'allwild') return true;
 
   const topCard = GameState.discardPile[GameState.discardPile.length - 1];
@@ -4234,34 +4306,54 @@ function canPlayCard(card) {
   return false;
 }
 
+function checkMercyKnockout(player) {
+  if (GameState.edition !== 'nomercy' || !player || player.hasWon || player.eliminated) return false;
+  if (player.hand.length >= 25) {
+    player.eliminated = true;
+    while (player.hand.length > 0) {
+      const c = player.hand.pop();
+      GameState.discardPile.push(c);
+      GameState.discardRotations.push(Math.floor(Math.random() * 40) - 20);
+    }
+    triggerCenterSpecialVFX('penalty', `${player.name} ELIMINATED! (MERCY 25+ CARDS)`);
+    AudioEngine.vfxBoom();
+
+    const rank = GameState.players.length - GameState.players.filter(p => p.eliminated).length + 1;
+    player.rank = rank;
+    GameState.rankings.push({ id: player.id, name: player.name, avatar: player.avatar, rank: rank, eliminated: true });
+
+    const remaining = getActivePlayers();
+    if (remaining.length <= 1) {
+      if (remaining.length === 1) {
+        const winner = remaining[0];
+        winner.hasWon = true;
+        winner.rank = 1;
+        GameState.rankings.unshift({ id: winner.id, name: winner.name, avatar: winner.avatar, rank: 1 });
+      }
+      broadcastState();
+      broadcastAnimation({ type: 'MATCH_OVER', rankings: GameState.rankings });
+      renderGame();
+      setTimeout(() => showMatchOverScreen(GameState.rankings), 800);
+      return true;
+    }
+    return true;
+  }
+  return false;
+}
+
 function executePlayCard(playerId, cardIdx, chosenColor = null, targetPlayerId = null) {
+  if (hostProcessingAction) return;
   const player = GameState.players[playerId];
-  if (!player || player.hasWon || player.eliminated || !GameState.inGame) {
-    hostProcessingAction = false;
-    setTurnLocked(false);
-    return;
-  }
-  if (playerId !== GameState.turnIndex) {
-    hostProcessingAction = false;
-    setTurnLocked(false);
-    return;
-  }
+  if (!player || player.hasWon || player.eliminated || !GameState.inGame) return;
+  if (playerId !== GameState.turnIndex) return;
 
   const card = player.hand[cardIdx];
-  if (!card || !canPlayCard(card)) {
-    hostProcessingAction = false;
-    setTurnLocked(false);
-    return;
-  }
+  if (!card || !canPlayCard(card)) return;
 
   const faceForValidation = getCardFace(card);
   const isAllWild = GameState.edition === 'allwild';
   const isPendingAllWildDraw = isAllWild && GameState.pendingAllWildDrawPlayerId === playerId;
-  if (isPendingAllWildDraw && cardIdx !== GameState.pendingAllWildDrawCardIndex) {
-    hostProcessingAction = false;
-    setTurnLocked(false);
-    return;
-  }
+  if (isPendingAllWildDraw && cardIdx !== GameState.pendingAllWildDrawCardIndex) return;
 
   const needsAllWildTarget = isAllWild && (
     faceForValidation.value === 'wild_targeted_draw_two' ||
@@ -4272,11 +4364,7 @@ function executePlayCard(playerId, cardIdx, chosenColor = null, targetPlayerId =
       p.id === targetPlayerId && !p.hasWon && !p.eliminated &&
       (faceForValidation.value === 'wild_targeted_draw_two' || p.id !== playerId)
     );
-    if (!targetIsValid) {
-      hostProcessingAction = false;
-      setTurnLocked(false);
-      return;
-    }
+    if (!targetIsValid) return;
   }
 
   hostProcessingAction = true;
@@ -4321,10 +4409,24 @@ function executePlayCard(playerId, cardIdx, chosenColor = null, targetPlayerId =
     GameState.discardPile.push(card);
     GameState.discardRotations.push(rotation);
 
+    // UNO Call penalty check when left with 1 card
+    if (player.hand.length === 1) {
+      if (GameState.unoCalledPlayers.has(playerId)) {
+        GameState.unoCalledPlayers.delete(playerId);
+        triggerCenterSpecialVFX('reverse', `${player.name} CALLED UNO!`);
+      } else {
+        for (let i = 0; i < 2; i++) player.hand.push(drawOneCardSafe());
+        broadcastAnimation({ type: 'ANIM_CARD_PICKUP', playerId: playerId, count: 2 });
+        animateCardPickup(playerId, 2, () => {});
+        triggerCenterSpecialVFX('penalty', `${player.name} FORGOT UNO! +2 CARDS`);
+        AudioEngine.penaltyZap();
+      }
+    } else if (player.hand.length > 1) {
+      GameState.unoCalledPlayers.delete(playerId);
+    }
+
     const actionResult = handleCardAction(face, playerId, targetPlayerId) || null;
 
-    // Most All Wild actions use the normal winner rule: playing the final card wins.
-    // Forced Swap is the exception because the mandatory swap can move the zero-card hand to the target.
     if (isAllWild && actionResult && actionResult.forcedSwapWinnerId !== null && actionResult.forcedSwapWinnerId !== undefined) {
       const forcedSwapWinner = GameState.players[actionResult.forcedSwapWinnerId];
       if (forcedSwapWinner && forcedSwapWinner.hand.length === 0 && !forcedSwapWinner.hasWon) {
@@ -4387,11 +4489,19 @@ function executePlayCard(playerId, cardIdx, chosenColor = null, targetPlayerId =
 
     hostProcessingAction = false;
     setTurnLocked(false);
-    nextTurn();
-    broadcastState();
-    renderGame();
+
+    if (actionResult && actionResult.repeatTurn && !player.hasWon && !player.eliminated) {
+      broadcastState();
+      renderGame();
+      if (player.isBot) activeBotTurnTimeout = setTimeout(botTurn, 1050);
+    } else {
+      nextTurn();
+      broadcastState();
+      renderGame();
+    }
   });
 }
+
 function getAllWildNextActivePlayerId(fromPlayerId = GameState.turnIndex) {
   const active = getActivePlayers();
   if (active.length <= 1) return null;
@@ -4416,8 +4526,6 @@ function handleCardAction(face, playerId, targetPlayerId = null) {
   if (GameState.edition === 'allwild') {
     if (val === 'wild_reverse') {
       GameState.direction *= -1;
-      // With two active players, Reverse acts like Skip in UNO All Wild:
-      // the other player is skipped and the current player gets another turn.
       GameState.allWildSkipCount = getActivePlayers().length === 2 ? 1 : 0;
       triggerCenterSpecialVFX('reverse', getActivePlayers().length === 2 ? 'REVERSE! (SKIP)' : 'REVERSE!');
       return null;
@@ -4475,7 +4583,6 @@ function handleCardAction(face, playerId, targetPlayerId = null) {
       return { forcedSwapWinnerId: target.hand.length === 0 ? target.id : null };
     }
 
-    // Plain Wild: no color is selected and no action is performed.
     return null;
   }
 
@@ -4485,6 +4592,35 @@ function handleCardAction(face, playerId, targetPlayerId = null) {
   else if (val === '+5') { GameState.stackedDrawCount += 5; triggerCenterSpecialVFX('penalty'); }
   else if (val === '+6') { GameState.stackedDrawCount += 6; triggerCenterSpecialVFX('penalty'); }
   else if (val === '+10') { GameState.stackedDrawCount += 10; triggerCenterSpecialVFX('penalty'); }
+
+  if (val === 'WILD_COLOR') {
+    const victimId = getAllWildNextActivePlayerId(playerId);
+    const victim = victimId !== null ? GameState.players[victimId] : null;
+    if (victim) {
+      const drawnCards = [];
+      let found = false;
+      let safetyCount = 0;
+      const targetCol = GameState.currentColor;
+      while (!found && safetyCount < 30) {
+        safetyCount++;
+        const card = drawOneCardSafe();
+        drawnCards.push(card);
+        const cardFace = getCardFace(card);
+        if (cardFace.color === targetCol) {
+          found = true;
+          break;
+        }
+      }
+      drawnCards.forEach(c => victim.hand.push(c));
+      const drawnCount = drawnCards.length;
+      broadcastAnimation({ type: 'ANIM_CARD_PICKUP', playerId: victim.id, count: drawnCount });
+      animateCardPickup(victim.id, drawnCount, () => {});
+      triggerCenterSpecialVFX('penalty', `${victim.name} DREW ${drawnCount} CARDS FOR ${targetCol.toUpperCase()}!`);
+      checkMercyKnockout(victim);
+      nextTurn();
+    }
+    return null;
+  }
 
   if (val === 'reverse' || val === 'wild_rev_+4') {
     if (getActivePlayers().length === 2) {
@@ -4503,7 +4639,7 @@ function handleCardAction(face, playerId, targetPlayerId = null) {
 
   if (val === 'skip_all') {
     triggerCenterSpecialVFX('skip_all', 'SKIP EVERYONE!');
-    return null;
+    return { repeatTurn: true };
   }
 
   if (val === 'FLIP') {
@@ -4538,13 +4674,12 @@ function handleCardAction(face, playerId, targetPlayerId = null) {
   }
   return null;
 }
+
 function nextTurn() {
   if (!GameState.inGame) return;
   const active = getActivePlayers();
   if (active.length <= 1) return;
 
-  // All Wild has no stacking. Action cards either change direction or skip a fixed
-  // number of players; Draw 2/4 already make the next player lose their turn.
   if (GameState.edition === 'allwild') {
     if (GameState.pendingAllWildDrawPlayerId !== null) return;
 
@@ -4570,11 +4705,13 @@ function nextTurn() {
   const nextP = GameState.players[GameState.turnIndex];
 
   if (GameState.stackedDrawCount > 0 && !nextP.hand.some(c => canPlayCard(c))) {
-    broadcastAnimation({ type: 'ANIM_CARD_PICKUP', playerId: GameState.turnIndex, count: GameState.stackedDrawCount });
-    animateCardPickup(GameState.turnIndex, GameState.stackedDrawCount, () => {
+    const drawAmt = GameState.stackedDrawCount;
+    broadcastAnimation({ type: 'ANIM_CARD_PICKUP', playerId: GameState.turnIndex, count: drawAmt });
+    animateCardPickup(GameState.turnIndex, drawAmt, () => {
       if (!GameState.inGame) return;
-      for (let i = 0; i < GameState.stackedDrawCount; i++) nextP.hand.push(drawOneCardSafe());
+      for (let i = 0; i < drawAmt; i++) nextP.hand.push(drawOneCardSafe());
       GameState.stackedDrawCount = 0;
+      checkMercyKnockout(nextP);
       nextTurn();
       broadcastState();
       renderGame();
@@ -4584,28 +4721,15 @@ function nextTurn() {
 
   if (nextP.isBot) activeBotTurnTimeout = setTimeout(botTurn, 1050);
 }
-function handlePlayerDraw(playerId) {
-  const p = GameState.players[playerId];
-  if (!p || p.hasWon || p.eliminated || !GameState.inGame) {
-    hostProcessingAction = false;
-    setTurnLocked(false);
-    return;
-  }
-  if (playerId !== GameState.turnIndex) {
-    hostProcessingAction = false;
-    setTurnLocked(false);
-    return;
-  }
 
-  // UNO All Wild allows a player to voluntarily draw one card even when every
-  // card in hand is playable. After that draw they may play only that drawn card,
-  // or pass without playing it.
+function handlePlayerDraw(playerId) {
+  if (hostProcessingAction) return;
+  const p = GameState.players[playerId];
+  if (!p || p.hasWon || p.eliminated || !GameState.inGame) return;
+  if (playerId !== GameState.turnIndex) return;
+
   if (GameState.edition === 'allwild') {
-    if (GameState.pendingAllWildDrawPlayerId !== null) {
-      hostProcessingAction = false;
-      setTurnLocked(false);
-      return;
-    }
+    if (GameState.pendingAllWildDrawPlayerId !== null) return;
 
     hostProcessingAction = true;
     if (playerId === GameState.myPlayerId) setTurnLocked(true);
@@ -4623,7 +4747,6 @@ function handlePlayerDraw(playerId) {
       GameState.stackedDrawCount = 0;
 
       if (p.isBot) {
-        // Bots have no pass button. Give them the same two choices automatically.
         const diff = GameState.botDifficulty || 'standard';
         const shouldPlay = diff === 'hard' || diff === 'standard' || Math.random() < 0.55;
         GameState.pendingAllWildDrawPlayerId = null;
@@ -4661,6 +4784,7 @@ function handlePlayerDraw(playerId) {
     }
     for (let i = 0; i < count; i++) p.hand.push(drawOneCardSafe());
     GameState.stackedDrawCount = 0;
+    checkMercyKnockout(p);
     hostProcessingAction = false;
     setTurnLocked(false);
     nextTurn();
@@ -4682,6 +4806,7 @@ function handleAllWildPass(playerId) {
   broadcastState();
   renderGame();
 }
+
 /**
  * BOT AI
  */
@@ -4692,8 +4817,8 @@ function botTurn() {
 
   const diff = GameState.botDifficulty || 'standard';
   let unoCallChance = 0.95;
-  if (diff === 'standard') unoCallChance = 0.65;
-  else if (diff === 'easy') unoCallChance = 0.35;
+  if (diff === 'standard') unoCallChance = 0.70;
+  else if (diff === 'easy') unoCallChance = 0.40;
 
   if (bot.hand.length === 2 && Math.random() < unoCallChance) {
     GameState.unoCalledPlayers.add(bot.id);
@@ -4707,7 +4832,6 @@ function botTurn() {
   }
 
   if (GameState.edition === 'allwild') {
-    // Because every card is playable, a bot only draws as an intentional choice.
     if (diff === 'easy' && Math.random() < 0.16) {
       handlePlayerDraw(bot.id);
       return;
@@ -4742,8 +4866,6 @@ function botTurn() {
       }
       executePlayCard(bot.id, chosenIdx, null, target.id);
     } else {
-      // Calling a color on a plain All Wild is optional and has no gameplay effect,
-      // so bots can simply play the card without a picker.
       executePlayCard(bot.id, chosenIdx);
     }
     return;
@@ -4755,10 +4877,10 @@ function botTurn() {
   if (valid.length > 0) {
     let chosenIdx = valid[0];
     if (diff === 'hard') {
-      const isOpponentOnUno = GameState.players.some(p => p.id !== bot.id && !p.hasWon && p.hand.length === 1);
+      const isOpponentOnUno = GameState.players.some(p => p.id !== bot.id && !p.hasWon && !p.eliminated && p.hand.length === 1);
       const attackIdx = valid.find(idx => {
         const val = getCardFace(bot.hand[idx]).value;
-        return val.includes('+') || val === 'skip' || val === 'skip_all';
+        return val.includes('+') || val === 'skip' || val === 'skip_all' || val === 'WILD_COLOR';
       });
       const discardAllIdx = valid.find(idx => getCardFace(bot.hand[idx]).value === 'discard_all');
 
@@ -4813,7 +4935,7 @@ function botTurn() {
 function onHumanCardClick(idx) {
   if (isTurnLocked || hostProcessingAction || GameState.isDealing || !GameState.inGame) return;
   if (GameState.turnIndex !== GameState.myPlayerId) return;
-  if (GameState.players[GameState.myPlayerId].hasWon) return;
+  if (GameState.players[GameState.myPlayerId].hasWon || GameState.players[GameState.myPlayerId].eliminated) return;
 
   const player = GameState.players[GameState.myPlayerId];
   const card = player.hand[idx];
@@ -4835,8 +4957,6 @@ function onHumanCardClick(idx) {
       GameState.pendingWildCard = idx;
       openAllWildTargetPicker(idx);
     } else if (face.value === 'WILD') {
-      // In the real All Wild rules you may call out a color on a basic Wild.
-      // It is only a call-out; it does not create an active color.
       GameState.pendingWildCard = idx;
       openColorPicker();
     } else if (GameState.isHost) {
@@ -4863,7 +4983,7 @@ function onHumanCardClick(idx) {
 function onDrawDeckClick() {
   if (isTurnLocked || hostProcessingAction || GameState.isDealing || !GameState.inGame) return;
   if (GameState.turnIndex !== GameState.myPlayerId) return;
-  if (GameState.players[GameState.myPlayerId].hasWon) return;
+  if (GameState.players[GameState.myPlayerId].hasWon || GameState.players[GameState.myPlayerId].eliminated) return;
   if (GameState.edition === 'allwild' && GameState.pendingAllWildDrawPlayerId === GameState.myPlayerId) return;
 
   setTurnLocked(true);
@@ -4890,14 +5010,14 @@ function passAfterAllWildDraw() {
     GameState.guestHostConn.send({ type: 'ALLWILD_PASS_DRAW', playerId: GameState.myPlayerId });
   }
 }
+
 function callUno() {
   if (!GameState.inGame) return;
   document.getElementById('uno-btn').classList.remove('alert');
-  if (GameState.isHost) {
-    GameState.unoCalledPlayers.add(GameState.myPlayerId);
-    triggerCenterSpecialVFX('reverse', 'YOU CALLED UNO!');
-    AudioEngine.uno();
-  } else if (GameState.guestHostConn) {
+  GameState.unoCalledPlayers.add(GameState.myPlayerId);
+  triggerCenterSpecialVFX('reverse', 'YOU CALLED UNO!');
+  AudioEngine.uno();
+  if (!GameState.isHost && GameState.guestHostConn) {
     GameState.guestHostConn.send({ type: 'CALL_UNO', playerId: GameState.myPlayerId });
   }
 }
@@ -4925,7 +5045,7 @@ function openAllWildTargetPicker(cardIdx) {
     subtitle.textContent = 'Choose any other active player to exchange entire hands with.';
   }
 
-  list.innerHTML = '';
+  const frag = document.createDocumentFragment();
   targets.forEach(target => {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -4950,9 +5070,10 @@ function openAllWildTargetPicker(cardIdx) {
         });
       }
     };
-    list.appendChild(btn);
+    frag.appendChild(btn);
   });
 
+  list.replaceChildren(frag);
   modal.style.display = 'flex';
 }
 
@@ -4967,7 +5088,6 @@ function openColorPicker() {
   const modal = document.getElementById('color-picker-modal');
   const wheel = document.getElementById('color-picker-wheel');
   modal.style.display = 'flex';
-  wheel.innerHTML = '';
 
   const existingNote = document.getElementById('allwild-color-call-note');
   if (existingNote) existingNote.remove();
@@ -4985,6 +5105,7 @@ function openColorPicker() {
       ? [{ c: 'red', code: 'var(--c-red)' }, { c: 'blue', code: 'var(--c-blue)' }, { c: 'green', code: 'var(--c-green)' }, { c: 'yellow', code: 'var(--c-yellow)' }]
       : [{ c: 'pink', code: 'var(--c-pink)' }, { c: 'teal', code: 'var(--c-teal)' }, { c: 'purple', code: 'var(--c-purple)' }, { c: 'orange', code: 'var(--c-orange)' }]);
 
+  const frag = document.createDocumentFragment();
   colors.forEach(col => {
     const seg = document.createElement('div');
     seg.className = 'color-segment';
@@ -4993,22 +5114,24 @@ function openColorPicker() {
       modal.style.display = 'none';
       const note = document.getElementById('allwild-color-call-note');
       if (note) note.remove();
+      const pIdx = GameState.pendingWildCard;
+      GameState.pendingWildCard = null;
       if (GameState.isHost) {
-        executePlayCard(GameState.myPlayerId, GameState.pendingWildCard, col.c);
+        executePlayCard(GameState.myPlayerId, pIdx, col.c);
       } else if (GameState.guestHostConn) {
         clearTimeout(guestActionTimeout);
         guestActionTimeout = setTimeout(() => setTurnLocked(false), 3500);
         GameState.guestHostConn.send({
           type: 'PLAY_CARD',
           playerId: GameState.myPlayerId,
-          cardIndex: GameState.pendingWildCard,
+          cardIndex: pIdx,
           chosenColor: col.c
         });
       }
-      GameState.pendingWildCard = null;
     };
-    wheel.appendChild(seg);
+    frag.appendChild(seg);
   });
+  wheel.replaceChildren(frag);
 }
 
 function cancelColorPicker() {
@@ -5027,6 +5150,14 @@ window.addEventListener('keydown', (e) => {
     if (document.getElementById('emoji-picker-modal').style.display === 'flex') closeEmojiPickerModal();
     if (document.getElementById('rulebook-modal').style.display === 'flex') closeRulebookModal();
   }
+});
+
+let resizeRafId = null;
+window.addEventListener('resize', () => {
+  if (resizeRafId) cancelAnimationFrame(resizeRafId);
+  resizeRafId = requestAnimationFrame(() => {
+    if (GameState.players.length > 0 && GameState.inGame) renderGame();
+  });
 });
 
 window.addEventListener('load', () => {
@@ -5059,8 +5190,6 @@ window.addEventListener('load', () => {
   updateSortButtonUI();
   updateMuteButtonUI();
 });
-
-window.addEventListener('resize', () => { if (GameState.players.length > 0 && GameState.inGame) renderGame(); });
 </script>
 </body>
 </html>
